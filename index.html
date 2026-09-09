@@ -383,7 +383,8 @@ var ui = {
   goalFundDirection:'in', goalFundGoalId:null,
   bolsaFundDirection:'in',
   currencyTab:null,
-  expandedCards:{}
+  expandedCards:{},
+  quotesCache:{}, quotesLoading:false
 };
 var resizeTimer = null;
 
@@ -397,6 +398,7 @@ function defaultState(){
     goals:[], debts:[], incomeEstimates:{},
     accounts:[{id:uid(), name:'Efectivo', startingBalance:0}],
     bolsa:{amountInvested:0, currentValue:0, feeAmount:0, lastUpdated:null},
+    bolsaPositions:[],
     books:[],
     exerciseLogs:[],
     exerciseGoal:null,
@@ -511,6 +513,9 @@ function normalizeState(s){
     incomeEstimates: (s.incomeEstimates && typeof s.incomeEstimates === 'object') ? s.incomeEstimates : {},
     accounts: accounts,
     bolsa: bolsa,
+    bolsaPositions: Array.isArray(s.bolsaPositions) ? s.bolsaPositions.map(function(p){
+      return { id:p.id||uid(), ticker:p.ticker, amountInvested:p.amountInvested||0, purchasePrice:p.purchasePrice||0, shares:p.shares||0, purchaseDate:p.purchaseDate||null };
+    }) : [],
     expenseCats: expenseCats,
     incomeCats: incomeCats,
     books: books,
@@ -549,6 +554,46 @@ async function apiRequest(method, body){
     throw new Error('unauthorized');
   }
   return res;
+}
+
+/* ---- Precios reales de acciones vía /api/quote (Finnhub detrás) ---- */
+var QUOTE_TTL_MS = 60000;
+async function apiRequestQuotes(tickers){
+  var url = '/api/quote?symbols='+encodeURIComponent(tickers.join(','));
+  var res = await fetch(url, { headers: { 'x-app-user': currentUser, 'x-app-secret': getSecret(currentUser) } });
+  if(res.status === 401){
+    clearSecret(currentUser);
+    showLockScreen(currentUser, 'Clave incorrecta. Intenta de nuevo.');
+    throw new Error('unauthorized');
+  }
+  if(!res.ok) throw new Error('quote fetch failed');
+  return await res.json();
+}
+async function refreshQuotesIfNeeded(){
+  var tickers = (state.bolsaPositions||[]).map(function(p){ return p.ticker; });
+  if(tickers.length===0) return;
+  var uniq = tickers.filter(function(t,i){ return tickers.indexOf(t)===i; });
+  var now = Date.now();
+  var stale = uniq.filter(function(t){
+    var c = ui.quotesCache[t];
+    return !c || (now - c.fetchedAt) > QUOTE_TTL_MS;
+  });
+  if(stale.length===0 || ui.quotesLoading) return;
+  ui.quotesLoading = true;
+  try{
+    var res = await apiRequestQuotes(uniq);
+    if(res && res.quotes){
+      uniq.forEach(function(t){
+        var q = res.quotes[t];
+        if(q && typeof q.price==='number'){ ui.quotesCache[t] = {price:q.price, change:q.change, changePct:q.changePct, fetchedAt: Date.now()}; }
+        else { ui.quotesCache[t] = {error:true, fetchedAt: Date.now()}; }
+      });
+      ui.quotesLoading = false;
+      render();
+      return;
+    }
+  } catch(e){ console.error('Quotes error', e); }
+  ui.quotesLoading = false;
 }
 
 async function loadState(){
@@ -1357,7 +1402,100 @@ function buildInversionesHtml(){
   '</div>';
   var desc = '<div class="chart-desc" style="margin-bottom:14px;">Los precios se actualizan a mano — pregúntame en el chat cuánto está la bolsa y aquí metes el valor.</div>';
   var contributions = buildBolsaContributionsHtml();
-  return summary + feeLine + updatedLine + actions + desc + contributions;
+  return summary + feeLine + updatedLine + actions + desc + contributions + buildBolsaPositionsHtml();
+}
+function bolsaPositionCurrentValue(p){
+  var q = ui.quotesCache[p.ticker];
+  if(q && typeof q.price === 'number') return p.shares * q.price;
+  return null;
+}
+function buildBolsaPositionsHtml(){
+  var positions = state.bolsaPositions || [];
+  var totalInvested = positions.reduce(function(a,p){ return a+p.amountInvested; },0);
+  var totalCurrent = 0, allLoaded = true;
+  positions.forEach(function(p){ var v = bolsaPositionCurrentValue(p); if(v===null) allLoaded=false; else totalCurrent += v; });
+  var totalLine = '';
+  if(positions.length>0 && allLoaded){
+    var totalGain = totalCurrent - totalInvested;
+    var totalGainPct = totalInvested>0 ? (totalGain/totalInvested)*100 : 0;
+    totalLine = '<div class="chart-desc" style="margin-bottom:10px;">Total en acciones: <strong style="color:var(--text);">$'+totalCurrent.toFixed(2)+'</strong> · <span style="color:'+(totalGain>=0?'var(--growth)':'var(--spend)')+';">'+(totalGain>=0?'+':'')+'$'+totalGain.toFixed(2)+' ('+(totalGainPct>=0?'+':'')+totalGainPct.toFixed(1)+'%)</span></div>';
+  }
+  var rows;
+  if(positions.length===0){
+    rows = '<div class="empty-state" style="padding:10px 0;">Aún no agregaste ninguna acción.</div>';
+  } else {
+    rows = positions.map(function(p){
+      var currentValue = bolsaPositionCurrentValue(p);
+      var q = ui.quotesCache[p.ticker];
+      var loading = !q;
+      var errored = q && q.error;
+      var right;
+      if(loading){ right = '<div class="item-sub">Cargando…</div>'; }
+      else if(errored){ right = '<div class="item-sub" style="color:var(--spend);">Sin precio</div>'; }
+      else {
+        var gain = currentValue - p.amountInvested;
+        var gainPct = p.amountInvested>0 ? (gain/p.amountInvested)*100 : 0;
+        var gc = gain>=0 ? 'var(--growth)' : 'var(--spend)';
+        right = '<div class="item-pct" style="color:'+gc+';">'+(gain>=0?'+':'')+'$'+gain.toFixed(2)+'</div><div class="item-sub" style="color:'+gc+';">'+(gainPct>=0?'+':'')+gainPct.toFixed(1)+'%</div>';
+      }
+      return '<div class="item-card" style="margin-bottom:10px;">'+
+        '<div class="item-top">'+
+          '<div><div class="item-name">'+esc(p.ticker)+'</div><div class="item-sub">'+(loading||errored?('$'+p.amountInvested.toFixed(2)+' invertidos'):('$'+currentValue.toFixed(2)+' · invertiste $'+p.amountInvested.toFixed(2)))+'</div></div>'+
+          '<div style="text-align:right;">'+right+'</div>'+
+        '</div>'+
+        '<div class="item-bottom"><div class="item-sub">Compraste a $'+p.purchasePrice.toFixed(2)+'/acción</div>'+
+          '<div class="item-actions"><button class="btn-small danger" data-action="delete-bolsa-position" data-id="'+p.id+'">Quitar</button></div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  return '<div class="section-title">Tus acciones <button class="btn-small" data-action="add-bolsa-position">+ Agregar</button></div>'+totalLine+rows;
+}
+function openAddBolsaPositionModal(){
+  document.getElementById('modal-root').innerHTML =
+  '<div class="overlay"><div class="sheet" data-stop>'+
+    '<button class="close-x" data-action="close-modal">×</button>'+
+    '<div class="sheet-title">Agregar acción</div>'+
+    '<div class="field"><label>Símbolo (ticker)</label><input type="text" id="bolsa-pos-ticker" placeholder="Ej. AAPL (Apple), TSLA (Tesla)"></div>'+
+    '<div class="field"><label>¿Cuánto invertiste? (en USD)</label><input type="number" id="bolsa-pos-amount" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00"></div>'+
+    '<div class="field-hint" style="margin-bottom:10px;">Tomo el precio de ahora mismo como tu precio de compra.</div>'+
+    '<div id="bolsa-pos-error" class="lock-error" style="display:none;"></div>'+
+    '<button class="btn-primary" id="bolsa-pos-submit" data-action="save-bolsa-position">Guardar</button>'+
+  '</div></div>';
+  document.getElementById('bolsa-pos-ticker').focus();
+}
+async function saveBolsaPosition(){
+  var tickerInput = document.getElementById('bolsa-pos-ticker');
+  var amountInput = document.getElementById('bolsa-pos-amount');
+  var errorEl = document.getElementById('bolsa-pos-error');
+  var submitBtn = document.getElementById('bolsa-pos-submit');
+  var ticker = (tickerInput.value||'').trim().toUpperCase();
+  var amount = parseFloat(amountInput.value);
+  errorEl.style.display = 'none';
+  if(!ticker){ errorEl.textContent='Escribe un símbolo, como AAPL.'; errorEl.style.display=''; return; }
+  if(!amount || amount<=0){ errorEl.textContent='Escribe cuánto invertiste.'; errorEl.style.display=''; return; }
+  submitBtn.disabled = true; submitBtn.textContent = 'Buscando precio…';
+  try{
+    var res = await apiRequestQuotes([ticker]);
+    var q = res && res.quotes && res.quotes[ticker];
+    if(!q || typeof q.price !== 'number'){
+      errorEl.textContent = 'No encontré ese símbolo. Revisa que esté bien escrito (ej. AAPL para Apple, TSLA para Tesla).';
+      errorEl.style.display='';
+      submitBtn.disabled=false; submitBtn.textContent='Guardar';
+      return;
+    }
+    var shares = amount / q.price;
+    state.bolsaPositions.push({ id:uid(), ticker:ticker, amountInvested:amount, purchasePrice:q.price, shares:shares, purchaseDate:todayStr() });
+    ui.quotesCache[ticker] = {price:q.price, change:q.change, changePct:q.changePct, fetchedAt: Date.now()};
+    closeModal();
+    await saveState();
+    render();
+    showToast('Agregaste '+ticker+'.');
+  }catch(e){
+    errorEl.textContent = 'No se pudo consultar el precio. Intenta de nuevo.';
+    errorEl.style.display='';
+    submitBtn.disabled=false; submitBtn.textContent='Guardar';
+  }
 }
 function buildDeudasHtml(){
   var debo = state.debts.filter(function(d){ return d.kind==='debo'; }); var meDeben = state.debts.filter(function(d){ return d.kind==='me_deben'; });
@@ -1391,7 +1529,7 @@ function renderResumen(){ document.getElementById('main-content').innerHTML = bu
 function renderMovimientos(){ document.getElementById('main-content').innerHTML = buildMovimientosHtml(); }
 function renderMetas(){ document.getElementById('main-content').innerHTML = buildMetasHtml(); }
 function renderCuentas(){ document.getElementById('main-content').innerHTML = buildCuentasHtml(); }
-function renderInversiones(){ document.getElementById('main-content').innerHTML = buildInversionesHtml(); }
+function renderInversiones(){ document.getElementById('main-content').innerHTML = buildInversionesHtml(); refreshQuotesIfNeeded(); }
 function renderDeudas(){ document.getElementById('main-content').innerHTML = buildDeudasHtml(); }
 
 function renderFinanzasDashboard(){
@@ -1413,6 +1551,7 @@ function renderFinanzasDashboard(){
         buildDeudasHtml()+
       '</div>'+
     '</div>';
+  refreshQuotesIfNeeded();
 }
 
 function render(){
@@ -1914,6 +2053,13 @@ async function handleAction(action, el){
       if(isNaN(valB) || valB<0){ showToast('Ingresa un valor válido.'); return; }
       state.bolsa.currentValue = valB; state.bolsa.lastUpdated = todayStr();
       closeModal(); await saveState(); render(); showToast('Valor actualizado.');
+      break;
+    }
+    case 'add-bolsa-position': openAddBolsaPositionModal(); break;
+    case 'save-bolsa-position': await saveBolsaPosition(); break;
+    case 'delete-bolsa-position': {
+      state.bolsaPositions = state.bolsaPositions.filter(function(p){ return p.id !== el.dataset.id; });
+      await saveState(); render(); showToast('Acción eliminada.');
       break;
     }
     case 'open-bolsa-fix-account': openBolsaFixAccountModal(el.dataset.id); break;
