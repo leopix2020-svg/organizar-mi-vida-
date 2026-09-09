@@ -846,7 +846,11 @@ function miniBarChart(data){
 }
 function miniLineChart(points, opts){
   opts = opts || {};
-  var W=300, H=112, padBottom=20, padTop=16, padX=10;
+  var small = !!opts.small;
+  var W = small ? 180 : 300;
+  var H = small ? 60 : 112;
+  var padBottom = small ? 6 : 20, padTop = small ? 10 : 16, padX = small ? 6 : 10;
+  var dotR = small ? 2.5 : 4;
   var color = opts.color || 'var(--growth)';
   var target = opts.target;
   var maxV = Math.max(1, target||0);
@@ -861,20 +865,20 @@ function miniLineChart(points, opts){
   if(target){
     var ty = yAt(target);
     out += '<line x1="'+padX+'" y1="'+ty.toFixed(1)+'" x2="'+(W-padX)+'" y2="'+ty.toFixed(1)+'" stroke="var(--text-faint)" stroke-width="1" stroke-dasharray="3 3"></line>'+
-      '<text x="'+(W-padX)+'" y="'+(ty-4).toFixed(1)+'" font-size="8.5" fill="var(--text-faint)" text-anchor="end" font-family="Inter, sans-serif">meta '+target+'</text>';
+      (small ? '' : '<text x="'+(W-padX)+'" y="'+(ty-4).toFixed(1)+'" font-size="8.5" fill="var(--text-faint)" text-anchor="end" font-family="Inter, sans-serif">meta '+target+'</text>');
   }
 
   var coords = points.map(function(p,i){ return {x:xAt(i), y:yAt(p.v)}; });
   var linePts = coords.map(function(c){ return c.x.toFixed(1)+','+c.y.toFixed(1); }).join(' ');
   var areaPath = 'M'+coords[0].x.toFixed(1)+','+(H-padBottom)+' L'+coords.map(function(c){ return c.x.toFixed(1)+','+c.y.toFixed(1); }).join(' L')+' L'+coords[coords.length-1].x.toFixed(1)+','+(H-padBottom)+' Z';
   out += '<path d="'+areaPath+'" fill="'+color+'" fill-opacity="0.12" stroke="none"></path>';
-  out += '<polyline points="'+linePts+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>';
+  out += '<polyline points="'+linePts+'" fill="none" stroke="'+color+'" stroke-width="'+(small?2:2.5)+'" stroke-linejoin="round" stroke-linecap="round"></polyline>';
 
   points.forEach(function(p,i){
     var c = coords[i];
     var tip = (p.label?p.label+': ':'') + p.v + (p.v===1?' sesión':' sesiones');
-    out += '<circle cx="'+c.x.toFixed(1)+'" cy="'+c.y.toFixed(1)+'" r="4" fill="'+color+'" stroke="var(--surface)" stroke-width="1.5" data-tooltip="'+esc(tip)+'"></circle>'+
-      '<text x="'+c.x.toFixed(1)+'" y="'+(H-6)+'" font-size="9" fill="var(--text-faint)" text-anchor="middle" font-family="Inter, sans-serif">'+esc(p.label)+'</text>';
+    out += '<circle cx="'+c.x.toFixed(1)+'" cy="'+c.y.toFixed(1)+'" r="'+dotR+'" fill="'+color+'" stroke="var(--surface)" stroke-width="1.2" data-tooltip="'+esc(tip)+'"></circle>'+
+      (small ? '' : '<text x="'+c.x.toFixed(1)+'" y="'+(H-6)+'" font-size="9" fill="var(--text-faint)" text-anchor="middle" font-family="Inter, sans-serif">'+esc(p.label)+'</text>');
   });
 
   return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block;">'+out+'</svg>';
@@ -1075,16 +1079,15 @@ function buildEjercicioHtml(){
       buildExerciseCalendarHtml()+
     '</div>';
 
-  var weeklyLine = miniLineChart(exerciseWeeklySeries(8), {color:wc, target:4});
-  var weeklyBlock = '<div class="section-title">Sesiones por semana</div>'+
-    '<div class="card">'+weeklyLine+'</div>';
+  var weeklyLine = miniLineChart(exerciseWeeklySeries(6), {color:wc, target:4, small:true});
+  var weeklyBlock = '<div class="section-title" style="font-size:13px;margin:10px 0 6px;">Sesiones por semana</div>'+
+    '<div class="card" style="padding:10px;">'+weeklyLine+'</div>';
 
   return weekBlock +
     '<div class="ejercicio-grid">'+
       '<div class="ejercicio-col">'+monthBlock+'</div>'+
-      '<div class="ejercicio-col">'+buildExerciseGoalHtml()+'</div>'+
-    '</div>'+
-    weeklyBlock;
+      '<div class="ejercicio-col">'+buildExerciseGoalHtml()+weeklyBlock+'</div>'+
+    '</div>';
 }
 function renderRail(){ document.querySelectorAll('.rail button').forEach(function(b){ b.classList.toggle('active', b.dataset.section===ui.section); }); }
 function renderCurrencyRow(showToggle){
