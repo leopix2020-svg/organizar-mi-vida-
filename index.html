@@ -1427,7 +1427,12 @@ function buildBolsaPositionsHtml(){
   if(positions.length>0 && allLoaded){
     var totalGain = totalCurrent - totalInvested;
     var totalGainPct = totalInvested>0 ? (totalGain/totalInvested)*100 : 0;
-    totalLine = '<div class="chart-desc" style="margin-bottom:10px;">Total en acciones: <strong style="color:var(--text);">$'+totalCurrent.toFixed(2)+'</strong> · <span style="color:'+(totalGain>=0?'var(--growth)':'var(--spend)')+';">'+(totalGain>=0?'+':'')+'$'+totalGain.toFixed(2)+' ('+(totalGainPct>=0?'+':'')+totalGainPct.toFixed(1)+'%)</span></div>';
+    var gc2 = totalGain>=0 ? 'var(--growth)' : 'var(--spend)';
+    totalLine = '<div class="card balance-card" style="margin-bottom:12px;"><div class="balance-sub" style="border-top:none;padding-top:0;margin-top:0;flex-wrap:wrap;">'+
+      '<div>Invertido<strong>$'+totalInvested.toFixed(2)+'</strong></div>'+
+      '<div>Valor actual<strong>$'+totalCurrent.toFixed(2)+'</strong></div>'+
+      '<div>Ganancia/pérdida<strong style="color:'+gc2+';">'+(totalGain>=0?'+':'')+'$'+totalGain.toFixed(2)+' ('+(totalGainPct>=0?'+':'')+totalGainPct.toFixed(1)+'%)</strong></div>'+
+    '</div></div>';
   }
   var rows;
   if(positions.length===0){
@@ -1461,34 +1466,33 @@ function buildBolsaPositionsHtml(){
   return '<div class="section-title">Tus acciones <button class="btn-small" data-action="add-bolsa-position">+ Agregar</button></div>'+totalLine+rows;
 }
 function openAddBolsaPositionModal(){
-  var today = new Date().toISOString().slice(0,10);
   document.getElementById('modal-root').innerHTML =
   '<div class="overlay"><div class="sheet" data-stop>'+
     '<button class="close-x" data-action="close-modal">×</button>'+
     '<div class="sheet-title">Agregar acción</div>'+
-    '<div class="field"><label>Símbolo (ticker)</label><input type="text" id="bolsa-pos-ticker" placeholder="Ej. AAPL (Apple), TSLA (Tesla)"></div>'+
-    '<div class="field"><label>¿Cuánto invertiste? (en USD)</label><input type="number" id="bolsa-pos-amount" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00"></div>'+
-    '<div class="field"><label>¿Cuándo compraste?</label><input type="date" id="bolsa-pos-date" value="'+today+'" max="'+today+'"></div>'+
     '<input type="hidden" id="bolsa-pos-mode" value="price">'+
     '<div class="field">'+
       '<label>&nbsp;</label>'+
       '<div class="view-toggle">'+
-        '<button type="button" class="active" id="bolsa-mode-price" onclick="document.getElementById(\'bolsa-price-field\').style.display=\'\';document.getElementById(\'bolsa-pct-field\').style.display=\'none\';document.getElementById(\'bolsa-pos-mode\').value=\'price\';this.classList.add(\'active\');document.getElementById(\'bolsa-mode-pct\').classList.remove(\'active\');">Sé el precio</button>'+
-        '<button type="button" id="bolsa-mode-pct" onclick="document.getElementById(\'bolsa-price-field\').style.display=\'none\';document.getElementById(\'bolsa-pct-field\').style.display=\'\';document.getElementById(\'bolsa-pos-mode\').value=\'pct\';this.classList.add(\'active\');document.getElementById(\'bolsa-mode-price\').classList.remove(\'active\');">Solo sé el %</button>'+
+        '<button type="button" class="active" id="bolsa-mode-price" onclick="document.getElementById(\'bolsa-price-field\').style.display=\'\';document.getElementById(\'bolsa-pct-field\').style.display=\'none\';document.getElementById(\'bolsa-pos-mode\').value=\'price\';this.classList.add(\'active\');document.getElementById(\'bolsa-mode-pct\').classList.remove(\'active\');">Compra nueva</button>'+
+        '<button type="button" id="bolsa-mode-pct" onclick="document.getElementById(\'bolsa-price-field\').style.display=\'none\';document.getElementById(\'bolsa-pct-field\').style.display=\'\';document.getElementById(\'bolsa-pos-mode\').value=\'pct\';this.classList.add(\'active\');document.getElementById(\'bolsa-mode-price\').classList.remove(\'active\');">Ya tenía esto</button>'+
       '</div>'+
     '</div>'+
+    '<div class="field-hint" id="bolsa-mode-hint" style="margin-bottom:10px;">Para una compra que hiciste hoy: pon cuánto invertiste y a cuánto pagaste cada acción.</div>'+
+    '<div class="field"><label>Símbolo (ticker)</label><input type="text" id="bolsa-pos-ticker" placeholder="Ej. AAPL (Apple), TSLA (Tesla)"></div>'+
+    '<div class="field"><label>¿Cuánto invertiste en total? (en USD)</label><input type="number" id="bolsa-pos-amount" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00"></div>'+
     '<div class="field" id="bolsa-price-field"><label>¿A cuánto compraste cada acción? (USD)</label><input type="number" id="bolsa-pos-price" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00"></div>'+
     '<div class="field" id="bolsa-pct-field" style="display:none;"><label>¿En qué % estás ahorita? (usa negativo si vas perdiendo)</label><input type="number" id="bolsa-pos-pct" inputmode="decimal" step="0.1" placeholder="Ej. 12 o -5"></div>'+
-    '<div class="field-hint" style="margin-bottom:10px;">Si ya sabes el % en que estás, buscamos el precio de hoy y calculamos con qué precio compraste.</div>'+
     '<div id="bolsa-pos-error" class="lock-error" style="display:none;"></div>'+
     '<button class="btn-primary" id="bolsa-pos-submit" data-action="save-bolsa-position">Guardar</button>'+
   '</div></div>';
+  document.getElementById('bolsa-mode-price').addEventListener('click', function(){ document.getElementById('bolsa-mode-hint').textContent = 'Para una compra que hiciste hoy: pon cuánto invertiste y a cuánto pagaste cada acción.'; });
+  document.getElementById('bolsa-mode-pct').addEventListener('click', function(){ document.getElementById('bolsa-mode-hint').textContent = 'Para algo que ya tenías desde antes: pon cuánto tienes invertido y en qué % estás ahorita — buscamos el precio de hoy y calculamos el resto.'; });
   document.getElementById('bolsa-pos-ticker').focus();
 }
 async function saveBolsaPosition(){
   var tickerInput = document.getElementById('bolsa-pos-ticker');
   var amountInput = document.getElementById('bolsa-pos-amount');
-  var dateInput = document.getElementById('bolsa-pos-date');
   var mode = document.getElementById('bolsa-pos-mode').value;
   var priceInput = document.getElementById('bolsa-pos-price');
   var pctInput = document.getElementById('bolsa-pos-pct');
@@ -1496,7 +1500,7 @@ async function saveBolsaPosition(){
   var submitBtn = document.getElementById('bolsa-pos-submit');
   var ticker = (tickerInput.value||'').trim().toUpperCase();
   var amount = parseFloat(amountInput.value);
-  var purchaseDate = dateInput.value || new Date().toISOString().slice(0,10);
+  var purchaseDate = new Date().toISOString().slice(0,10);
   errorEl.style.display = 'none';
   if(!ticker){ errorEl.textContent='Escribe un símbolo, como AAPL.'; errorEl.style.display=''; return; }
   if(!amount || amount<=0){ errorEl.textContent='Escribe cuánto invertiste.'; errorEl.style.display=''; return; }
@@ -1518,7 +1522,7 @@ async function saveBolsaPosition(){
     var res = await apiRequestQuotes([ticker]);
     var q = res && res.quotes && res.quotes[ticker];
     if(!q || typeof q.price !== 'number'){
-      errorEl.textContent = 'No encontré ese símbolo. Revisa que esté bien escrito, o usa "Sé el precio" y escribe el precio directamente.';
+      errorEl.textContent = 'No encontré ese símbolo. Revisa que esté bien escrito, o usa "Compra nueva" y escribe el precio directamente.';
       errorEl.style.display='';
       submitBtn.disabled=false; submitBtn.textContent='Guardar';
       return;
