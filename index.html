@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="warm">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -189,6 +189,53 @@
   [data-theme="dark"] .chart-tooltip{background:#000;border:1px solid #39FF6A;color:#39FF6A;}
   .cat-row, .cat-row .bar-fill{cursor:default;}
 
+  .book-bar-track{height:22px;background:var(--line);border-radius:11px;overflow:hidden;margin-bottom:10px;position:relative;}
+  .book-bar-fill{height:100%;border-radius:11px;transition:width .2s;}
+  .book-bar-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;letter-spacing:0.03em;text-shadow:0 1px 3px rgba(0,0,0,0.5);}
+
+  .patrimonio-flex{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;}
+  .patrimonio-main{flex:1;min-width:150px;display:flex;flex-direction:column;align-items:center;}
+  .patrimonio-side{display:flex;flex-direction:column;gap:14px;align-items:center;border-left:1px dashed var(--line);padding-left:18px;}
+  .patrimonio-side-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px 10px;max-height:260px;overflow-y:auto;align-items:start;padding-right:2px;}
+  .wallet-donut-item{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .wallet-donut-label{font-size:11.5px;font-weight:600;color:var(--text-soft);}
+  .wallet-donut-sub{font-size:10px;color:var(--text-faint);max-width:110px;text-align:center;}
+
+  .cat-combo-card{padding:0;overflow:hidden;}
+  .expand-btn{background:var(--input-bg);border:1px solid var(--line);width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-soft);flex-shrink:0;font-size:13px;line-height:1;}
+  .expand-btn:active{background:var(--line);}
+  .cat-combo-scroll{max-height:230px;overflow-y:auto;padding:16px;}
+  .cat-combo-card.expanded .cat-combo-scroll{max-height:none;}
+  .cat-combo-sub{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-faint);margin:14px 0 10px;}
+  .cat-combo-sub:first-child{margin-top:0;}
+  .cat-combo-sub.expense{color:var(--spend);}
+  .cat-combo-sub.income{color:var(--growth);}
+  .combo-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
+  .combo-row:last-child{margin-bottom:0;}
+  .combo-row .dot{margin-top:4px;}
+  .combo-main{flex:1;min-width:0;}
+  .combo-name-line{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+  .combo-name{font-size:13px;color:var(--text);font-weight:500;}
+  .combo-amt{font-size:12.5px;font-variant-numeric:tabular-nums;flex-shrink:0;}
+  .combo-tag{font-size:10.5px;color:var(--text-faint);display:block;margin-top:1px;}
+  .combo-bar-track{height:6px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:6px;}
+  .combo-bar-fill{height:100%;border-radius:4px;}
+
+  .currency-row{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .currency-row .view-toggle{flex-shrink:1;}
+  .icon-btn.small{width:30px;height:30px;font-size:15px;flex-shrink:0;}
+
+  .module-card{padding:0;overflow:hidden;}
+  .module-scroll{max-height:280px;overflow-y:auto;padding:16px;}
+  .module-card.expanded .module-scroll{max-height:none;}
+
+  .exercise-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%;max-width:250px;margin:16px auto 0;}
+  .exercise-weekday-label{font-size:9px;color:var(--text-faint);text-align:center;font-weight:600;}
+  .exercise-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:10px;cursor:pointer;background:var(--input-bg);border:1px solid var(--line);color:var(--text-soft);}
+  .exercise-day.done{background:var(--growth);color:#fff;border-color:var(--growth);font-weight:700;}
+  .exercise-day.future{opacity:0.35;cursor:default;}
+  .exercise-day.empty{visibility:hidden;cursor:default;}
+
   .placeholder-card{text-align:center;padding:40px 20px;}
   .placeholder-card .big{font-size:34px;margin-bottom:10px;}
   .placeholder-card h3{font-family:'Fraunces',serif;font-size:19px;margin:0 0 8px;}
@@ -221,10 +268,19 @@
     .donut-legend-row{margin-bottom:6px;}
   }
   @media (max-width:640px){ .dash-grid{grid-template-columns:1fr;} }
+
+  .lock-root{display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg-outer);padding:20px;}
+  .lock-card{background:var(--bg-shell);border:1px solid var(--line);border-radius:20px;padding:32px 26px;max-width:340px;width:100%;text-align:center;}
+  .lock-title{font-family:'Fraunces',serif;font-size:21px;font-weight:600;color:var(--text);}
+  .lock-sub{font-size:13px;color:var(--text-soft);margin:8px 0 20px;}
+  .lock-input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);font-family:'Inter',sans-serif;font-size:15px;color:var(--text);margin-bottom:12px;text-align:center;}
+  .lock-input:focus{outline:2px solid var(--gold);outline-offset:-1px;}
+  .lock-error{font-size:12.5px;color:var(--spend);margin-bottom:12px;}
 </style>
 </head>
 <body>
-<div class="app-shell" id="app">
+<div class="lock-root" id="lock-root"></div>
+<div class="app-shell" id="app" style="display:none;">
   <div class="rail" id="rail">
     <button data-section="finanzas">
       <span class="rail-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/><circle cx="17" cy="14.5" r="1.4" fill="currentColor" stroke="none"/></svg></span>
@@ -248,6 +304,7 @@
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.36.62 1 .99 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         </button>
       </div>
+      <div class="currency-row" id="currency-row"></div>
       <div class="month-switch" id="month-row"></div>
     </header>
 
@@ -302,7 +359,9 @@ var ui = {
   confirmDeleteAccountId:null,
   catFormReturn:'txn', catManageType:'expense', tempCatColor:null,
   goalFundDirection:'in', goalFundGoalId:null,
-  bolsaFundDirection:'in'
+  bolsaFundDirection:'in',
+  currencyTab:null,
+  expandedCards:{}
 };
 var resizeTimer = null;
 
@@ -311,11 +370,14 @@ function isDesktop(){ return window.matchMedia('(min-width:880px)').matches; }
 
 function defaultState(){
   return {
-    currency:'MXN', customSymbol:'$', theme:'warm',
+    currency:'USD', customSymbol:'$', theme:'warm',
     transactions:[], transfers:[], fundMovements:[],
     goals:[], debts:[], incomeEstimates:{},
     accounts:[{id:uid(), name:'Efectivo', startingBalance:0}],
     bolsa:{amountInvested:0, currentValue:0, feeAmount:0, lastUpdated:null},
+    books:[],
+    exerciseLogs:[],
+    exerciseGoal:null,
     expenseCats: DEFAULT_EXPENSE_CATS.map(function(c){ return Object.assign({},c); }),
     incomeCats: DEFAULT_INCOME_CATS.map(function(c){ return Object.assign({},c); })
   };
@@ -372,6 +434,9 @@ function normalizeState(s){
 
   var transactions = Array.isArray(s.transactions) ? s.transactions.slice() : [];
   var fundMovements = Array.isArray(s.fundMovements) ? s.fundMovements.slice() : [];
+  var books = Array.isArray(s.books) ? s.books.map(function(b){
+    return { id:b.id, name:b.name, totalPages:b.totalPages, currentPage:b.currentPage||0, done:!!b.done, createdAt:b.createdAt||Date.now(), finishedAt:b.finishedAt||null };
+  }) : [];
 
   /* Migración: los abonos/cobros de deudas ya no viven en fundMovements ni en debt.payments —
      ahora son transacciones reales de ingreso/gasto para que aparezcan en entradas y salidas. */
@@ -425,17 +490,46 @@ function normalizeState(s){
     accounts: accounts,
     bolsa: bolsa,
     expenseCats: expenseCats,
-    incomeCats: incomeCats
+    incomeCats: incomeCats,
+    books: books,
+    exerciseLogs: Array.isArray(s.exerciseLogs) ? s.exerciseLogs.filter(function(d){ return typeof d==='string'; }) : [],
+    exerciseGoal: (s.exerciseGoal && typeof s.exerciseGoal==='object' && s.exerciseGoal.targetDate) ? { targetDate:s.exerciseGoal.targetDate, createdAt:s.exerciseGoal.createdAt||Date.now() } : null
   };
 }
+/* ---- Persistencia real vía /api/state (MongoDB detrás) ---- */
+function getSecret(){ return localStorage.getItem('mvo-secret') || ''; }
+function setSecret(v){ localStorage.setItem('mvo-secret', v); }
+function clearSecret(){ localStorage.removeItem('mvo-secret'); }
+
+async function apiRequest(method, body){
+  var opts = { method: method, headers: { 'Content-Type':'application/json', 'x-app-secret': getSecret() } };
+  if(body !== undefined) opts.body = JSON.stringify(body);
+  var res = await fetch('/api/state', opts);
+  if(res.status === 401){
+    clearSecret();
+    showLockScreen('Clave incorrecta. Intenta de nuevo.');
+    throw new Error('unauthorized');
+  }
+  return res;
+}
+
 async function loadState(){
-  try{ var res = await window.storage.get('app-state'); if(res && res.value) return normalizeState(JSON.parse(res.value)); }
-  catch(e){ }
+  try{
+    var res = await apiRequest('GET');
+    if(res.ok){
+      var data = await res.json();
+      if(data && data.value) return normalizeState(JSON.parse(data.value));
+    } else {
+      showToast('No se pudo conectar con el servidor.');
+    }
+  } catch(e){ console.error('Load error', e); }
   return defaultState();
 }
 async function saveState(){
-  try{ var res = await window.storage.set('app-state', JSON.stringify(state)); if(!res) showToast('No se pudo guardar. Intenta de nuevo.'); }
-  catch(e){ console.error('Storage error', e); showToast('No se pudo guardar. Revisa tu conexión.'); }
+  try{
+    var res = await apiRequest('PUT', { value: JSON.stringify(state) });
+    if(!res.ok) showToast('No se pudo guardar. Intenta de nuevo.');
+  } catch(e){ console.error('Storage error', e); showToast('No se pudo guardar. Revisa tu conexión.'); }
 }
 
 function fmt(amount){
@@ -468,11 +562,25 @@ function chartColors(){ return state.theme==='dark' ? {income:'#39FF6A', expense
 function applyTheme(){ document.documentElement.setAttribute('data-theme', state.theme || 'warm'); }
 
 function isPrimaryCurrencyTxn(t){ var acc = findAccount(t.accountId); return !acc || resolvedCurrency(acc)===state.currency; }
-function periodTxns(){ var base = ui.viewMode==='mensual' ? state.transactions.filter(function(t){ return isInMonth(t.date, ui.monthOffset); }) : state.transactions.slice(); return hasMultipleCurrencies() ? base.filter(isPrimaryCurrencyTxn) : base; }
-function periodIncome(){ return periodTxns().filter(function(t){ return t.type==='income'; }).reduce(function(a,t){ return a+t.amount; },0); }
-function periodExpense(){ return periodTxns().filter(function(t){ return t.type==='expense'; }).reduce(function(a,t){ return a+t.amount; },0); }
-function monthIncome(offset){ var txns = state.transactions.filter(function(t){ return t.type==='income' && isInMonth(t.date,offset); }); if(hasMultipleCurrencies()) txns = txns.filter(isPrimaryCurrencyTxn); return txns.reduce(function(a,t){ return a+t.amount; },0); }
-function monthExpenseCalc(offset){ var txns = state.transactions.filter(function(t){ return t.type==='expense' && isInMonth(t.date,offset); }); if(hasMultipleCurrencies()) txns = txns.filter(isPrimaryCurrencyTxn); return txns.reduce(function(a,t){ return a+t.amount; },0); }
+function periodTxns(currencyFilter){
+  var base = ui.viewMode==='mensual' ? state.transactions.filter(function(t){ return isInMonth(t.date, ui.monthOffset); }) : state.transactions.slice();
+  if(currencyFilter) return base.filter(function(t){ var acc=findAccount(t.accountId); return resolvedCurrency(acc)===currencyFilter; });
+  return hasMultipleCurrencies() ? base.filter(isPrimaryCurrencyTxn) : base;
+}
+function periodIncome(currencyFilter){ return periodTxns(currencyFilter).filter(function(t){ return t.type==='income'; }).reduce(function(a,t){ return a+t.amount; },0); }
+function periodExpense(currencyFilter){ return periodTxns(currencyFilter).filter(function(t){ return t.type==='expense'; }).reduce(function(a,t){ return a+t.amount; },0); }
+function monthIncome(offset, currencyFilter){
+  var txns = state.transactions.filter(function(t){ return t.type==='income' && isInMonth(t.date,offset); });
+  if(currencyFilter) txns = txns.filter(function(t){ var acc=findAccount(t.accountId); return resolvedCurrency(acc)===currencyFilter; });
+  else if(hasMultipleCurrencies()) txns = txns.filter(isPrimaryCurrencyTxn);
+  return txns.reduce(function(a,t){ return a+t.amount; },0);
+}
+function monthExpenseCalc(offset, currencyFilter){
+  var txns = state.transactions.filter(function(t){ return t.type==='expense' && isInMonth(t.date,offset); });
+  if(currencyFilter) txns = txns.filter(function(t){ var acc=findAccount(t.accountId); return resolvedCurrency(acc)===currencyFilter; });
+  else if(hasMultipleCurrencies()) txns = txns.filter(isPrimaryCurrencyTxn);
+  return txns.reduce(function(a,t){ return a+t.amount; },0);
+}
 
 function catList(type){ return type==='income' ? state.incomeCats : state.expenseCats; }
 function addCategory(type,label,color){ catList(type).push({id:uid(), label:label, color:color}); }
@@ -701,19 +809,10 @@ function miniBarChart(data){
   return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block;">'+out+'</svg>';
 }
 function chartAnchor(){ return ui.viewMode==='mensual' ? ui.monthOffset : 0; }
-function buildIncomeExpenseChart(){
+function buildIncomeExpenseChart(currencyFilter){
   var cc = chartColors(); var anchor = chartAnchor();
   var offsets = [5,4,3,2,1,0].map(function(i){ return anchor - i; });
-  var data = offsets.map(function(o){ return { label: monthShortLabel(o), values: [ {v:monthIncome(o), color:cc.income, name:'Ingresos'}, {v:monthExpenseCalc(o), color:cc.expense, name:'Gastos'} ] }; });
-  return miniBarChart(data);
-}
-function buildAhorroChart(){
-  var cc = chartColors(); var anchor = chartAnchor();
-  var offsets = [5,4,3,2,1,0].map(function(i){ return anchor - i; });
-  var data = offsets.map(function(o){
-    var total = state.transactions.filter(function(t){ return t.goalId && t.type==='expense' && isInMonth(t.date,o); }).reduce(function(a,t){ return a+t.amount; },0);
-    return { label: monthShortLabel(o), values:[{v:total, color:cc.ahorro, name:'Ahorro'}] };
-  });
+  var data = offsets.map(function(o){ return { label: monthShortLabel(o), values: [ {v:monthIncome(o,currencyFilter), color:cc.income, name:'Ingresos'}, {v:monthExpenseCalc(o,currencyFilter), color:cc.expense, name:'Gastos'} ] }; });
   return miniBarChart(data);
 }
 function buildDonut(segments, opts){
@@ -743,7 +842,153 @@ function buildDonut(segments, opts){
   return '<svg viewBox="0 0 '+vb+' '+vb+'" width="'+vb+'" height="'+vb+'" style="max-width:100%;height:auto;">'+arcs+labels+'</svg>';
 }
 
+function findBook(id){ return state.books.find(function(b){ return b.id===id; }); }
+function bookProgressPct(b){ if(!b.totalPages) return 0; return Math.min(100, Math.round((b.currentPage/b.totalPages)*100)); }
+function bookCardHtml(b){
+  var pct = bookProgressPct(b);
+  var fillColor = b.done ? 'var(--growth)' : 'var(--gold)';
+  var label = b.done ? 'Finalizado' : (pct+'%');
+  var sub = b.done ? (b.totalPages+' páginas') : ('Página '+b.currentPage+' de '+b.totalPages);
+  return '<div class="item-card">'+
+    '<div class="item-top"><div><div class="item-name">'+esc(b.name)+'</div><div class="item-sub">'+sub+'</div></div></div>'+
+    '<div class="book-bar-track"><div class="book-bar-fill" style="width:'+pct+'%;background:'+fillColor+';"></div><div class="book-bar-label">'+label+'</div></div>'+
+    (!b.done ? '<div class="item-bottom"><div class="item-actions"><button class="btn-small" data-action="open-book-progress" data-id="'+b.id+'">Actualizar página</button></div></div>' : '')+
+  '</div>';
+}
+function buildAvancesHtml(){
+  var inProgress = state.books.filter(function(b){ return !b.done; }).sort(function(a,b){ return b.createdAt-a.createdAt; });
+  var done = state.books.filter(function(b){ return b.done; }).sort(function(a,b){ return (b.finishedAt||'').localeCompare(a.finishedAt||''); });
+  var inProgressHtml = inProgress.length===0 ?
+    '<div class="empty-state"><div class="big">📖</div>Aún no tienes libros en progreso.<br>Toca "+ Agregar libro" para anotar el primero.</div>' :
+    inProgress.map(bookCardHtml).join('');
+  var doneHtml = done.length===0 ? '' :
+    '<div class="section-title" style="margin-top:22px;">Libros leídos</div>' + done.map(bookCardHtml).join('');
+  var cardId = 'module-libros';
+  var expanded = !!ui.expandedCards[cardId];
+  return '<div class="section-title">Libros <span style="display:flex;gap:6px;">'+
+      '<button class="btn-small" data-action="add-book">+ Agregar libro</button>'+
+      '<button class="expand-btn" data-action="toggle-card-expand" data-id="'+cardId+'" title="'+(expanded?'Contraer':'Expandir')+'">'+(expanded?'⤡':'⤢')+'</button>'+
+    '</span></div>'+
+    '<div class="card module-card'+(expanded?' expanded':'')+'" id="'+cardId+'"><div class="module-scroll">'+
+      inProgressHtml + doneHtml +
+    '</div></div>';
+}
+
+function mondayFirstIndex(date){ return (date.getDay()+6)%7; }
+function padNum(n){ return String(n).padStart(2,'0'); }
+function dateToStr(d){ return d.getFullYear()+'-'+padNum(d.getMonth()+1)+'-'+padNum(d.getDate()); }
+function currentWeekBounds(){
+  var now = new Date(); now.setHours(0,0,0,0);
+  var idx = mondayFirstIndex(now);
+  var monday = new Date(now); monday.setDate(now.getDate()-idx);
+  var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+  return {start:monday, end:sunday};
+}
+function exerciseCountInRange(startDate, endDate){
+  var s = dateToStr(startDate), e = dateToStr(endDate);
+  return state.exerciseLogs.filter(function(d){ return d>=s && d<=e; }).length;
+}
+function exerciseWeekCount(){ var wb = currentWeekBounds(); return exerciseCountInRange(wb.start, wb.end); }
+function exerciseMonthCount(){
+  var now = new Date();
+  var first = new Date(now.getFullYear(), now.getMonth(), 1);
+  var last = new Date(now.getFullYear(), now.getMonth()+1, 0);
+  return exerciseCountInRange(first, last);
+}
+function exercisePct(count, target){ return Math.min(100, Math.round((count/target)*100)); }
+function buildExerciseCalendarHtml(){
+  var now = new Date();
+  var year = now.getFullYear(), month = now.getMonth();
+  var totalDays = new Date(year, month+1, 0).getDate();
+  var leadEmpty = mondayFirstIndex(new Date(year, month, 1));
+  var todayS = dateToStr(now);
+  var headers = ['L','M','M','J','V','S','D'].map(function(d){ return '<div class="exercise-weekday-label">'+d+'</div>'; }).join('');
+  var cells = '';
+  for(var i=0;i<leadEmpty;i++){ cells += '<div class="exercise-day empty"></div>'; }
+  for(var day=1; day<=totalDays; day++){
+    var ds = year+'-'+padNum(month+1)+'-'+padNum(day);
+    var isFuture = ds > todayS;
+    var isDone = state.exerciseLogs.indexOf(ds) > -1;
+    var cls = 'exercise-day'+(isDone?' done':'')+(isFuture?' future':'');
+    var action = isFuture ? '' : (' data-action="toggle-exercise-day" data-date="'+ds+'"');
+    cells += '<div class="'+cls+'"'+action+'>'+day+'</div>';
+  }
+  return '<div class="exercise-calendar">'+headers+cells+'</div>';
+}
+function exerciseGoalDaysLeft(goal){
+  var target = new Date(goal.targetDate+'T00:00:00');
+  var now = new Date(); now.setHours(0,0,0,0);
+  return Math.ceil((target-now)/86400000);
+}
+function exerciseGoalPct(goal){
+  var start = new Date(goal.createdAt); start.setHours(0,0,0,0);
+  var target = new Date(goal.targetDate+'T00:00:00');
+  var now = new Date(); now.setHours(0,0,0,0);
+  var totalDays = Math.max(1, Math.round((target-start)/86400000));
+  var elapsedDays = Math.round((now-start)/86400000);
+  return Math.max(0, Math.min(100, Math.round((elapsedDays/totalDays)*100)));
+}
+function buildExerciseGoalHtml(){
+  var goal = state.exerciseGoal;
+  var wc = state.theme==='dark' ? '#39FF6A' : '#4C7A5D';
+  if(!goal){
+    return '<div class="section-title">Meta</div>'+
+      '<div class="card" style="text-align:center;max-width:300px;margin:0 auto 14px;">'+
+        '<div class="chart-desc" style="margin-bottom:10px;">Ponete una fecha objetivo y te digo cuánto llevas del camino.</div>'+
+        '<button class="btn-small" data-action="add-exercise-goal">+ Agregar meta</button>'+
+      '</div>';
+  }
+  var daysLeft = exerciseGoalDaysLeft(goal);
+  var pct = exerciseGoalPct(goal);
+  var dateLabel = new Date(goal.targetDate+'T00:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+  var daysText = daysLeft > 0 ? ('Faltan '+daysLeft+' días') : (daysLeft===0 ? 'Es hoy' : 'La fecha ya pasó');
+  return '<div class="section-title">Meta <span style="display:flex;gap:6px;">'+
+      '<button class="btn-small" data-action="add-exercise-goal">Editar</button>'+
+      '<button class="btn-small danger" data-action="delete-exercise-goal">Quitar</button>'+
+    '</span></div>'+
+    '<div class="card" style="max-width:300px;margin:0 auto 14px;">'+
+      '<div class="chart-desc" style="margin-bottom:10px;">Meta para el '+dateLabel+'</div>'+
+      '<div class="book-bar-track"><div class="book-bar-fill" style="width:'+pct+'%;background:'+wc+';"></div><div class="book-bar-label">'+pct+'%</div></div>'+
+      '<div class="chart-desc" style="text-align:center;margin-top:8px;">'+daysText+'</div>'+
+    '</div>';
+}
+function buildEjercicioHtml(){
+  var weekCount = exerciseWeekCount(), weekPct = exercisePct(weekCount,4);
+  var monthCount = exerciseMonthCount(), monthPct = exercisePct(monthCount,12);
+  var wc = state.theme==='dark' ? '#39FF6A' : '#4C7A5D';
+
+  var weekBlock = '<div class="section-title">Esta semana</div>'+
+    '<div class="card">'+
+      '<div class="book-bar-track"><div class="book-bar-fill" style="width:'+weekPct+'%;background:'+wc+';"></div><div class="book-bar-label">'+weekPct+'%</div></div>'+
+      '<div class="chart-desc" style="text-align:center;">'+weekCount+' de 4 esta semana</div>'+
+    '</div>';
+
+  var monthDonut = buildDonut([
+    {value:monthCount, color:wc, label:'Días de ejercicio'},
+    {value:Math.max(0,12-monthCount), color:'var(--line)', label:'Falta'}
+  ], {r:50, cx:60, cy:60, sw:16});
+
+  var monthBlock = '<div class="section-title">Este mes</div>'+
+    '<div class="card" style="display:flex;flex-direction:column;align-items:center;max-width:300px;margin:0 auto 14px;">'+
+      monthDonut+
+      '<div class="chart-desc" style="margin-top:8px;">'+monthCount+' de 12 este mes ('+monthPct+'%)</div>'+
+      buildExerciseCalendarHtml()+
+    '</div>';
+
+  return weekBlock + monthBlock + buildExerciseGoalHtml();
+}
 function renderRail(){ document.querySelectorAll('.rail button').forEach(function(b){ b.classList.toggle('active', b.dataset.section===ui.section); }); }
+function renderCurrencyRow(showToggle){
+  var row = document.getElementById('currency-row');
+  if(!showToggle){ row.style.display='none'; return; }
+  row.style.display='flex';
+  var groups = walletCurrencyGroups();
+  if(!ui.currencyTab || !groups.some(function(g){ return g.currency===ui.currencyTab; })) ui.currencyTab = state.currency;
+  var tabsHtml = groups.length > 1 ? ('<div class="view-toggle">'+groups.map(function(g){
+    return '<button class="'+(ui.currencyTab===g.currency?'active':'')+'" data-action="set-currency-tab" data-currency="'+g.currency+'">'+g.currency+'</button>';
+  }).join('')+'</div>') : '<div></div>';
+  row.innerHTML = tabsHtml + '<button class="icon-btn small" data-action="add-account" title="Agregar wallet en otra moneda">+</button>';
+}
 function renderMonthRow(showToggle){
   var row = document.getElementById('month-row');
   if(!showToggle){ row.style.display='none'; return; }
@@ -758,62 +1003,118 @@ function renderMonthRow(showToggle){
 function renderHeaderAndTabs(){
   var inFinanzas = ui.section === 'finanzas';
   var showMonth = inFinanzas && (isDesktop() || ui.tab==='resumen' || ui.tab==='movimientos');
+  var showCurrencyRow = inFinanzas && (isDesktop() || ui.tab==='resumen' || ui.tab==='movimientos' || ui.tab==='cuentas');
+  renderCurrencyRow(showCurrencyRow);
   renderMonthRow(showMonth);
   if(inFinanzas){
     document.getElementById('greeting').innerHTML = greetingText() + '<span>¿Cómo van tus wallets hoy?</span>';
     document.getElementById('tabs').innerHTML = FINANZAS_TABS.map(function(t){ return '<button data-fintab="'+t.id+'" class="'+(ui.tab===t.id?'active':'')+'">'+t.label+'</button>'; }).join('');
     document.getElementById('tabs').style.display = 'flex';
   } else if(ui.section === 'ejercicios'){
-    document.getElementById('greeting').innerHTML = 'Ejercicios<span>Tu rutina, próximamente aquí</span>';
+    document.getElementById('greeting').innerHTML = 'Ejercicios<span>Toca un día del calendario para marcarlo</span>';
     document.getElementById('tabs').innerHTML = ''; document.getElementById('tabs').style.display = 'none';
   } else {
-    document.getElementById('greeting').innerHTML = 'Avances personales<span>Tus metas de vida, próximamente</span>';
+    document.getElementById('greeting').innerHTML = 'Avances personales<span>Tus metas de vida, un paso a la vez</span>';
     document.getElementById('tabs').innerHTML = ''; document.getElementById('tabs').style.display = 'none';
   }
   document.querySelector('.fab').style.display = (inFinanzas && !isDesktop()) ? 'flex' : 'none';
 }
 
+function buildWalletMiniDonutsHtml(){
+  if(state.accounts.length <= 1) return '';
+  var pc = patrimonioColors();
+  return state.accounts.map(function(a){
+    var bal = accountBalance(a.id);
+    var alloc = accountAllocationBreakdown(a.id);
+    var cur = resolvedCurrency(a);
+    var segments = [{ value:Math.max(0,bal), color:'#8B93A1', label:'Libre' }];
+    if(alloc.bolsa > 0.01) segments.push({ value:alloc.bolsa, color:pc.invertido, label:'En la bolsa' });
+    state.goals.forEach(function(g){ var v = alloc.goals[g.id]||0; if(v > 0.01) segments.push({ value:v, color:g.color, label:g.name }); });
+    var visual = buildDonut(segments, {r:36, cx:46, cy:46, sw:12, currency:cur});
+    return '<div class="wallet-donut-item">'+visual+'<div class="wallet-donut-label">'+esc(a.name)+'</div><div class="wallet-donut-sub">'+fmtCur(bal, cur)+'</div></div>';
+  }).join('');
+}
 function buildPatrimonioHtml(){
   var p = patrimonio();
   var pc = patrimonioColors();
   var donut = buildDonut([
     {value:p.cuentas, color:pc.cuentas, label:'En tus wallets'}, {value:p.invertido, color:pc.invertido, label:'Invertido en la bolsa'}, {value:p.ahorrado, color:pc.ahorrado, label:'Ahorrado en metas'}
   ], {r:58, cx:70, cy:70, sw:19});
+  var sideHtml = buildWalletMiniDonutsHtml();
+  var sideClass = 'patrimonio-side' + (state.accounts.length >= 3 ? ' patrimonio-side-grid' : '');
   return '<div class="section-title">Tu dinero en total</div>'+
-  '<div class="card" style="display:flex;flex-direction:column;align-items:center;padding-top:14px;padding-bottom:12px;">'+donut+
-  '<div class="chart-desc" style="margin-top:8px;text-align:center;">Así se reparte tu dinero entre tus wallets, tu bolsa y tus metas de ahorro. Pasa el mouse sobre cada segmento para ver el detalle.</div></div>';
+  '<div class="card patrimonio-flex">'+
+    '<div class="patrimonio-main">'+donut+
+    '<div class="chart-desc" style="margin-top:8px;text-align:center;">Así se reparte tu dinero entre tus wallets, tu bolsa y tus metas de ahorro. Pasa el mouse sobre cada segmento para ver el detalle.</div></div>'+
+    (sideHtml ? ('<div class="'+sideClass+'">'+sideHtml+'</div>') : '')+
+  '</div>';
 }
-function buildCategoryBreakdownHtml(type){
-  var byCat = {};
-  periodTxns().filter(function(t){ return t.type===type; }).forEach(function(t){ byCat[t.category] = (byCat[t.category]||0)+t.amount; });
-  var catRows = Object.entries(byCat).sort(function(a,b){ return b[1]-a[1]; }).slice(0,6);
-  var maxCat = catRows.length ? catRows[0][1] : 1;
-  if(catRows.length===0) return '<div class="empty-state" style="padding:16px 0;">Sin '+(type==='income'?'ingresos':'gastos')+' registrados en este periodo.</div>';
-  return catRows.map(function(entry){ var catId=entry[0], amt=entry[1]; var info=catInfo(type,catId); var pct=Math.max(6,Math.round((amt/maxCat)*100));
-    return '<div class="cat-row" data-tooltip="'+esc(info.label+': '+fmt(amt))+'"><span class="dot" style="background:'+info.color+'"></span><span class="cat-name">'+info.label+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:'+info.color+'"></span></span><span class="cat-amt">'+fmt(amt)+'</span></div>'; }).join('');
+function currencyHasMultipleAccounts(currencyFilter){
+  var cur = currencyFilter || state.currency;
+  var grp = walletCurrencyGroups().find(function(g){ return g.currency===cur; });
+  return grp ? grp.accounts.length>1 : false;
+}
+function categoryAccountsLabel(type, catId, currencyFilter){
+  var ids = {};
+  periodTxns(currencyFilter).filter(function(t){ return t.type===type && t.category===catId; }).forEach(function(t){ if(t.accountId) ids[t.accountId]=true; });
+  var names = Object.keys(ids).map(function(id){ var a=findAccount(id); return a?a.name:null; }).filter(Boolean);
+  return names.join(' + ');
+}
+function buildCategoriesComboHtml(currencyFilter, cardId, expanded){
+  var showTags = currencyHasMultipleAccounts(currencyFilter);
+  function rows(type){
+    var byCat = {};
+    periodTxns(currencyFilter).filter(function(t){ return t.type===type; }).forEach(function(t){ byCat[t.category] = (byCat[t.category]||0)+t.amount; });
+    var catRows = Object.entries(byCat).sort(function(a,b){ return b[1]-a[1]; }).slice(0,6);
+    if(catRows.length===0) return '<div class="empty-state" style="padding:8px 0 14px;font-size:12.5px;">Sin '+(type==='income'?'ingresos':'gastos')+' registrados en este periodo.</div>';
+    var maxCat = catRows[0][1];
+    return catRows.map(function(entry){
+      var catId=entry[0], amt=entry[1]; var info=catInfo(type,catId); var pct=Math.max(6,Math.round((amt/maxCat)*100));
+      var tag = showTags ? categoryAccountsLabel(type,catId,currencyFilter) : '';
+      return '<div class="combo-row"><span class="dot" style="background:'+info.color+'"></span>'+
+        '<div class="combo-main"><div class="combo-name-line"><span class="combo-name">'+info.label+(tag?('<span class="combo-tag">'+esc(tag)+'</span>'):'')+'</span><span class="combo-amt">'+fmtCur(amt,currencyFilter)+'</span></div>'+
+        '<div class="combo-bar-track"><div class="combo-bar-fill" style="width:'+pct+'%;background:'+info.color+'"></div></div></div></div>';
+    }).join('');
+  }
+  return '<div class="card cat-combo-card'+(expanded?' expanded':'')+'" id="'+cardId+'">'+
+    '<div class="cat-combo-scroll">'+
+      '<div class="cat-combo-sub expense">Gastos</div>'+rows('expense')+
+      '<div class="cat-combo-sub income">Ingresos</div>'+rows('income')+
+    '</div></div>';
 }
 function buildResumenTopHtml(){
-  var income = periodIncome(), expense = periodExpense(), balance = income-expense;
   var cc = chartColors();
-  var expenseCatHtml = buildCategoryBreakdownHtml('expense');
-  var incomeCatHtml = buildCategoryBreakdownHtml('income');
-  var balLabel = ui.viewMode==='mensual' ? ('Saldo de '+monthLabel(ui.monthOffset).toLowerCase()) : 'Saldo total (histórico)';
+  var multi = hasMultipleCurrencies();
+  var activeCurrency = multi ? (ui.currencyTab || state.currency) : null;
+  var balLabelBase = ui.viewMode==='mensual' ? ('Saldo de '+monthLabel(ui.monthOffset).toLowerCase()) : 'Saldo total (histórico)';
+
+  function balanceCardHtml(currencyFilter){
+    var income = periodIncome(currencyFilter), expense = periodExpense(currencyFilter), balance = income-expense;
+    var tag = currencyFilter ? (' · '+currencyFilter) : '';
+    return '<div class="card balance-card">'+
+      '<div class="balance-label">'+balLabelBase+tag+'</div>'+
+      '<div class="balance-amount">'+fmtCur(balance,currencyFilter)+'</div>'+
+      '<div class="balance-sub"><div>Ingresos<strong>'+fmtCur(income,currencyFilter)+'</strong></div><div>Gastos<strong>'+fmtCur(expense,currencyFilter)+'</strong></div></div>'+
+    '</div>';
+  }
+  function chartBlockHtml(currencyFilter){
+    var title = 'Ingresos vs. gastos' + (currencyFilter ? (' · '+currencyFilter) : '');
+    return '<div class="section-title">'+title+'</div>'+
+      '<div class="card">'+buildIncomeExpenseChart(currencyFilter)+'<div class="chart-legend"><span><span class="dot" style="background:'+cc.income+'"></span>Ingresos</span><span><span class="dot" style="background:'+cc.expense+'"></span>Gastos</span></div></div>';
+  }
+  function catComboBlockHtml(currencyFilter){
+    var cardId = 'cat-combo-'+(currencyFilter||'main');
+    var expanded = !!ui.expandedCards[cardId];
+    var title = 'Categorías' + (currencyFilter ? (' · '+currencyFilter) : '');
+    return '<div class="section-title">'+title+' <button class="expand-btn" data-action="toggle-card-expand" data-id="'+cardId+'" title="'+(expanded?'Contraer':'Expandir')+'">'+(expanded?'⤡':'⤢')+'</button></div>'+
+      buildCategoriesComboHtml(currencyFilter, cardId, expanded);
+  }
 
   return buildPatrimonioHtml()+
     buildIncomeEstimateHtml()+
-    '<div class="card balance-card">'+
-      '<div class="balance-label">'+balLabel+'</div>'+
-      '<div class="balance-amount">'+fmt(balance)+'</div>'+
-      '<div class="balance-sub"><div>Ingresos<strong>'+fmt(income)+'</strong></div><div>Gastos<strong>'+fmt(expense)+'</strong></div></div>'+
-    '</div>'+
-    '<div class="section-title">Ingresos vs. gastos</div>'+
-    '<div class="card">'+buildIncomeExpenseChart()+'<div class="chart-legend"><span><span class="dot" style="background:'+cc.income+'"></span>Ingresos</span><span><span class="dot" style="background:'+cc.expense+'"></span>Gastos</span></div></div>'+
-    '<div class="section-title">Ahorro mensual</div>'+
-    '<div class="card">'+buildAhorroChart()+'<div class="chart-desc">Lo que has destinado a tus metas cada mes.</div></div>'+
-    '<div class="section-title">Gastos por categoría</div>'+
-    '<div class="card">'+expenseCatHtml+'</div>'+
-    '<div class="section-title">Ingresos por categoría</div>'+
-    '<div class="card">'+incomeCatHtml+'</div>';
+    balanceCardHtml(activeCurrency)+
+    chartBlockHtml(activeCurrency)+
+    catComboBlockHtml(activeCurrency);
 }
 function buildGoalsPreviewHtml(){
   var goalsPreview = state.goals.length===0 ? '<div class="empty-state" style="padding:16px 0;">Aún no tienes metas de ahorro.</div>' :
@@ -842,17 +1143,13 @@ function txnRowHtml(t){
   return '<div class="txn-row">'+
     '<div class="txn-icon" style="background:'+info.color+'">'+initial+'</div>'+
     '<div class="txn-info"><div class="txn-cat">'+info.label+'</div><div class="txn-note">'+(acc?esc(acc.name):'Sin wallet')+(t.note ? (' · '+esc(t.note)) : '')+'</div></div>'+
-    '<div class="txn-right"><div class="txn-amt '+t.type+'">'+(t.type==='income'?'+':'−')+' '+fmt(t.amount)+'</div><div class="txn-date">'+dateLabel+'</div></div>'+
+    '<div class="txn-right"><div class="txn-amt '+t.type+'">'+(t.type==='income'?'+':'−')+' '+fmtCur(t.amount, resolvedCurrency(acc))+'</div><div class="txn-date">'+dateLabel+'</div></div>'+
     (isConfirm ? ('<button class="txn-del confirm" data-action="confirm-delete-txn" data-id="'+t.id+'">¿Eliminar?</button>') : ('<button class="txn-del" data-action="ask-delete-txn" data-id="'+t.id+'">×</button>'))+
   '</div>';
 }
-function buildRecentMovHtml(){
-  var recent = state.transactions.slice().sort(function(a,b){ return b.date.localeCompare(a.date) || b.createdAt-a.createdAt; }).slice(0,5);
-  var list = recent.length===0 ? '<div class="empty-state"><div class="big">＋</div>Aún no tienes movimientos.<br>Toca el botón + para agregar el primero.</div>' : recent.map(txnRowHtml).join('');
-  return '<div class="section-title">Movimientos recientes <a data-action="goto-tab" data-tab="movimientos">Ver todos ›</a></div>'+list;
-}
 function buildMovimientosHtml(){
-  var txns = periodTxns().slice().sort(function(a,b){ return b.date.localeCompare(a.date) || b.createdAt-a.createdAt; });
+  var filterCur = hasMultipleCurrencies() ? (ui.currencyTab || state.currency) : null;
+  var txns = periodTxns(filterCur).slice().sort(function(a,b){ return b.date.localeCompare(a.date) || b.createdAt-a.createdAt; });
   if(txns.length===0) return '<div class="empty-state"><div class="big">＋</div>No hay movimientos'+(ui.viewMode==='mensual' ? (' en '+monthLabel(ui.monthOffset).toLowerCase()) : '')+'.<br>'+(ui.viewMode==='total' ? 'Cambia a "Por mes" para agregar uno.' : 'Toca + para agregar uno.')+'</div>';
   var groups = {};
   txns.forEach(function(t){ var key = ui.viewMode==='mensual' ? t.date : t.date.slice(0,7); (groups[key] = groups[key] || []).push(t); });
@@ -890,27 +1187,14 @@ function buildMetasHtml(){
   return '<div style="font-size:12.5px;color:var(--text-soft);margin-bottom:14px;">Registra cuánto llevas ahorrado en cada meta desde tus wallets.</div>' + cards;
 }
 function buildCuentasHtml(){
-  var groups = walletCurrencyGroups();
   var multi = hasMultipleCurrencies();
-  var topSection;
-  if(!multi){
-    topSection = '<div class="card balance-card"><div class="balance-label">'+periodWalletsLabel()+'</div><div class="balance-amount">'+fmt(periodWalletsValue())+'</div></div>';
-  } else {
-    topSection = groups.map(function(grp){
-      var label = ui.viewMode==='mensual' ? ('Movimiento de '+monthLabel(ui.monthOffset).toLowerCase()) : ('Total en '+grp.currency);
-      var value = ui.viewMode==='mensual' ? currencyPeriodNet(grp.currency) : grp.total;
-      var donutSegs = grp.accounts.map(function(a, idx){ return { value:Math.max(0,accountBalance(a.id)), color:WALLET_DONUT_COLORS[idx % WALLET_DONUT_COLORS.length], label:a.name }; }).filter(function(s){ return s.value > 0.01; });
-      var donutHtml = donutSegs.length > 1 ? ('<div style="display:flex;justify-content:center;margin-top:8px;">'+buildDonut(donutSegs, {r:36, cx:46, cy:46, sw:12})+'</div>') : '';
-      return '<div class="card balance-card" style="margin-bottom:10px;"><div class="balance-label">'+label+'</div><div class="balance-amount">'+fmtCur(value, grp.currency)+'</div>'+donutHtml+'</div>';
-    }).join('');
-  }
-  var cards = state.accounts.map(function(a){
+  var activeCurrency = multi ? (ui.currencyTab || state.currency) : null;
+  var cards = state.accounts.filter(function(a){ return !multi || resolvedCurrency(a)===activeCurrency; }).map(function(a){
     var isConfirm = ui.confirmDeleteAccountId===a.id;
     var allocHtml = buildAccountAllocationHtml(a.id);
     var cur = resolvedCurrency(a);
-    var curTag = cur!==state.currency ? (' <span style="font-size:11px;color:var(--text-faint);font-weight:500;">'+cur+'</span>') : '';
     return '<div class="item-card">'+
-      '<div class="item-top"><div><div class="item-name">'+esc(a.name)+curTag+'</div></div><div class="item-pct" style="font-size:17px;">'+fmtCur(accountBalance(a.id), cur)+'</div></div>'+
+      '<div class="item-top"><div><div class="item-name">'+esc(a.name)+'</div></div><div class="item-pct" style="font-size:17px;">'+fmtCur(accountBalance(a.id), cur)+'</div></div>'+
       allocHtml+
       '<div class="item-bottom"><div class="item-actions">'+
         '<button class="btn-small" data-action="edit-account" data-id="'+a.id+'">Editar</button>'+
@@ -940,8 +1224,7 @@ function buildCuentasHtml(){
       '<div class="txn-info"><div class="txn-cat">'+esc(f.label)+'</div><div class="txn-note">'+esc(f.sub)+'</div></div>'+
       '<div class="txn-right"><div class="txn-amt '+cls+'">'+sign+fmt(f.amount)+'</div><div class="txn-date">'+dateLabel+'</div></div></div>'; }).join('');
 
-  return topSection+
-    '<div class="section-title">Tus wallets <button class="btn-small" data-action="open-transfer">Transferir</button></div>'+cards+
+  return '<div class="section-title">Tus wallets <button class="btn-small" data-action="open-transfer">Transferir</button></div>'+cards+
     '<div class="section-title">Actividad reciente</div>'+
     '<div class="card" style="max-height:280px;overflow-y:auto;padding:8px;">'+histHtml+'</div>';
 }
@@ -990,7 +1273,7 @@ function buildDeudasHtml(){
 }
 
 function renderPlaceholder(title, desc, icon){ document.getElementById('main-content').innerHTML = '<div class="card placeholder-card"><div class="big">'+icon+'</div><h3>'+title+'</h3><p>'+desc+'</p></div>'; }
-function renderResumen(){ document.getElementById('main-content').innerHTML = buildResumenTopHtml() + buildGoalsPreviewHtml() + buildSummaryMiniHtml() + buildRecentMovHtml(); }
+function renderResumen(){ document.getElementById('main-content').innerHTML = buildResumenTopHtml() + buildGoalsPreviewHtml() + buildSummaryMiniHtml(); }
 function renderMovimientos(){ document.getElementById('main-content').innerHTML = buildMovimientosHtml(); }
 function renderMetas(){ document.getElementById('main-content').innerHTML = buildMetasHtml(); }
 function renderCuentas(){ document.getElementById('main-content').innerHTML = buildCuentasHtml(); }
@@ -1022,8 +1305,8 @@ function render(){
   applyTheme();
   renderRail();
   renderHeaderAndTabs();
-  if(ui.section === 'ejercicios'){ renderPlaceholder('Ejercicios', 'Aquí vas a poder llevar tu rutina de ejercicio y tu progreso físico. Lo construimos juntos en cuanto termines de probar Finanzas.', '🏋'); return; }
-  if(ui.section === 'avances'){ renderPlaceholder('Avances personales', 'Un espacio para tus metas de vida y hábitos, más allá del dinero. Próximamente.', '✦'); return; }
+  if(ui.section === 'ejercicios'){ document.getElementById('main-content').innerHTML = buildEjercicioHtml(); return; }
+  if(ui.section === 'avances'){ document.getElementById('main-content').innerHTML = buildAvancesHtml(); return; }
 
   if(isDesktop()){ renderFinanzasDashboard(); return; }
   if(ui.tab==='resumen') renderResumen();
@@ -1266,6 +1549,42 @@ function openIncomeEstimateModal(){
   '</div></div>';
   document.getElementById('income-estimate-amount').focus();
 }
+function openAddBookModal(){
+  document.getElementById('modal-root').innerHTML =
+  '<div class="overlay centered"><div class="sheet" data-stop>'+
+    '<button class="close-x" data-action="close-modal">×</button>'+
+    '<div class="sheet-title">Nuevo libro</div>'+
+    '<div class="field"><label>Nombre del libro</label><input type="text" id="book-name" placeholder="Ej. Cien años de soledad"></div>'+
+    '<div class="field"><label>Número de páginas</label><input type="number" id="book-pages" inputmode="numeric" min="1" step="1" placeholder="Ej. 350"></div>'+
+    '<button class="btn-primary" data-action="save-book">Agregar libro</button>'+
+  '</div></div>';
+  document.getElementById('book-name').focus();
+}
+function openBookProgressModal(bookId){
+  var b = findBook(bookId); if(!b) return;
+  var initialPct = bookProgressPct(b);
+  document.getElementById('modal-root').innerHTML =
+  '<div class="overlay centered"><div class="sheet" data-stop>'+
+    '<button class="close-x" data-action="close-modal">×</button>'+
+    '<div class="sheet-title">'+esc(b.name)+'</div>'+
+    '<div class="field-hint" style="margin-bottom:14px;">Tiene '+b.totalPages+' páginas en total.</div>'+
+    '<div class="field"><label>¿En qué página vas?</label><input type="number" id="book-current-page" inputmode="numeric" min="0" max="'+b.totalPages+'" step="1" value="'+b.currentPage+'" data-total="'+b.totalPages+'"></div>'+
+    '<div class="field-hint" id="book-progress-preview">Vas por el '+initialPct+'%.</div>'+
+    '<button class="btn-primary" data-action="save-book-progress" data-id="'+b.id+'">Guardar</button>'+
+  '</div></div>';
+  document.getElementById('book-current-page').focus();
+}
+function openExerciseGoalModal(){
+  var existing = state.exerciseGoal;
+  document.getElementById('modal-root').innerHTML =
+  '<div class="overlay centered"><div class="sheet" data-stop>'+
+    '<button class="close-x" data-action="close-modal">×</button>'+
+    '<div class="sheet-title">Meta de ejercicio</div>'+
+    '<div class="field"><label>¿Para cuándo?</label><input type="date" id="exercise-goal-date" value="'+(existing?existing.targetDate:'')+'" min="'+dateToStr(new Date())+'"></div>'+
+    '<button class="btn-primary" data-action="save-exercise-goal">Guardar</button>'+
+  '</div></div>';
+  document.getElementById('exercise-goal-date').focus();
+}
 function openSettings(){
   var curOptions = Object.keys(CURRENCIES).map(function(c){ return '<option value="'+c+'" '+(state.currency===c?'selected':'')+'>'+c+'</option>'; }).join('') +
     '<option value="OTRO" '+(!CURRENCIES[state.currency]?'selected':'')+'>Otra (símbolo personalizado)</option>';
@@ -1284,7 +1603,8 @@ function openSettings(){
     '<button class="btn-primary" data-action="save-settings">Guardar ajustes</button>'+
     '<div class="field-hint" style="text-align:center;margin-top:6px;">Las categorías de gasto e ingreso se editan desde la ventana de "Nuevo movimiento".</div>'+
     '<button class="btn-text" data-action="ask-reset" style="color:var(--spend);margin-top:10px;">Borrar todos mis datos</button>'+
-    '<div style="font-size:11.5px;color:var(--text-faint);text-align:center;margin-top:10px;">Tus datos se guardan de forma privada. Solo tú puedes verlos.</div>'+
+    '<button class="btn-text" data-action="logout" style="margin-top:2px;">Cerrar sesión / cambiar clave</button>'+
+    '<div style="font-size:11.5px;color:var(--text-faint);text-align:center;margin-top:10px;">Tus datos se guardan de forma privada. Solo tú puedes verlos con tu clave.</div>'+
   '</div></div>';
 }
 function askReset(){
@@ -1551,6 +1871,7 @@ async function handleAction(action, el){
     }
     case 'ask-reset': askReset(); break;
     case 'do-reset': { state = defaultState(); closeModal(); await saveState(); render(); showToast('Tus datos se borraron.'); break; }
+    case 'logout': { closeModal(); clearSecret(); state = null; showLockScreen(); break; }
 
     case 'manage-cats': captureTxnDraft(); ui.catFormReturn='catmanage'; openCatManageSheet(ui.txnType); break;
     case 'close-catmanage': renderTxnModal(); break;
@@ -1583,6 +1904,54 @@ async function handleAction(action, el){
     case 'ask-delete-cat': ui.confirmDeleteCatId = el.dataset.id; openCatManageSheet(el.dataset.type); setTimeout(function(){ if(ui.confirmDeleteCatId===el.dataset.id){ ui.confirmDeleteCatId=null; if(document.querySelector('[data-modal="catmanage"]')) openCatManageSheet(el.dataset.type); } },3000); break;
     case 'confirm-delete-cat': { deleteCategory(el.dataset.type, el.dataset.id); ui.confirmDeleteCatId=null; await saveState(); render(); openCatManageSheet(el.dataset.type); showToast('Categoría eliminada.'); break; }
     case 'cancel-cat-form': ui.tempCatColor = null; catFormBack(); break;
+
+    case 'add-book': openAddBookModal(); break;
+    case 'save-book': {
+      var bName = document.getElementById('book-name').value.trim();
+      var bPages = parseInt(document.getElementById('book-pages').value, 10);
+      if(!bName){ showToast('Dale un nombre al libro.'); return; }
+      if(!bPages || bPages<=0){ showToast('Ingresa un número de páginas válido.'); return; }
+      state.books.push({ id:uid(), name:bName, totalPages:bPages, currentPage:0, done:false, createdAt:Date.now(), finishedAt:null });
+      closeModal(); await saveState(); render(); showToast('Libro agregado.');
+      break;
+    }
+    case 'open-book-progress': openBookProgressModal(el.dataset.id); break;
+    case 'save-book-progress': {
+      var bk = findBook(el.dataset.id); if(!bk) return;
+      var pageVal = parseInt(document.getElementById('book-current-page').value, 10);
+      if(isNaN(pageVal) || pageVal<0){ showToast('Ingresa una página válida.'); return; }
+      if(pageVal > bk.totalPages) pageVal = bk.totalPages;
+      bk.currentPage = pageVal;
+      if(pageVal >= bk.totalPages){ bk.done = true; bk.finishedAt = todayStr(); } else { bk.done = false; bk.finishedAt = null; }
+      var pctSaved = bookProgressPct(bk);
+      closeModal(); await saveState(); render(); showToast(bk.done ? '¡Libro finalizado!' : ('Vas por el '+pctSaved+'%.'));
+      break;
+    }
+    case 'toggle-card-expand': {
+      var idExp = el.dataset.id;
+      ui.expandedCards[idExp] = !ui.expandedCards[idExp];
+      render();
+      break;
+    }
+    case 'set-currency-tab': ui.currencyTab = el.dataset.currency; render(); break;
+
+    case 'toggle-exercise-day': {
+      var exDate = el.dataset.date;
+      if(exDate > dateToStr(new Date())) return;
+      var exIdx = state.exerciseLogs.indexOf(exDate);
+      if(exIdx > -1) state.exerciseLogs.splice(exIdx,1); else state.exerciseLogs.push(exDate);
+      await saveState(); render();
+      break;
+    }
+    case 'add-exercise-goal': openExerciseGoalModal(); break;
+    case 'save-exercise-goal': {
+      var goalDate = document.getElementById('exercise-goal-date').value;
+      if(!goalDate){ showToast('Elige una fecha.'); return; }
+      state.exerciseGoal = { targetDate: goalDate, createdAt: Date.now() };
+      closeModal(); await saveState(); render(); showToast('Meta guardada.');
+      break;
+    }
+    case 'delete-exercise-goal': state.exerciseGoal = null; await saveState(); render(); showToast('Meta eliminada.'); break;
   }
 }
 
@@ -1624,12 +1993,57 @@ document.addEventListener('click', function(e){
 document.addEventListener('change', function(e){
   if(e.target.id==='settings-currency'){ document.getElementById('custom-symbol-field').style.display = e.target.value==='OTRO' ? 'block' : 'none'; }
 });
+document.addEventListener('input', function(e){
+  if(e.target.id==='book-current-page'){
+    var totalP = parseInt(e.target.dataset.total,10);
+    var preview = document.getElementById('book-progress-preview');
+    if(!preview || !totalP) return;
+    var val = parseInt(e.target.value,10);
+    if(isNaN(val)) val = 0;
+    val = Math.min(Math.max(val,0), totalP);
+    var pct = Math.round((val/totalP)*100);
+    preview.textContent = 'Vas por el '+pct+'%.';
+  }
+});
 
 window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(function(){ if(state) render(); }, 150); });
 
-(async function init(){
+function hasSecret(){ return !!getSecret(); }
+function showLockScreen(errorMsg){
+  document.getElementById('app').style.display='none';
+  var root = document.getElementById('lock-root');
+  root.innerHTML =
+    '<div class="lock-card">'+
+      '<div class="lock-title">Mi Vida Organizada</div>'+
+      '<div class="lock-sub">Ingresa tu clave para entrar a tus datos</div>'+
+      (errorMsg ? '<div class="lock-error">'+esc(errorMsg)+'</div>' : '')+
+      '<input type="password" id="lock-input" class="lock-input" placeholder="Tu clave" autocomplete="off">'+
+      '<button class="btn-primary" id="lock-submit" type="button">Entrar</button>'+
+      '<div class="field-hint" style="text-align:center;margin-top:10px;">Esta clave protege tus datos. Si es la primera vez, invéntala aquí mismo: quedará guardada como tu clave.</div>'+
+    '</div>';
+  root.style.display='flex';
+  var input = document.getElementById('lock-input');
+  input.focus();
+  document.getElementById('lock-submit').addEventListener('click', submitLock);
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter') submitLock(); });
+}
+async function submitLock(){
+  var input = document.getElementById('lock-input');
+  var val = (input.value||'').trim();
+  if(!val) return;
+  setSecret(val);
+  document.getElementById('lock-root').style.display='none';
+  document.getElementById('lock-root').innerHTML='';
+  document.getElementById('app').style.display='';
+  await boot();
+}
+async function boot(){
   state = await loadState();
   render();
+}
+(async function init(){
+  if(hasSecret()){ await boot(); }
+  else { showLockScreen(); }
 })();
 </script>
 </body>

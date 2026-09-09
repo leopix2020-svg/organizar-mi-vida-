@@ -1,0 +1,9 @@
+{
+  "name": "mis-finanzas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mi Vida Organizada - app personal de finanzas, con guardado en MongoDB via Vercel Functions",
+  "dependencies": {
+    "mongodb": "^6.10.0"
+  }
+}
