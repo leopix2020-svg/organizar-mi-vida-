@@ -2038,6 +2038,8 @@ async function submitLock(){
   await boot();
 }
 async function boot(){
+  document.getElementById('lock-root').style.display='none';
+  document.getElementById('app').style.display='';
   state = await loadState();
   render();
 }
