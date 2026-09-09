@@ -956,16 +956,29 @@ function exerciseGoalDaysLeft(goal){
   var now = new Date(); now.setHours(0,0,0,0);
   return Math.ceil((target-now)/86400000);
 }
-function exerciseGoalPct(goal){
-  // El % refleja los días que REALMENTE marcaste como ejercitados (del calendario)
-  // dentro del periodo de la meta, no solo el paso del calendario.
+function exerciseGoalTotalDays(goal){
   var start = new Date(goal.createdAt); start.setHours(0,0,0,0);
   var target = new Date(goal.targetDate+'T00:00:00');
-  var totalDays = Math.max(1, Math.round((target-start)/86400000));
+  return Math.max(1, Math.round((target-start)/86400000));
+}
+function exerciseGoalSessionsTarget(goal){
+  // Meta de sesiones a un ritmo de 4 por semana (el mismo ritmo que usamos en "Esta semana"),
+  // repartido en las semanas reales entre hoy que se creó la meta y la fecha objetivo.
+  var totalDays = exerciseGoalTotalDays(goal);
+  return Math.max(1, Math.round((totalDays/7)*4));
+}
+function exerciseGoalDoneCount(goal){
+  var start = new Date(goal.createdAt); start.setHours(0,0,0,0);
   var startStr = dateToStr(start);
   var targetStr = goal.targetDate;
-  var doneCount = state.exerciseLogs.filter(function(d){ return d >= startStr && d <= targetStr; }).length;
-  return Math.max(0, Math.min(100, Math.round((doneCount/totalDays)*100)));
+  return state.exerciseLogs.filter(function(d){ return d >= startStr && d <= targetStr; }).length;
+}
+function exerciseGoalPct(goal){
+  // El % refleja las sesiones que REALMENTE marcaste como ejercitadas (del calendario)
+  // contra la meta de sesiones, no solo el paso del calendario.
+  var sessionsTarget = exerciseGoalSessionsTarget(goal);
+  var doneCount = exerciseGoalDoneCount(goal);
+  return Math.max(0, Math.min(100, Math.round((doneCount/sessionsTarget)*100)));
 }
 function buildExerciseGoalHtml(){
   var goal = state.exerciseGoal;
@@ -973,11 +986,13 @@ function buildExerciseGoalHtml(){
   if(!goal){
     return '<div class="section-title">Meta</div>'+
       '<div class="card" style="text-align:center;">'+
-        '<div class="chart-desc" style="margin-bottom:10px;">Ponete una fecha objetivo y te digo cuánto llevas del camino.</div>'+
+        '<div class="chart-desc" style="margin-bottom:10px;">Ponete una fecha objetivo y te digo cuánto llevas del camino (calculamos a un ritmo de 4 sesiones por semana, como en "Esta semana").</div>'+
         '<button class="btn-small" data-action="add-exercise-goal">+ Agregar meta</button>'+
       '</div>';
   }
   var daysLeft = exerciseGoalDaysLeft(goal);
+  var sessionsTarget = exerciseGoalSessionsTarget(goal);
+  var doneCount = exerciseGoalDoneCount(goal);
   var pct = exerciseGoalPct(goal);
   var dateLabel = new Date(goal.targetDate+'T00:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
   var daysText = daysLeft > 0 ? ('Faltan '+daysLeft+' días') : (daysLeft===0 ? 'Es hoy' : 'La fecha ya pasó');
@@ -987,6 +1002,7 @@ function buildExerciseGoalHtml(){
     '</span></div>'+
     '<div class="card">'+
       '<div class="chart-desc" style="margin-bottom:10px;">Meta para el '+dateLabel+'</div>'+
+      '<div class="item-name" style="margin-bottom:8px;">'+doneCount+' de '+sessionsTarget+' sesiones</div>'+
       '<div class="book-bar-track"><div class="book-bar-fill" style="width:'+pct+'%;background:'+wc+';"></div><div class="book-bar-label">'+pct+'%</div></div>'+
       '<div class="chart-desc" style="text-align:center;margin-top:8px;">'+daysText+'</div>'+
     '</div>';
