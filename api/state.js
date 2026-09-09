@@ -1,17 +1,26 @@
 // Función serverless de Vercel: guarda y lee los datos de "Mi Vida Organizada"
-// en una sola colección de MongoDB. Es la única pieza que conoce la
-// cadena de conexión a Mongo (nunca queda expuesta en el HTML del navegador).
+// en MongoDB. Cada persona de la familia (Leo Jr, Isa, ...) tiene su propia
+// clave y su propio documento, así los datos nunca se mezclan entre sí.
 //
 // Variables de entorno necesarias en Vercel (Project Settings -> Environment Variables):
-//   MONGODB_URI  -> cadena de conexión de tu cluster de MongoDB Atlas
-//   APP_SECRET   -> la clave que protege tus datos (la misma que escribes en la app)
-//   MONGODB_DB   -> (opcional) nombre de la base de datos, por defecto "misfinanzas"
+//   MONGODB_URI     -> cadena de conexión de tu cluster de MongoDB Atlas
+//   APP_SECRET      -> la clave de Leo Jr (la que ya se usaba antes)
+//   APP_SECRET_ISA  -> la clave de Isa
+//   MONGODB_DB      -> (opcional) nombre de la base de datos, por defecto "misfinanzas"
+//
+// Para agregar una persona más en el futuro: agrégala aquí abajo en USERS
+// (con un docId nuevo y el nombre de una variable de entorno nueva), y crea
+// esa variable de entorno en Vercel con su clave.
 
 const { MongoClient } = require('mongodb');
 
 const DB_NAME = process.env.MONGODB_DB || 'misfinanzas';
 const COLLECTION = 'state';
-const DOC_ID = 'app-state';
+
+const USERS = {
+  leo: { docId: 'app-state', secretEnv: 'APP_SECRET' },
+  isa: { docId: 'state-isa', secretEnv: 'APP_SECRET_ISA' }
+};
 
 // En un entorno serverless, cada invocación puede reutilizar procesos "tibios".
 // Cachear la conexión evita abrir una conexión nueva a Mongo en cada request.
@@ -31,23 +40,30 @@ async function getDb() {
 
 module.exports = async function handler(req, res) {
   try {
-    // La app necesita un APP_SECRET configurado para funcionar; si falta,
-    // avisamos claro en vez de dejar la base de datos abierta a cualquiera.
-    if (!process.env.APP_SECRET) {
-      res.status(500).json({ error: 'Falta configurar APP_SECRET en Vercel.' });
+    const userId = req.headers['x-app-user'] || '';
+    const user = USERS[userId];
+    if (!user) {
+      res.status(400).json({ error: 'Usuario desconocido.' });
+      return;
+    }
+
+    const expectedSecret = process.env[user.secretEnv];
+    if (!expectedSecret) {
+      res.status(500).json({ error: 'Falta configurar ' + user.secretEnv + ' en Vercel.' });
       return;
     }
     const secret = req.headers['x-app-secret'] || '';
-    if (secret !== process.env.APP_SECRET) {
+    if (secret !== expectedSecret) {
       res.status(401).json({ error: 'Clave incorrecta.' });
       return;
     }
 
     const db = await getDb();
     const col = db.collection(COLLECTION);
+    const docId = user.docId;
 
     if (req.method === 'GET') {
-      const doc = await col.findOne({ _id: DOC_ID });
+      const doc = await col.findOne({ _id: docId });
       res.status(200).json({ value: doc ? doc.value : null });
       return;
     }
@@ -63,7 +79,7 @@ module.exports = async function handler(req, res) {
         return;
       }
       await col.updateOne(
-        { _id: DOC_ID },
+        { _id: docId },
         { $set: { value: value, updatedAt: new Date() } },
         { upsert: true }
       );

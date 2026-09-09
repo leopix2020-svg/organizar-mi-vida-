@@ -17,13 +17,13 @@
     --bg-outer:#E2DCC8; --bg-shell:#EFEBDD; --surface:#F8F5EC;
     --text:#1E2A38; --text-soft:#5B6674; --text-faint:#8B93A1;
     --line:#DAD3BF; --input-bg:#FFFDF8; --gold:#C08A28;
-    --growth-soft:#E1EBE3; --spend-soft:#F2E1DA;
+    --growth-soft:#E1EBE3; --spend-soft:#F2E1DA; --gold-soft:#F3E8D2;
   }
   [data-theme="dark"]{
     --bg-outer:#000000; --bg-shell:#0A0B0A; --surface:#111411;
     --text:#EAFBEF; --text-soft:#8FA396; --text-faint:#5C6B60;
     --line:rgba(57,255,106,0.14); --input-bg:#0E110F; --gold:#39FF6A;
-    --growth-soft:rgba(57,255,106,0.12); --spend-soft:rgba(248,113,113,0.14);
+    --growth-soft:rgba(57,255,106,0.12); --spend-soft:rgba(248,113,113,0.14); --gold-soft:rgba(57,255,106,0.10);
     --growth:#39FF6A; --spend:#F87171;
   }
   [data-theme="dark"] .balance-card{ background:#080A08; border:1px solid rgba(57,255,106,0.3); box-shadow:0 0 28px rgba(57,255,106,0.08); }
@@ -40,7 +40,6 @@
   html,body{margin:0;padding:0;}
   body{background:var(--bg-outer);font-family:'Inter',sans-serif;color:var(--text);min-height:100vh;transition:background .2s,color .2s;}
   .app-shell{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg-shell);position:relative;box-shadow:0 0 60px rgba(0,0,0,0.10);display:flex;flex-direction:row;}
-  @media (max-width:480px){ .app-shell{box-shadow:none;} }
   .app-main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative;}
 
   .rail{width:66px;flex-shrink:0;background:var(--ink-fixed);display:flex;flex-direction:column;align-items:center;padding:22px 0 12px;gap:4px;}
@@ -49,6 +48,7 @@
   .rail-icon-wrap{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;}
   .rail button.active{color:var(--white);}
   .rail button.active .rail-icon-wrap{background:var(--gold);color:var(--ink-fixed);}
+
 
   header{padding:20px 20px 12px;display:flex;flex-direction:column;gap:12px;}
   .header-top{display:flex;justify-content:space-between;align-items:flex-start;}
@@ -194,6 +194,8 @@
   .book-bar-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;letter-spacing:0.03em;text-shadow:0 1px 3px rgba(0,0,0,0.5);}
 
   .patrimonio-flex{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;}
+  .card.patrimonio-flex{background:var(--growth-soft);border-color:transparent;}
+  .item-card.widget-gold{background:var(--gold-soft);border-color:transparent;}
   .patrimonio-main{flex:1;min-width:150px;display:flex;flex-direction:column;align-items:center;}
   .patrimonio-side{display:flex;flex-direction:column;gap:14px;align-items:center;border-left:1px dashed var(--line);padding-left:18px;}
   .patrimonio-side-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px 10px;max-height:260px;overflow-y:auto;align-items:start;padding-right:2px;}
@@ -242,9 +244,23 @@
   .placeholder-card p{font-size:13.5px;color:var(--text-soft);margin:0;line-height:1.5;}
 
   .dash-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start;}
+  .ejercicio-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
   .dash-col{display:flex;flex-direction:column;min-width:0;}
 
   ::-webkit-scrollbar{width:0;}
+
+  @media (max-width:480px){
+    .app-shell{box-shadow:none;}
+    .rail{
+      position:fixed;left:0;right:0;bottom:0;z-index:30;
+      width:100%;height:auto;flex-direction:row;justify-content:space-around;align-items:center;
+      padding:7px 4px calc(6px + env(safe-area-inset-bottom));gap:0;
+      border-right:none !important;border-top:1px solid var(--line);
+    }
+    .rail button{width:auto;flex:1;max-width:110px;padding:5px 2px;}
+    main{padding-bottom:170px;}
+    .fab{bottom:84px;}
+  }
 
   @media (min-width:880px){
     .app-shell{max-width:1600px;}
@@ -276,6 +292,10 @@
   .lock-input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);font-family:'Inter',sans-serif;font-size:15px;color:var(--text);margin-bottom:12px;text-align:center;}
   .lock-input:focus{outline:2px solid var(--gold);outline-offset:-1px;}
   .lock-error{font-size:12.5px;color:var(--spend);margin-bottom:12px;}
+  .user-picker{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+  .btn-user{width:100%;padding:15px;border-radius:12px;border:1px solid var(--line);background:var(--input-bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15.5px;font-weight:600;cursor:pointer;transition:border-color .15s;}
+  .btn-user:hover{border-color:var(--gold);}
+  .lock-back{margin-top:6px;}
 </style>
 </head>
 <body>
@@ -497,17 +517,33 @@ function normalizeState(s){
   };
 }
 /* ---- Persistencia real vía /api/state (MongoDB detrás) ---- */
-function getSecret(){ return localStorage.getItem('mvo-secret') || ''; }
-function setSecret(v){ localStorage.setItem('mvo-secret', v); }
-function clearSecret(){ localStorage.removeItem('mvo-secret'); }
+/* Cada persona de la familia tiene su propio usuario, su propia clave
+   y sus propios datos: nunca se mezclan entre sí. */
+var USERS = [
+  { id:'leo', name:'Leo Jr' },
+  { id:'isa', name:'Isa' }
+];
+var currentUser = null;
+
+function getSecret(userId){ return localStorage.getItem('mvo-secret-'+userId) || ''; }
+function setSecret(userId, v){ localStorage.setItem('mvo-secret-'+userId, v); }
+function clearSecret(userId){ localStorage.removeItem('mvo-secret-'+userId); }
+function hasSecret(userId){ return !!getSecret(userId); }
+function getLastUser(){ return localStorage.getItem('mvo-last-user') || ''; }
+function setLastUser(userId){ localStorage.setItem('mvo-last-user', userId); }
+function findUser(userId){
+  var found = null;
+  USERS.forEach(function(u){ if(u.id===userId) found = u; });
+  return found;
+}
 
 async function apiRequest(method, body){
-  var opts = { method: method, headers: { 'Content-Type':'application/json', 'x-app-secret': getSecret() } };
+  var opts = { method: method, headers: { 'Content-Type':'application/json', 'x-app-user': currentUser, 'x-app-secret': getSecret(currentUser) } };
   if(body !== undefined) opts.body = JSON.stringify(body);
   var res = await fetch('/api/state', opts);
   if(res.status === 401){
-    clearSecret();
-    showLockScreen('Clave incorrecta. Intenta de nuevo.');
+    clearSecret(currentUser);
+    showLockScreen(currentUser, 'Clave incorrecta. Intenta de nuevo.');
     throw new Error('unauthorized');
   }
   return res;
@@ -749,7 +785,7 @@ function buildIncomeEstimateHtml(){
       bodyT = '<div class="item-top"><div><div class="item-name">Cumplimiento histórico</div><div class="item-sub">'+fmt(agg.actual)+' de '+fmt(agg.est)+' estimados en total ('+agg.count+' '+(agg.count===1?'mes':'meses')+')</div></div><div class="item-pct">'+agg.pct+'%</div></div>'+
         '<div class="bar-track-lg"><div class="bar-fill-lg" style="width:'+barPctT+'%;background:var(--growth-em);"></div></div>';
     }
-    return '<div class="section-title">Estimación de ingresos</div><div class="item-card">'+bodyT+'</div>';
+    return '<div class="section-title">Estimación de ingresos</div><div class="item-card widget-gold">'+bodyT+'</div>';
   }
   var offset = ui.monthOffset;
   var est = monthEstimate(offset);
@@ -765,7 +801,7 @@ function buildIncomeEstimateHtml(){
       '<div class="bar-track-lg"><div class="bar-fill-lg" style="width:'+barPct+'%;background:var(--growth-em);"></div></div>'+
       '<div class="item-bottom"><div></div><div class="item-actions"><button class="btn-small" data-action="open-income-estimate">Editar estimado</button></div></div>';
   }
-  return '<div class="section-title">Estimación de ingresos</div><div class="item-card">'+body+'</div>';
+  return '<div class="section-title">Estimación de ingresos</div><div class="item-card widget-gold">'+body+'</div>';
 }
 
 /* ---- Comisión de bolsa (se registra como gasto real) ---- */
@@ -921,19 +957,22 @@ function exerciseGoalDaysLeft(goal){
   return Math.ceil((target-now)/86400000);
 }
 function exerciseGoalPct(goal){
+  // El % refleja los días que REALMENTE marcaste como ejercitados (del calendario)
+  // dentro del periodo de la meta, no solo el paso del calendario.
   var start = new Date(goal.createdAt); start.setHours(0,0,0,0);
   var target = new Date(goal.targetDate+'T00:00:00');
-  var now = new Date(); now.setHours(0,0,0,0);
   var totalDays = Math.max(1, Math.round((target-start)/86400000));
-  var elapsedDays = Math.round((now-start)/86400000);
-  return Math.max(0, Math.min(100, Math.round((elapsedDays/totalDays)*100)));
+  var startStr = dateToStr(start);
+  var targetStr = goal.targetDate;
+  var doneCount = state.exerciseLogs.filter(function(d){ return d >= startStr && d <= targetStr; }).length;
+  return Math.max(0, Math.min(100, Math.round((doneCount/totalDays)*100)));
 }
 function buildExerciseGoalHtml(){
   var goal = state.exerciseGoal;
   var wc = state.theme==='dark' ? '#39FF6A' : '#4C7A5D';
   if(!goal){
     return '<div class="section-title">Meta</div>'+
-      '<div class="card" style="text-align:center;max-width:300px;margin:0 auto 14px;">'+
+      '<div class="card" style="text-align:center;">'+
         '<div class="chart-desc" style="margin-bottom:10px;">Ponete una fecha objetivo y te digo cuánto llevas del camino.</div>'+
         '<button class="btn-small" data-action="add-exercise-goal">+ Agregar meta</button>'+
       '</div>';
@@ -946,7 +985,7 @@ function buildExerciseGoalHtml(){
       '<button class="btn-small" data-action="add-exercise-goal">Editar</button>'+
       '<button class="btn-small danger" data-action="delete-exercise-goal">Quitar</button>'+
     '</span></div>'+
-    '<div class="card" style="max-width:300px;margin:0 auto 14px;">'+
+    '<div class="card">'+
       '<div class="chart-desc" style="margin-bottom:10px;">Meta para el '+dateLabel+'</div>'+
       '<div class="book-bar-track"><div class="book-bar-fill" style="width:'+pct+'%;background:'+wc+';"></div><div class="book-bar-label">'+pct+'%</div></div>'+
       '<div class="chart-desc" style="text-align:center;margin-top:8px;">'+daysText+'</div>'+
@@ -969,13 +1008,17 @@ function buildEjercicioHtml(){
   ], {r:50, cx:60, cy:60, sw:16});
 
   var monthBlock = '<div class="section-title">Este mes</div>'+
-    '<div class="card" style="display:flex;flex-direction:column;align-items:center;max-width:300px;margin:0 auto 14px;">'+
+    '<div class="card" style="display:flex;flex-direction:column;align-items:center;">'+
       monthDonut+
       '<div class="chart-desc" style="margin-top:8px;">'+monthCount+' de 12 este mes ('+monthPct+'%)</div>'+
       buildExerciseCalendarHtml()+
     '</div>';
 
-  return weekBlock + monthBlock + buildExerciseGoalHtml();
+  return weekBlock +
+    '<div class="ejercicio-grid">'+
+      '<div class="ejercicio-col">'+monthBlock+'</div>'+
+      '<div class="ejercicio-col">'+buildExerciseGoalHtml()+'</div>'+
+    '</div>';
 }
 function renderRail(){ document.querySelectorAll('.rail button').forEach(function(b){ b.classList.toggle('active', b.dataset.section===ui.section); }); }
 function renderCurrencyRow(showToggle){
@@ -1603,7 +1646,7 @@ function openSettings(){
     '<button class="btn-primary" data-action="save-settings">Guardar ajustes</button>'+
     '<div class="field-hint" style="text-align:center;margin-top:6px;">Las categorías de gasto e ingreso se editan desde la ventana de "Nuevo movimiento".</div>'+
     '<button class="btn-text" data-action="ask-reset" style="color:var(--spend);margin-top:10px;">Borrar todos mis datos</button>'+
-    '<button class="btn-text" data-action="logout" style="margin-top:2px;">Cerrar sesión / cambiar clave</button>'+
+    '<button class="btn-text" data-action="logout" style="margin-top:2px;">Cerrar sesión / cambiar de usuario</button>'+
     '<div style="font-size:11.5px;color:var(--text-faint);text-align:center;margin-top:10px;">Tus datos se guardan de forma privada. Solo tú puedes verlos con tu clave.</div>'+
   '</div></div>';
 }
@@ -1871,7 +1914,7 @@ async function handleAction(action, el){
     }
     case 'ask-reset': askReset(); break;
     case 'do-reset': { state = defaultState(); closeModal(); await saveState(); render(); showToast('Tus datos se borraron.'); break; }
-    case 'logout': { closeModal(); clearSecret(); state = null; showLockScreen(); break; }
+    case 'logout': { closeModal(); clearSecret(currentUser); localStorage.removeItem('mvo-last-user'); state = null; showUserPicker(); break; }
 
     case 'manage-cats': captureTxnDraft(); ui.catFormReturn='catmanage'; openCatManageSheet(ui.txnType); break;
     case 'close-catmanage': renderTxnModal(); break;
@@ -2008,30 +2051,65 @@ document.addEventListener('input', function(e){
 
 window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(function(){ if(state) render(); }, 150); });
 
-function hasSecret(){ return !!getSecret(); }
-function showLockScreen(errorMsg){
+function showUserPicker(){
+  currentUser = null;
   document.getElementById('app').style.display='none';
   var root = document.getElementById('lock-root');
   root.innerHTML =
     '<div class="lock-card">'+
       '<div class="lock-title">Mi Vida Organizada</div>'+
-      '<div class="lock-sub">Ingresa tu clave para entrar a tus datos</div>'+
+      '<div class="lock-sub">¿Quién eres?</div>'+
+      '<div class="user-picker">'+
+        USERS.map(function(u){ return '<button class="btn-user" data-user="'+esc(u.id)+'" type="button">'+esc(u.name)+'</button>'; }).join('')+
+      '</div>'+
+    '</div>';
+  root.style.display='flex';
+  var btns = root.querySelectorAll('.btn-user');
+  for(var i=0;i<btns.length;i++){
+    btns[i].addEventListener('click', function(e){ selectUser(e.currentTarget.getAttribute('data-user')); });
+  }
+}
+async function selectUser(userId){
+  if(hasSecret(userId)){
+    currentUser = userId;
+    setLastUser(userId);
+    document.getElementById('lock-root').style.display='none';
+    document.getElementById('lock-root').innerHTML='';
+    document.getElementById('app').style.display='';
+    await boot();
+  } else {
+    showLockScreen(userId);
+  }
+}
+function showLockScreen(userId, errorMsg){
+  currentUser = userId;
+  document.getElementById('app').style.display='none';
+  var user = findUser(userId);
+  var name = user ? user.name : '';
+  var root = document.getElementById('lock-root');
+  root.innerHTML =
+    '<div class="lock-card">'+
+      '<div class="lock-title">Mi Vida Organizada</div>'+
+      '<div class="lock-sub">Clave de '+esc(name)+'</div>'+
       (errorMsg ? '<div class="lock-error">'+esc(errorMsg)+'</div>' : '')+
       '<input type="password" id="lock-input" class="lock-input" placeholder="Tu clave" autocomplete="off">'+
       '<button class="btn-primary" id="lock-submit" type="button">Entrar</button>'+
-      '<div class="field-hint" style="text-align:center;margin-top:10px;">Esta clave protege tus datos. Si es la primera vez, invéntala aquí mismo: quedará guardada como tu clave.</div>'+
+      '<button class="btn-text lock-back" id="lock-back" type="button">No soy '+esc(name)+'</button>'+
     '</div>';
   root.style.display='flex';
   var input = document.getElementById('lock-input');
   input.focus();
-  document.getElementById('lock-submit').addEventListener('click', submitLock);
-  input.addEventListener('keydown', function(e){ if(e.key==='Enter') submitLock(); });
+  document.getElementById('lock-submit').addEventListener('click', function(){ submitLock(userId); });
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter') submitLock(userId); });
+  document.getElementById('lock-back').addEventListener('click', showUserPicker);
 }
-async function submitLock(){
+async function submitLock(userId){
   var input = document.getElementById('lock-input');
   var val = (input.value||'').trim();
   if(!val) return;
-  setSecret(val);
+  setSecret(userId, val);
+  currentUser = userId;
+  setLastUser(userId);
   document.getElementById('lock-root').style.display='none';
   document.getElementById('lock-root').innerHTML='';
   document.getElementById('app').style.display='';
@@ -2044,8 +2122,13 @@ async function boot(){
   render();
 }
 (async function init(){
-  if(hasSecret()){ await boot(); }
-  else { showLockScreen(); }
+  var last = getLastUser();
+  if(last && findUser(last) && hasSecret(last)){
+    currentUser = last;
+    await boot();
+  } else {
+    showUserPicker();
+  }
 })();
 </script>
 </body>
