@@ -245,6 +245,8 @@
 
   .dash-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start;}
   .ejercicio-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch;}
+  .bolsa-charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:640px){ .bolsa-charts-grid{grid-template-columns:1fr;} }
   .ejercicio-col{display:flex;flex-direction:column;}
   .ejercicio-col > *:last-child{flex:1;display:flex;flex-direction:column;justify-content:center;}
   .dash-col{display:flex;flex-direction:column;min-width:0;}
@@ -307,6 +309,10 @@
     <button data-section="finanzas">
       <span class="rail-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/><circle cx="17" cy="14.5" r="1.4" fill="currentColor" stroke="none"/></svg></span>
       Finanzas
+    </button>
+    <button data-section="bolsa">
+      <span class="rail-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M16.5 7.5c0-1.66-2-3-4.5-3S7.5 5.84 7.5 7.5c0 1.66 2 2.5 4.5 3s4.5 1.34 4.5 3-2 3-4.5 3-4.5-1.34-4.5-3"/></svg></span>
+      Bolsa
     </button>
     <button data-section="ejercicios">
       <span class="rail-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5l11 11M4 9l3-3 2 2-3 3-2-2zM15 18l3-3 2 2-3 3-2-2zM2 2l3 3M19 19l3 3"/></svg></span>
@@ -1172,6 +1178,9 @@ function renderHeaderAndTabs(){
   } else if(ui.section === 'ejercicios'){
     document.getElementById('greeting').innerHTML = 'Ejercicios<span>Toca un día del calendario para marcarlo</span>';
     document.getElementById('tabs').innerHTML = ''; document.getElementById('tabs').style.display = 'none';
+  } else if(ui.section === 'bolsa'){
+    document.getElementById('greeting').innerHTML = 'Bolsa<span>Tus acciones reales, con precios de verdad</span>';
+    document.getElementById('tabs').innerHTML = ''; document.getElementById('tabs').style.display = 'none';
   } else {
     document.getElementById('greeting').innerHTML = 'Avances personales<span>Tus metas de vida, un paso a la vez</span>';
     document.getElementById('tabs').innerHTML = ''; document.getElementById('tabs').style.display = 'none';
@@ -1402,7 +1411,7 @@ function buildInversionesHtml(){
   '</div>';
   var desc = '<div class="chart-desc" style="margin-bottom:14px;">Los precios se actualizan a mano — pregúntame en el chat cuánto está la bolsa y aquí metes el valor.</div>';
   var contributions = buildBolsaContributionsHtml();
-  return summary + feeLine + updatedLine + actions + desc + contributions + buildBolsaPositionsHtml();
+  return summary + feeLine + updatedLine + actions + desc + contributions;
 }
 function bolsaPositionCurrentValue(p){
   var q = ui.quotesCache[p.ticker];
@@ -1452,13 +1461,25 @@ function buildBolsaPositionsHtml(){
   return '<div class="section-title">Tus acciones <button class="btn-small" data-action="add-bolsa-position">+ Agregar</button></div>'+totalLine+rows;
 }
 function openAddBolsaPositionModal(){
+  var today = new Date().toISOString().slice(0,10);
   document.getElementById('modal-root').innerHTML =
   '<div class="overlay"><div class="sheet" data-stop>'+
     '<button class="close-x" data-action="close-modal">×</button>'+
     '<div class="sheet-title">Agregar acción</div>'+
     '<div class="field"><label>Símbolo (ticker)</label><input type="text" id="bolsa-pos-ticker" placeholder="Ej. AAPL (Apple), TSLA (Tesla)"></div>'+
     '<div class="field"><label>¿Cuánto invertiste? (en USD)</label><input type="number" id="bolsa-pos-amount" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00"></div>'+
-    '<div class="field-hint" style="margin-bottom:10px;">Tomo el precio de ahora mismo como tu precio de compra.</div>'+
+    '<div class="field"><label>¿Cuándo compraste?</label><input type="date" id="bolsa-pos-date" value="'+today+'" max="'+today+'"></div>'+
+    '<input type="hidden" id="bolsa-pos-mode" value="price">'+
+    '<div class="field">'+
+      '<label>&nbsp;</label>'+
+      '<div class="view-toggle">'+
+        '<button type="button" class="active" id="bolsa-mode-price" onclick="document.getElementById(\'bolsa-price-field\').style.display=\'\';document.getElementById(\'bolsa-pct-field\').style.display=\'none\';document.getElementById(\'bolsa-pos-mode\').value=\'price\';this.classList.add(\'active\');document.getElementById(\'bolsa-mode-pct\').classList.remove(\'active\');">Sé el precio</button>'+
+        '<button type="button" id="bolsa-mode-pct" onclick="document.getElementById(\'bolsa-price-field\').style.display=\'none\';document.getElementById(\'bolsa-pct-field\').style.display=\'\';document.getElementById(\'bolsa-pos-mode\').value=\'pct\';this.classList.add(\'active\');document.getElementById(\'bolsa-mode-price\').classList.remove(\'active\');">Solo sé el %</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="field" id="bolsa-price-field"><label>¿A cuánto compraste cada acción? (USD)</label><input type="number" id="bolsa-pos-price" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00"></div>'+
+    '<div class="field" id="bolsa-pct-field" style="display:none;"><label>¿En qué % estás ahorita? (usa negativo si vas perdiendo)</label><input type="number" id="bolsa-pos-pct" inputmode="decimal" step="0.1" placeholder="Ej. 12 o -5"></div>'+
+    '<div class="field-hint" style="margin-bottom:10px;">Si ya sabes el % en que estás, buscamos el precio de hoy y calculamos con qué precio compraste.</div>'+
     '<div id="bolsa-pos-error" class="lock-error" style="display:none;"></div>'+
     '<button class="btn-primary" id="bolsa-pos-submit" data-action="save-bolsa-position">Guardar</button>'+
   '</div></div>';
@@ -1467,35 +1488,139 @@ function openAddBolsaPositionModal(){
 async function saveBolsaPosition(){
   var tickerInput = document.getElementById('bolsa-pos-ticker');
   var amountInput = document.getElementById('bolsa-pos-amount');
+  var dateInput = document.getElementById('bolsa-pos-date');
+  var mode = document.getElementById('bolsa-pos-mode').value;
+  var priceInput = document.getElementById('bolsa-pos-price');
+  var pctInput = document.getElementById('bolsa-pos-pct');
   var errorEl = document.getElementById('bolsa-pos-error');
   var submitBtn = document.getElementById('bolsa-pos-submit');
   var ticker = (tickerInput.value||'').trim().toUpperCase();
   var amount = parseFloat(amountInput.value);
+  var purchaseDate = dateInput.value || new Date().toISOString().slice(0,10);
   errorEl.style.display = 'none';
   if(!ticker){ errorEl.textContent='Escribe un símbolo, como AAPL.'; errorEl.style.display=''; return; }
   if(!amount || amount<=0){ errorEl.textContent='Escribe cuánto invertiste.'; errorEl.style.display=''; return; }
-  submitBtn.disabled = true; submitBtn.textContent = 'Buscando precio…';
+
+  if(mode==='price'){
+    var purchasePrice = parseFloat(priceInput.value);
+    if(!purchasePrice || purchasePrice<=0){ errorEl.textContent='Escribe a cuánto compraste cada acción.'; errorEl.style.display=''; return; }
+    var shares = amount/purchasePrice;
+    state.bolsaPositions.push({id:uid(), ticker:ticker, amountInvested:amount, purchasePrice:purchasePrice, shares:shares, purchaseDate:purchaseDate});
+    closeModal(); await saveState(); render(); showToast('Acción agregada.');
+    return;
+  }
+
+  var pct = parseFloat(pctInput.value);
+  if(isNaN(pct)){ errorEl.textContent='Escribe en qué % estás ahorita.'; errorEl.style.display=''; return; }
+  if(pct<=-100){ errorEl.textContent='Ese % no puede ser -100 o menos.'; errorEl.style.display=''; return; }
+  submitBtn.disabled = true; submitBtn.textContent = 'Buscando precio de hoy…';
   try{
     var res = await apiRequestQuotes([ticker]);
     var q = res && res.quotes && res.quotes[ticker];
     if(!q || typeof q.price !== 'number'){
-      errorEl.textContent = 'No encontré ese símbolo. Revisa que esté bien escrito (ej. AAPL para Apple, TSLA para Tesla).';
+      errorEl.textContent = 'No encontré ese símbolo. Revisa que esté bien escrito, o usa "Sé el precio" y escribe el precio directamente.';
       errorEl.style.display='';
       submitBtn.disabled=false; submitBtn.textContent='Guardar';
       return;
     }
-    var shares = amount / q.price;
-    state.bolsaPositions.push({ id:uid(), ticker:ticker, amountInvested:amount, purchasePrice:q.price, shares:shares, purchaseDate:todayStr() });
+    var impliedPurchasePrice = q.price/(1+pct/100);
+    var impliedShares = amount/impliedPurchasePrice;
+    state.bolsaPositions.push({id:uid(), ticker:ticker, amountInvested:amount, purchasePrice:impliedPurchasePrice, shares:impliedShares, purchaseDate:purchaseDate});
     ui.quotesCache[ticker] = {price:q.price, change:q.change, changePct:q.changePct, fetchedAt: Date.now()};
-    closeModal();
-    await saveState();
-    render();
-    showToast('Agregaste '+ticker+'.');
-  }catch(e){
-    errorEl.textContent = 'No se pudo consultar el precio. Intenta de nuevo.';
+    closeModal(); await saveState(); render(); showToast('Acción agregada.');
+  } catch(e){
+    errorEl.textContent = 'No pude consultar el precio ahora. Intenta de nuevo.';
     errorEl.style.display='';
     submitBtn.disabled=false; submitBtn.textContent='Guardar';
   }
+}
+function bolsaGrowthSeries(){
+  var positions = (state.bolsaPositions||[]).filter(function(p){ return bolsaPositionCurrentValue(p) !== null; });
+  if(positions.length===0) return null;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var earliest = null;
+  positions.forEach(function(p){
+    var d = new Date(p.purchaseDate+'T00:00:00');
+    if(!earliest || d<earliest) earliest = d;
+  });
+  if(!earliest) return null;
+  var totalMs = today - earliest;
+  var totalDays = Math.round(totalMs/86400000);
+  var steps = Math.min(20, Math.max(2, totalDays+1));
+  var valueSeries = [], gainSeries = [];
+  for(var i=0;i<steps;i++){
+    var frac = steps>1 ? i/(steps-1) : 1;
+    var t = new Date(earliest.getTime() + frac*totalMs);
+    var totalValue = 0, totalInvestedSoFar = 0;
+    positions.forEach(function(p){
+      var pd = new Date(p.purchaseDate+'T00:00:00');
+      if(t < pd) return;
+      var currentValue = bolsaPositionCurrentValue(p);
+      var span = today - pd;
+      var posFrac = span>0 ? Math.min(1, (t-pd)/span) : 1;
+      var v = p.amountInvested + (currentValue - p.amountInvested)*posFrac;
+      totalValue += v;
+      totalInvestedSoFar += p.amountInvested;
+    });
+    var label = t.toLocaleDateString('es-MX',{day:'2-digit',month:'short'});
+    valueSeries.push({v: totalValue, label: label, tooltip: label+': $'+totalValue.toFixed(2)});
+    var g = totalValue - totalInvestedSoFar;
+    gainSeries.push({v: g, label: label, tooltip: label+': '+(g>=0?'+':'')+'$'+g.toFixed(2)});
+  }
+  return {valueSeries:valueSeries, gainSeries:gainSeries};
+}
+function miniMoneyLineChart(points, opts){
+  opts = opts || {};
+  var W=300, H=112, padBottom=20, padTop=16, padX=10, dotR=3.5;
+  var color = opts.color || 'var(--growth)';
+  var values = points.map(function(p){ return p.v; });
+  var minV = Math.min.apply(null, values.concat([0]));
+  var maxV = Math.max.apply(null, values.concat([0]));
+  if(maxV===minV){ maxV = minV+1; minV = minV-1; }
+  var n = points.length;
+  var innerW = W - padX*2;
+  var stepX = n>1 ? innerW/(n-1) : 0;
+  function xAt(i){ return padX + i*stepX; }
+  function yAt(v){ return H-padBottom - ((v-minV)/(maxV-minV))*(H-padBottom-padTop); }
+  var out = '';
+  var hasZeroLine = minV<0 && maxV>0;
+  if(hasZeroLine){
+    var zy = yAt(0);
+    out += '<line x1="'+padX+'" y1="'+zy.toFixed(1)+'" x2="'+(W-padX)+'" y2="'+zy.toFixed(1)+'" stroke="var(--text-faint)" stroke-width="1" stroke-dasharray="3 3"></line>';
+  }
+  var coords = points.map(function(p,i){ return {x:xAt(i), y:yAt(p.v)}; });
+  var linePts = coords.map(function(c){ return c.x.toFixed(1)+','+c.y.toFixed(1); }).join(' ');
+  var baseline = hasZeroLine ? yAt(0) : (H-padBottom);
+  var areaPath = 'M'+coords[0].x.toFixed(1)+','+baseline.toFixed(1)+' L'+coords.map(function(c){ return c.x.toFixed(1)+','+c.y.toFixed(1); }).join(' L')+' L'+coords[coords.length-1].x.toFixed(1)+','+baseline.toFixed(1)+' Z';
+  out += '<path d="'+areaPath+'" fill="'+color+'" fill-opacity="0.12" stroke="none"></path>';
+  out += '<polyline points="'+linePts+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>';
+  points.forEach(function(p,i){
+    var c = coords[i];
+    var tip = p.tooltip || (p.label+': $'+p.v.toFixed(2));
+    out += '<circle cx="'+c.x.toFixed(1)+'" cy="'+c.y.toFixed(1)+'" r="'+dotR+'" fill="'+color+'" stroke="var(--surface)" stroke-width="1.2" data-tooltip="'+esc(tip)+'"></circle>';
+  });
+  if(coords.length>0){
+    out += '<text x="'+coords[0].x.toFixed(1)+'" y="'+(H-6)+'" font-size="9" fill="var(--text-faint)" text-anchor="start" font-family="Inter, sans-serif">'+esc(points[0].label)+'</text>';
+    out += '<text x="'+coords[coords.length-1].x.toFixed(1)+'" y="'+(H-6)+'" font-size="9" fill="var(--text-faint)" text-anchor="end" font-family="Inter, sans-serif">'+esc(points[points.length-1].label)+'</text>';
+  }
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block;">'+out+'</svg>';
+}
+function buildBolsaSectionHtml(){
+  var intro = '<div class="chart-desc" style="margin-bottom:14px;">Aquí registras en qué acciones invertiste de verdad — la app busca el precio actual y calcula cuánto llevas ganado o perdido. Esto no tiene nada que ver con la Bolsa de Finanzas.</div>';
+  var positionsHtml = buildBolsaPositionsHtml();
+  var growth = bolsaGrowthSeries();
+  var chartsHtml = '';
+  if(growth){
+    var lastGain = growth.gainSeries[growth.gainSeries.length-1].v;
+    var gainColor = lastGain>=0 ? 'var(--growth)' : 'var(--spend)';
+    chartsHtml = '<div class="section-title" style="margin-top:18px;">Crecimiento</div>'+
+      '<div class="bolsa-charts-grid">'+
+        '<div class="card"><div class="item-sub" style="margin-bottom:6px;">Valor total</div>'+miniMoneyLineChart(growth.valueSeries,{color:'var(--growth)'})+'</div>'+
+        '<div class="card"><div class="item-sub" style="margin-bottom:6px;">Ganancia o pérdida (sin contar lo invertido)</div>'+miniMoneyLineChart(growth.gainSeries,{color:gainColor})+'</div>'+
+      '</div>'+
+      '<div class="chart-desc" style="margin-top:8px;">Como no guardamos el precio de cada día, la línea entre la fecha en que compraste y hoy es un estimado — se va afinando con el tiempo.</div>';
+  }
+  return '<div class="section-title">Bolsa</div>'+intro+positionsHtml+chartsHtml;
 }
 function buildDeudasHtml(){
   var debo = state.debts.filter(function(d){ return d.kind==='debo'; }); var meDeben = state.debts.filter(function(d){ return d.kind==='me_deben'; });
@@ -1560,6 +1685,7 @@ function render(){
   renderHeaderAndTabs();
   if(ui.section === 'ejercicios'){ document.getElementById('main-content').innerHTML = buildEjercicioHtml(); return; }
   if(ui.section === 'avances'){ document.getElementById('main-content').innerHTML = buildAvancesHtml(); return; }
+  if(ui.section === 'bolsa'){ document.getElementById('main-content').innerHTML = buildBolsaSectionHtml(); refreshQuotesIfNeeded(); return; }
 
   if(isDesktop()){ renderFinanzasDashboard(); return; }
   if(ui.tab==='resumen') renderResumen();
