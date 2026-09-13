@@ -385,8 +385,9 @@ var CURRENCIES = { MXN:{locale:'es-MX'}, USD:{locale:'en-US'}, EUR:{locale:'es-E
 var FOOD_CALORIE_DB = [
   {kw:'arepa con jamon y queso', cal:420}, {kw:'arepa con jamón y queso', cal:420},
   {kw:'arepa con carne mechada', cal:400}, {kw:'arepa pelua', cal:410},
+  {kw:'arepa con queso amarillo', cal:390}, {kw:'arepa con queso blanco', cal:340}, {kw:'arepa con queso de mano', cal:410},
   {kw:'arepa con pollo', cal:380}, {kw:'arepa con queso', cal:350}, {kw:'arepa con jamon', cal:330}, {kw:'arepa con jamón', cal:330},
-  {kw:'arepa con huevo', cal:320}, {kw:'arepa con mantequilla', cal:280}, {kw:'arepa reina pepiada', cal:430},
+  {kw:'arepa con tocineta', cal:370}, {kw:'arepa con huevo', cal:320}, {kw:'arepa con mantequilla', cal:280}, {kw:'arepa reina pepiada', cal:430},
   {kw:'arepa', cal:200},
   {kw:'cachapa con queso', cal:450}, {kw:'cachapa con queso de mano', cal:480}, {kw:'cachapa', cal:320},
   {kw:'pabellon criollo', cal:750}, {kw:'pabellón criollo', cal:750}, {kw:'pabellon', cal:750}, {kw:'pabellón', cal:750},
@@ -406,12 +407,13 @@ var FOOD_CALORIE_DB = [
   {kw:'carne mechada', cal:300}, {kw:'carne asada', cal:350}, {kw:'carne molida', cal:300}, {kw:'carne de res', cal:320}, {kw:'carne', cal:300},
   {kw:'pescado frito', cal:350}, {kw:'pescado al horno', cal:230}, {kw:'pescado', cal:230}, {kw:'atun', cal:180}, {kw:'atún', cal:180},
   {kw:'huevos revueltos', cal:220}, {kw:'huevo frito', cal:120}, {kw:'huevo', cal:80},
+  {kw:'tocineta', cal:150}, {kw:'bacon', cal:150}, {kw:'jamon', cal:60}, {kw:'jamón', cal:60},
   {kw:'tortilla de huevo', cal:250},
   {kw:'ensalada cesar', cal:350}, {kw:'ensalada césar', cal:350}, {kw:'ensalada de frutas', cal:120}, {kw:'ensalada', cal:150},
   {kw:'sopa de pollo', cal:220}, {kw:'sopa de res', cal:250}, {kw:'sopa', cal:200}, {kw:'crema de auyama', cal:180},
   {kw:'tajadas', cal:220}, {kw:'platano frito', cal:220}, {kw:'plátano frito', cal:220}, {kw:'platano', cal:120}, {kw:'plátano', cal:120},
   {kw:'yuca frita', cal:280}, {kw:'yuca', cal:180}, {kw:'papas fritas', cal:320}, {kw:'papa al horno', cal:160}, {kw:'papas', cal:150},
-  {kw:'queso guayanes', cal:100}, {kw:'queso blanco', cal:100}, {kw:'queso', cal:110},
+  {kw:'queso guayanes', cal:100}, {kw:'queso amarillo', cal:115}, {kw:'queso blanco', cal:90}, {kw:'queso', cal:100},
   {kw:'yogur con granola', cal:280}, {kw:'yogur', cal:120}, {kw:'avena', cal:180}, {kw:'granola', cal:200},
   {kw:'chocolate', cal:210}, {kw:'galletas', cal:160}, {kw:'torta', cal:350}, {kw:'helado', cal:250}, {kw:'dona', cal:260},
   {kw:'banana', cal:105}, {kw:'cambur', cal:105}, {kw:'manzana', cal:95}, {kw:'naranja', cal:70}, {kw:'lechosa', cal:60}, {kw:'papaya', cal:60}, {kw:'mango', cal:100}, {kw:'patilla', cal:50}, {kw:'uvas', cal:100},
@@ -419,25 +421,38 @@ var FOOD_CALORIE_DB = [
   {kw:'jugo natural', cal:120}, {kw:'jugo', cal:120}, {kw:'malta', cal:180}, {kw:'refresco', cal:150}, {kw:'cerveza', cal:150}, {kw:'agua de coco', cal:60}, {kw:'leche', cal:120}
 ];
 function normalizeFoodText(t){
-  return (t||'').toString().toLowerCase().trim();
+  return (t||'').toString().toLowerCase().trim().replace(/\s+/g,' ');
 }
-/* Heurística simple: busca las frases del listado (de la más larga a la más corta) dentro
-   del texto y suma sus calorías, quitando lo ya encontrado para no contar dos veces
-   (para que "arepa con queso" no sume también "queso" por separado). Es un estimado,
-   no un cálculo nutricional exacto. */
+function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+var QUANTITY_WORDS = { uno:1, un:1, una:1, dos:2, tres:3, cuatro:4, cinco:5, seis:6, siete:7, ocho:8, nueve:9, diez:10, medio:0.5, media:0.5, par:2 };
+var PORTION_UNIT_WORDS = ['porciones','porcion','porción','rebanadas','rebanada','tajadas','tajada','pedazos','pedazo','trozos','trozo','slices','slice','rodajas','rodaja'];
+/* Construye el patrón de una frase del listado tolerando plurales en cualquiera de sus palabras
+   (arepa/arepas, queso/quesos, pan/panes) para no obligar a escribir siempre en singular. */
+function pluralTolerantPattern(kw){
+  return kw.split(' ').map(function(w){ return escapeRegExp(w)+'(?:es|s)?'; }).join('\\s+');
+}
+/* Heurística: busca las frases del listado (de la más larga a la más corta) dentro del texto
+   y suma sus calorías, quitando lo ya encontrado para no contar dos veces (para que
+   "arepa con queso" no sume también "queso" por separado). También detecta una cantidad
+   justo antes del alimento ("2 arepas", "dos rebanadas de tocineta", "2 slices de pizza")
+   y multiplica la calorías por esa cantidad. Es un estimado, no un cálculo nutricional exacto. */
 function estimateCalories(text){
-  var t = ' ' + normalizeFoodText(text) + ' ';
+  var t = normalizeFoodText(text);
   var total = 0, matched = [];
   var sorted = FOOD_CALORIE_DB.slice().sort(function(a,b){ return b.kw.length - a.kw.length; });
+  var qtyWordsPattern = Object.keys(QUANTITY_WORDS).join('|');
+  var unitWordsPattern = PORTION_UNIT_WORDS.join('|');
   sorted.forEach(function(item){
-    var needle = ' ' + item.kw + ' ';
-    if(t.indexOf(needle) > -1){
-      total += item.cal;
-      matched.push(item.kw);
-      t = t.split(needle).join(' ');
-    }
+    var re = new RegExp('\\b(?:(\\d+|'+qtyWordsPattern+')\\s+(?:(?:'+unitWordsPattern+')\\s+de\\s+)?)?'+pluralTolerantPattern(item.kw)+'\\b', 'g');
+    t = t.replace(re, function(fullMatch, qtyToken){
+      var qty = 1;
+      if(qtyToken){ qty = /^\d+$/.test(qtyToken) ? parseInt(qtyToken,10) : QUANTITY_WORDS[qtyToken]; }
+      total += item.cal * qty;
+      matched.push((qty!==1 ? (qty+'x ') : '') + item.kw);
+      return ' ';
+    });
   });
-  return { calories: total, matched: matched };
+  return { calories: Math.round(total), matched: matched };
 }
 var FINANZAS_TABS = [
   {id:'resumen', label:'Resumen'}, {id:'movimientos', label:'Movimientos'}, {id:'metas', label:'Metas'},
@@ -450,7 +465,7 @@ var ui = {
   section:'finanzas', tab:'resumen', monthOffset:0, viewMode:'total',
   txnType:'expense', txnCat:null, txnAccountId:null, txnDraft:null,
   debtKind:'debo', debtPaymentId:null,
-  confirmDeleteId:null, confirmDeleteGoalId:null, confirmRedeemGoalId:null, confirmDeleteDebtId:null, confirmDeleteCatId:null,
+  confirmDeleteId:null, confirmDeleteGoalId:null, confirmRedeemGoalId:null, confirmDeleteDebtId:null, confirmDeleteCatId:null, confirmDeleteBookId:null,
   confirmDeleteAccountId:null,
   catFormReturn:'txn', catManageType:'expense', tempCatColor:null,
   goalFundDirection:'in', goalFundGoalId:null,
@@ -1069,10 +1084,17 @@ function bookCardHtml(b){
   var coverHtml = b.cover ?
     '<img class="book-cover" src="'+esc(b.cover)+'" alt="" loading="lazy" onerror="'+coverErr+'">' :
     '<div class="book-cover book-cover-placeholder">📖</div>';
+  var isConfirmDel = ui.confirmDeleteBookId === b.id;
+  var deleteBtn = isConfirmDel ?
+    '<button class="btn-small danger" data-action="confirm-delete-book" data-id="'+b.id+'">¿Seguro?</button>' :
+    '<button class="btn-small danger" data-action="ask-delete-book" data-id="'+b.id+'">Quitar</button>';
   return '<div class="item-card">'+
     '<div class="item-top"><div class="book-top-row">'+coverHtml+'<div><div class="item-name">'+esc(b.name)+'</div><div class="item-sub">'+sub+'</div></div></div></div>'+
     '<div class="book-bar-track"><div class="book-bar-fill" style="width:'+pct+'%;background:'+fillColor+';"></div><div class="book-bar-label">'+label+'</div></div>'+
-    (!b.done ? '<div class="item-bottom"><div class="item-actions"><button class="btn-small" data-action="open-book-progress" data-id="'+b.id+'">Actualizar página</button></div></div>' : '')+
+    '<div class="item-bottom"><div class="item-actions">'+
+      (!b.done ? '<button class="btn-small" data-action="open-book-progress" data-id="'+b.id+'">Actualizar página</button>' : '')+
+      deleteBtn+
+    '</div></div>'+
   '</div>';
 }
 function buildAvancesHtml(){
@@ -1260,7 +1282,7 @@ function buildCalorieGoalHtml(){
     '<div class="card" style="text-align:center;"><div class="item-name">'+fmtKcal(goal)+' al día</div></div>';
 }
 function buildTodayMealsHtml(){
-  var todayS = todayStr();
+  var todayS = dateToStr(new Date());
   var meals = mealsForDate(todayS);
   var total = dayCalorieTotal(todayS);
   var goal = state.calorieGoal;
@@ -1285,6 +1307,58 @@ function buildTodayMealsHtml(){
   return '<div class="section-title" style="margin-top:22px;">Comidas de hoy <button class="btn-small" data-action="add-meal">+ Agregar comida</button></div>'+
     '<div class="card">'+progressHtml+'</div>'+
     mealsHtml;
+}
+function last7Dates(){
+  var arr = [];
+  for(var i=0;i<7;i++){
+    var d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-i);
+    arr.push(dateToStr(d));
+  }
+  return arr; /* hoy primero, hasta hace 6 días */
+}
+function dayShortLabel(ds){
+  var d = new Date(ds+'T00:00:00');
+  var todayS = dateToStr(new Date());
+  var yd = new Date(); yd.setDate(yd.getDate()-1);
+  var yestS = dateToStr(yd);
+  if(ds===todayS) return 'Hoy';
+  if(ds===yestS) return 'Ayer';
+  var days = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  return days[d.getDay()]+' '+padNum(d.getDate())+'/'+padNum(d.getMonth()+1);
+}
+function buildWeekHistoryHtml(){
+  var dates = last7Dates();
+  var goal = state.calorieGoal;
+  var weekDiffTotal = 0;
+  var rowsHtml = dates.map(function(ds){
+    var meals = mealsForDate(ds);
+    var total = dayCalorieTotal(ds);
+    var hasLog = meals.length > 0;
+    var diffHtml = '';
+    if(goal && hasLog){
+      var diff = Math.round(total - goal);
+      weekDiffTotal += diff;
+      diffHtml = '<div style="font-size:11.5px;font-weight:600;color:'+(diff>0?'var(--spend)':'var(--growth)')+';">'+(diff>0?'+':'')+diff+' kcal</div>';
+    }
+    var mealsList = hasLog ? meals.map(function(m){ return esc(m.text)+' ('+fmtKcal(m.calories)+')'; }).join(', ') : 'Sin registro';
+    return '<div class="txn-row" style="align-items:flex-start;">'+
+      '<div style="flex:1;min-width:0;"><div class="item-name" style="font-size:13px;">'+dayShortLabel(ds)+'</div>'+
+      '<div class="item-sub" style="white-space:normal;">'+mealsList+'</div></div>'+
+      '<div style="text-align:right;flex-shrink:0;"><div class="txn-amt">'+fmtKcal(total)+'</div>'+diffHtml+'</div>'+
+    '</div>';
+  }).join('');
+  var summaryHtml;
+  if(!goal){
+    summaryHtml = '<div class="chart-desc" style="text-align:center;">Ponte una meta calórica (más abajo) para ver cuánto te pasaste o ahorraste en la semana.</div>';
+  } else {
+    var absDiff = Math.abs(Math.round(weekDiffTotal));
+    if(weekDiffTotal > 0){ summaryHtml = '<div class="item-name" style="text-align:center;color:var(--spend);">Te pasaste '+absDiff+' kcal en total esta semana.</div>'; }
+    else if(weekDiffTotal < 0){ summaryHtml = '<div class="item-name" style="text-align:center;color:var(--growth);">Te ahorraste '+absDiff+' kcal en total esta semana.</div>'; }
+    else { summaryHtml = '<div class="item-name" style="text-align:center;">Quedaste justo en la meta esta semana.</div>'; }
+  }
+  return '<div class="section-title" style="margin-top:22px;">Últimos 7 días</div>'+
+    '<div class="card">'+summaryHtml+'</div>'+
+    rowsHtml;
 }
 function buildHealthCalendarHtml(){
   var now = new Date();
@@ -1318,6 +1392,7 @@ function buildHealthFoodHtml(){
       '<span><span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--spend);margin-right:4px;"></span>Te pasaste</span>'+
     '</div>' : '';
   return buildTodayMealsHtml() +
+    buildWeekHistoryHtml() +
     '<div class="card" style="display:flex;flex-direction:column;align-items:center;margin-top:14px;">'+
       '<div class="chart-desc" style="margin-bottom:2px;">Este mes</div>'+
       buildHealthCalendarHtml()+
@@ -2517,6 +2592,8 @@ async function handleAction(action, el){
       break;
     }
     case 'open-book-progress': openBookProgressModal(el.dataset.id); break;
+    case 'ask-delete-book': ui.confirmDeleteBookId = el.dataset.id; render(); setTimeout(function(){ if(ui.confirmDeleteBookId===el.dataset.id){ ui.confirmDeleteBookId=null; render(); } },3000); break;
+    case 'confirm-delete-book': state.books = state.books.filter(function(b){ return b.id!==el.dataset.id; }); ui.confirmDeleteBookId=null; await saveState(); render(); showToast('Libro eliminado.'); break;
     case 'save-book-progress': {
       var bk = findBook(el.dataset.id); if(!bk) return;
       var pageVal = parseInt(document.getElementById('book-current-page').value, 10);
@@ -2560,7 +2637,7 @@ async function handleAction(action, el){
       var mCalories = parseInt(document.getElementById('meal-calories').value, 10);
       if(!mText){ showToast('Escribe qué comiste.'); return; }
       if(isNaN(mCalories) || mCalories<0) mCalories = 0;
-      state.meals.push({ id:uid(), date:todayStr(), text:mText, calories:mCalories, createdAt:Date.now() });
+      state.meals.push({ id:uid(), date:dateToStr(new Date()), text:mText, calories:mCalories, createdAt:Date.now() });
       closeModal(); await saveState(); render(); showToast('Comida agregada.');
       break;
     }
