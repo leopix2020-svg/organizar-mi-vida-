@@ -167,6 +167,11 @@
   .field input, .field select, .field textarea{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);font-family:'Inter',sans-serif;font-size:15px;color:var(--text);}
   .field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--gold);outline-offset:-1px;}
   .field-hint{font-size:12px;color:var(--text-faint);margin-top:6px;}
+  .meal-suggestions{position:absolute;left:0;right:0;top:100%;margin-top:2px;background:var(--surface);border:1px solid var(--line);border-radius:10px;max-height:220px;overflow-y:auto;z-index:5;box-shadow:0 6px 16px rgba(0,0,0,0.12);}
+  .meal-suggestion-item{padding:9px 12px;font-size:13px;cursor:pointer;display:flex;flex-direction:column;gap:2px;border-bottom:1px solid var(--line);}
+  .meal-suggestion-item:last-child{border-bottom:none;}
+  .meal-suggestion-item:active{background:var(--input-bg);}
+  .meal-suggestion-sub{font-size:11px;color:var(--text-faint);}
   .segmented{display:flex;background:var(--input-bg);border:1px solid var(--line);border-radius:10px;padding:3px;margin-bottom:16px;}
   .segmented button{flex:1;background:none;border:none;padding:9px 0;border-radius:8px;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;color:var(--text-faint);cursor:pointer;}
   .segmented button.active.income{background:var(--growth-soft);color:var(--growth);}
@@ -237,6 +242,8 @@
   .exercise-day.done{background:var(--growth);color:#fff;border-color:var(--growth);font-weight:700;}
   .exercise-day.over{background:var(--spend);color:#fff;border-color:var(--spend);font-weight:700;cursor:default;}
   .exercise-day.logged{background:var(--gold-soft);border-color:var(--gold);color:var(--text);cursor:default;}
+  .exercise-day.cal-yes{background:var(--spend);color:#fff;border-color:var(--spend);font-weight:700;}
+  .exercise-day.cal-no{background:var(--growth);color:#fff;border-color:var(--growth);font-weight:700;}
   .exercise-day.future{opacity:0.35;cursor:default;}
   .exercise-day.empty{visibility:hidden;cursor:default;}
   .book-top-row{display:flex;gap:10px;align-items:flex-start;}
@@ -378,81 +385,29 @@ var GOAL_COLORS = ['#4C7A5D','#C08A28','#5B7B92','#7C5295','#A8452C','#3E8E7E'];
 var CATEGORY_COLOR_PALETTE = ['#A8452C','#8A6D3B','#5B7B92','#7C5295','#C08A28','#2F6B52','#4C7A5D','#3E8E7E','#6B7280','#B0424F'];
 var CURRENCIES = { MXN:{locale:'es-MX'}, USD:{locale:'en-US'}, EUR:{locale:'es-ES'}, COP:{locale:'es-CO'}, ARS:{locale:'es-AR'}, GTQ:{locale:'es-GT'}, PEN:{locale:'es-PE'}, VES:{locale:'es-VE'} };
 
-/* Base de datos local de alimentos comunes (sobre todo venezolanos/latinos) para estimar
-   calorías a partir de lo que la persona escribe. No depende de ninguna API externa.
-   Las frases más largas van primero para que "arepa con queso" se detecte como un solo
-   platillo y no como "arepa" + "queso" por separado. */
-var FOOD_CALORIE_DB = [
-  {kw:'arepa con jamon y queso', cal:420}, {kw:'arepa con jamón y queso', cal:420},
-  {kw:'arepa con carne mechada', cal:400}, {kw:'arepa pelua', cal:410},
-  {kw:'arepa con queso amarillo', cal:390}, {kw:'arepa con queso blanco', cal:340}, {kw:'arepa con queso de mano', cal:410},
-  {kw:'arepa con pollo', cal:380}, {kw:'arepa con queso', cal:350}, {kw:'arepa con jamon', cal:330}, {kw:'arepa con jamón', cal:330},
-  {kw:'arepa con tocineta', cal:370}, {kw:'arepa con huevo', cal:320}, {kw:'arepa con mantequilla', cal:280}, {kw:'arepa reina pepiada', cal:430},
-  {kw:'arepa', cal:200},
-  {kw:'cachapa con queso', cal:450}, {kw:'cachapa con queso de mano', cal:480}, {kw:'cachapa', cal:320},
-  {kw:'pabellon criollo', cal:750}, {kw:'pabellón criollo', cal:750}, {kw:'pabellon', cal:750}, {kw:'pabellón', cal:750},
-  {kw:'pan con jamon y queso', cal:350}, {kw:'pan con jamón y queso', cal:350}, {kw:'pan con queso', cal:280}, {kw:'pan con jamon', cal:250}, {kw:'pan con jamón', cal:250},
-  {kw:'sandwich', cal:380}, {kw:'sándwich', cal:380},
-  {kw:'pan', cal:150},
-  {kw:'perro caliente', cal:350}, {kw:'hot dog', cal:350},
-  {kw:'hamburguesa doble', cal:650}, {kw:'hamburguesa', cal:450},
-  {kw:'pizza', cal:280},
-  {kw:'empanada de carne', cal:280}, {kw:'empanada de pollo', cal:260}, {kw:'empanada de queso', cal:240}, {kw:'empanada', cal:260},
-  {kw:'tequenos', cal:400}, {kw:'tequeños', cal:400},
-  {kw:'pastelito', cal:300},
-  {kw:'arroz con pollo', cal:450}, {kw:'arroz con caraotas', cal:400}, {kw:'arroz', cal:220},
-  {kw:'caraotas negras', cal:230}, {kw:'caraotas', cal:230}, {kw:'lentejas', cal:230}, {kw:'frijoles', cal:230},
-  {kw:'pasta con salsa', cal:450}, {kw:'pasta alfredo', cal:550}, {kw:'pasta', cal:380},
-  {kw:'pollo a la plancha', cal:250}, {kw:'pollo al horno', cal:280}, {kw:'pollo frito', cal:400}, {kw:'pollo guisado', cal:320}, {kw:'pollo', cal:280},
-  {kw:'carne mechada', cal:300}, {kw:'carne asada', cal:350}, {kw:'carne molida', cal:300}, {kw:'carne de res', cal:320}, {kw:'carne', cal:300},
-  {kw:'pescado frito', cal:350}, {kw:'pescado al horno', cal:230}, {kw:'pescado', cal:230}, {kw:'atun', cal:180}, {kw:'atún', cal:180},
-  {kw:'huevos revueltos', cal:220}, {kw:'huevo frito', cal:120}, {kw:'huevo', cal:80},
-  {kw:'tocineta', cal:150}, {kw:'bacon', cal:150}, {kw:'jamon', cal:60}, {kw:'jamón', cal:60},
-  {kw:'tortilla de huevo', cal:250},
-  {kw:'ensalada cesar', cal:350}, {kw:'ensalada césar', cal:350}, {kw:'ensalada de frutas', cal:120}, {kw:'ensalada', cal:150},
-  {kw:'sopa de pollo', cal:220}, {kw:'sopa de res', cal:250}, {kw:'sopa', cal:200}, {kw:'crema de auyama', cal:180},
-  {kw:'tajadas', cal:220}, {kw:'platano frito', cal:220}, {kw:'plátano frito', cal:220}, {kw:'platano', cal:120}, {kw:'plátano', cal:120},
-  {kw:'yuca frita', cal:280}, {kw:'yuca', cal:180}, {kw:'papas fritas', cal:320}, {kw:'papa al horno', cal:160}, {kw:'papas', cal:150},
-  {kw:'queso guayanes', cal:100}, {kw:'queso amarillo', cal:115}, {kw:'queso blanco', cal:90}, {kw:'queso', cal:100},
-  {kw:'yogur con granola', cal:280}, {kw:'yogur', cal:120}, {kw:'avena', cal:180}, {kw:'granola', cal:200},
-  {kw:'chocolate', cal:210}, {kw:'galletas', cal:160}, {kw:'torta', cal:350}, {kw:'helado', cal:250}, {kw:'dona', cal:260},
-  {kw:'banana', cal:105}, {kw:'cambur', cal:105}, {kw:'manzana', cal:95}, {kw:'naranja', cal:70}, {kw:'lechosa', cal:60}, {kw:'papaya', cal:60}, {kw:'mango', cal:100}, {kw:'patilla', cal:50}, {kw:'uvas', cal:100},
-  {kw:'cafe con leche', cal:120}, {kw:'café con leche', cal:120}, {kw:'cafe', cal:5}, {kw:'café', cal:5},
-  {kw:'jugo natural', cal:120}, {kw:'jugo', cal:120}, {kw:'malta', cal:180}, {kw:'refresco', cal:150}, {kw:'cerveza', cal:150}, {kw:'agua de coco', cal:60}, {kw:'leche', cal:120}
-];
-function normalizeFoodText(t){
-  return (t||'').toString().toLowerCase().trim().replace(/\s+/g,' ');
+/* Lista de ~500 alimentos con su porción de referencia y calorías (provista por Isabel).
+   Se usa para autocompletar mientras escribe y calcular las calorías según la cantidad,
+   en vez de adivinar por palabras clave. n=nombre, p=porción de referencia, c=calorías. */
+var FOOD_DB=[{n:'Arepa mediana',p:'1 unidad (100 g)',c:220},{n:'Arepa grande',p:'1 unidad (150 g)',c:330},{n:'Tocineta',p:'1 tira',c:60},{n:'Nugget de pollo',p:'1 unidad',c:100},{n:'Pechuga de pollo',p:'100 g',c:165},{n:'Muslo de pollo sin piel',p:'100 g',c:150},{n:'Alita de pollo',p:'1 unidad',c:100},{n:'Carne molida',p:'100 g',c:250},{n:'Carne de res magra',p:'100 g',c:200},{n:'Bistec de res',p:'100 g',c:220},{n:'Carne mechada',p:'100 g',c:210},{n:'Cerdo',p:'100 g',c:240},{n:'Chuleta de cerdo',p:'100 g',c:250},{n:'Jamón',p:'1 lonja',c:35},{n:'Salchicha',p:'1 unidad',c:150},{n:'Chorizo',p:'1 unidad',c:180},{n:'Atún en agua',p:'1 lata',c:120},{n:'Salmón',p:'100 g',c:208},{n:'Camarones',p:'100 g',c:100},{n:'Huevo',p:'1 unidad',c:70},{n:'Claras de huevo',p:'3 unidades',c:50},{n:'Queso blanco',p:'30 g',c:100},{n:'Queso amarillo',p:'1 lonja',c:70},{n:'Mozzarella',p:'30 g',c:85},{n:'Parmesano',p:'20 g',c:85},{n:'Cheddar',p:'30 g',c:120},{n:'Crema de leche',p:'1 cucharada',c:50},{n:'Mayonesa',p:'1 cucharada',c:95},{n:'Ketchup',p:'1 cucharada',c:20},{n:'Mostaza',p:'1 cucharada',c:10},{n:'Aguacate',p:'100 g',c:160},{n:'Aceite de oliva',p:'1 cucharada',c:120},{n:'Mantequilla',p:'1 cucharada',c:100},{n:'Arroz blanco cocido',p:'1 taza',c:205},{n:'Arroz integral cocido',p:'1 taza',c:215},{n:'Pasta cocida',p:'1 taza',c:220},{n:'Pasta con salsa de tomate',p:'1 taza',c:250},{n:'Papas fritas',p:'100 g',c:310},{n:'Papa hervida',p:'100 g',c:85},{n:'Papa al horno',p:'100 g',c:95},{n:'Batata',p:'100 g',c:90},{n:'Yuca hervida',p:'100 g',c:160},{n:'Yuca frita',p:'100 g',c:330},{n:'Plátano maduro',p:'1 mediano',c:220},{n:'Plátano frito',p:'100 g',c:300},{n:'Tostones',p:'100 g',c:220},{n:'Caraotas negras cocidas',p:'1 taza',c:225},{n:'Lentejas cocidas',p:'1 taza',c:230},{n:'Frijoles cocidos',p:'1 taza',c:225},{n:'Pan blanco',p:'1 rebanada',c:75},{n:'Pan integral',p:'1 rebanada',c:80},{n:'Pan de hamburguesa',p:'1 unidad',c:150},{n:'Pan perro caliente',p:'1 unidad',c:130},{n:'Croissant',p:'1 unidad',c:230},{n:'Tortilla de trigo',p:'1 unidad',c:140},{n:'Tortilla de maíz',p:'1 unidad',c:60},{n:'Avena seca',p:'40 g',c:150},{n:'Granola',p:'40 g',c:180},{n:'Cereal de maíz',p:'30 g',c:110},{n:'Quinoa cocida',p:'1 taza',c:220},{n:'Cuscús cocido',p:'1 taza',c:175},{n:'Lechuga',p:'100 g',c:15},{n:'Tomate',p:'1 mediano',c:25},{n:'Cebolla',p:'100 g',c:40},{n:'Zanahoria',p:'100 g',c:40},{n:'Pepino',p:'100 g',c:15},{n:'Brócoli',p:'100 g',c:35},{n:'Coliflor',p:'100 g',c:25},{n:'Espinaca',p:'100 g',c:25},{n:'Pimentón',p:'100 g',c:30},{n:'Calabacín',p:'100 g',c:20},{n:'Berenjena',p:'100 g',c:25},{n:'Champiñones',p:'100 g',c:22},{n:'Maíz dulce',p:'100 g',c:90},{n:'Guisantes',p:'100 g',c:80},{n:'Repollo',p:'100 g',c:25},{n:'Ajo',p:'1 diente',c:5},{n:'Manzana',p:'1 mediana',c:95},{n:'Banana',p:'1 mediana',c:105},{n:'Naranja',p:'1 mediana',c:60},{n:'Mandarina',p:'1 unidad',c:45},{n:'Mango',p:'1 taza',c:100},{n:'Piña',p:'1 taza',c:80},{n:'Fresas',p:'1 taza',c:50},{n:'Uvas',p:'1 taza',c:105},{n:'Sandía',p:'1 taza',c:45},{n:'Melón',p:'1 taza',c:55},{n:'Papaya',p:'1 taza',c:60},{n:'Kiwi',p:'1 unidad',c:45},{n:'Pera',p:'1 mediana',c:100},{n:'Durazno',p:'1 unidad',c:60},{n:'Ciruela',p:'1 unidad',c:30},{n:'Coco',p:'100 g',c:350},{n:'Almendras',p:'30 g',c:175},{n:'Maní',p:'30 g',c:170},{n:'Nueces',p:'30 g',c:200},{n:'Merey/anacardos',p:'30 g',c:165},{n:'Pistachos',p:'30 g',c:170},{n:'Mantequilla de maní',p:'1 cucharada',c:95},{n:'Chía',p:'1 cucharada',c:60},{n:'Linaza',p:'1 cucharada',c:55},{n:'Pasas',p:'30 g',c:90},{n:'Miel',p:'1 cucharada',c:65},{n:'Mermelada',p:'1 cucharada',c:50},{n:'Leche entera',p:'1 taza',c:150},{n:'Leche descremada',p:'1 taza',c:90},{n:'Leche de almendras',p:'1 taza',c:40},{n:'Yogur natural',p:'1 taza',c:120},{n:'Yogur griego',p:'170 g',c:100},{n:'Yogur griego entero',p:'170 g',c:170},{n:'Quesillo/flan',p:'1 porción',c:250},{n:'Helado de vainilla',p:'1 taza',c:270},{n:'Chocolate con leche',p:'30 g',c:160},{n:'Chocolate negro',p:'30 g',c:170},{n:'Galleta María',p:'1 unidad',c:25},{n:'Galleta Oreo',p:'1 unidad',c:53},{n:'Brownie',p:'1 porción',c:350},{n:'Torta de chocolate',p:'1 porción',c:400},{n:'Cheesecake',p:'1 porción',c:400},{n:'Donut',p:'1 unidad',c:250},{n:'Muffin',p:'1 unidad',c:350},{n:'Churro',p:'1 unidad',c:150},{n:'Palomitas con mantequilla',p:'3 tazas',c:180},{n:'Papas de paquete',p:'30 g',c:160},{n:'Nachos/totopos',p:'30 g',c:150},{n:'Pretzel',p:'1 unidad',c:110},{n:'Pizza de queso',p:'1 slice',c:285},{n:'Pizza pepperoni',p:'1 slice',c:300},{n:'Hamburguesa con queso',p:'1 unidad',c:550},{n:'Hamburguesa sencilla',p:'1 unidad',c:450},{n:'Hot dog',p:'1 unidad',c:350},{n:'Perro caliente venezolano',p:'1 unidad',c:600},{n:'Pollo frito',p:'1 pieza',c:250},{n:'Tiras de pollo',p:'3 unidades',c:350},{n:'Nuggets',p:'6 unidades',c:300},{n:'Papas fritas McDonald\'s',p:'porción mediana',c:320},{n:'Papas fritas grandes',p:'porción',c:480},{n:'Sándwich de pollo',p:'1 unidad',c:450},{n:'Sándwich de jamón y queso',p:'1 unidad',c:400},{n:'Club sandwich',p:'1 unidad',c:650},{n:'Wrap de pollo',p:'1 unidad',c:450},{n:'Burrito de pollo',p:'1 unidad',c:600},{n:'Taco de carne',p:'1 unidad',c:180},{n:'Quesadilla de queso',p:'1 unidad',c:450},{n:'Nachos con queso',p:'1 plato',c:700},{n:'Sushi roll',p:'8 piezas',c:400},{n:'Sashimi de salmón',p:'6 piezas',c:250},{n:'Ramen',p:'1 bowl',c:500},{n:'Empanada de carne frita',p:'1 unidad',c:300},{n:'Empanada de pollo frita',p:'1 unidad',c:280},{n:'Empanada de queso frita',p:'1 unidad',c:320},{n:'Tequeño',p:'1 unidad',c:150},{n:'Cachapa con queso',p:'1 unidad',c:500},{n:'Patacón con carne',p:'1 unidad',c:650},{n:'Pabellón criollo',p:'1 plato',c:850},{n:'Hallaca',p:'1 unidad',c:450},{n:'Asado negro',p:'1 porción',c:350},{n:'Pasticho/lasagna',p:'1 porción',c:500},{n:'Arroz con pollo',p:'1 plato',c:550},{n:'Pollo a la plancha con arroz',p:'1 plato',c:550},{n:'Pollo a la plancha con ensalada',p:'1 plato',c:350},{n:'Carne con arroz',p:'1 plato',c:600},{n:'Carne con papas',p:'1 plato',c:650},{n:'Arepa con queso',p:'1 unidad',c:450},{n:'Arepa con pernil',p:'1 unidad',c:550},{n:'Arepa reina pepiada',p:'1 unidad',c:600},{n:'Arepa de carne mechada',p:'1 unidad',c:550},{n:'Arepa de pollo',p:'1 unidad',c:500},{n:'Arepa con jamón y queso',p:'1 unidad',c:500},{n:'Arepa con queso y tocineta',p:'1 unidad',c:550},{n:'Arepa dominó',p:'1 unidad',c:500},{n:'Arepa pelúa',p:'1 unidad',c:600},{n:'Arepa sifrina',p:'1 unidad',c:650},{n:'Arepa catira',p:'1 unidad',c:550},{n:'Batido de banana con leche',p:'1 vaso',c:250},{n:'Smoothie de fresa',p:'1 vaso',c:200},{n:'Jugo de naranja',p:'1 vaso',c:110},{n:'Jugo de mango',p:'1 vaso',c:150},{n:'Jugo de piña',p:'1 vaso',c:130},{n:'Limonada azucarada',p:'1 vaso',c:120},{n:'Refresco regular',p:'1 lata',c:140},{n:'Refresco sin azúcar',p:'1 lata',c:0},{n:'Bebida energética',p:'1 lata',c:110},{n:'Café negro',p:'1 taza',c:5},{n:'Café con leche',p:'1 taza',c:100},{n:'Cappuccino',p:'1 taza',c:120},{n:'Latte',p:'1 taza',c:150},{n:'Chocolate caliente',p:'1 taza',c:200},{n:'Té con azúcar',p:'1 taza',c:50},{n:'Agua de coco',p:'1 vaso',c:45},{n:'Cerveza',p:'1 lata',c:150},{n:'Vino',p:'1 copa',c:125},{n:'Whisky',p:'1 medida',c:100},{n:'Ron',p:'1 medida',c:100},{n:'Mojito',p:'1 vaso',c:200},{n:'Margarita',p:'1 vaso',c:250},{n:'Guacamole',p:'100 g',c:150},{n:'Hummus',p:'100 g',c:170},{n:'Salsa de ajo',p:'1 cucharada',c:100},{n:'Salsa BBQ',p:'1 cucharada',c:30},{n:'Salsa César',p:'1 cucharada',c:80},{n:'Salsa de tomate',p:'1 cucharada',c:20},{n:'Vinagreta',p:'1 cucharada',c:70},{n:'Pesto',p:'1 cucharada',c:80},{n:'Salsa de soya',p:'1 cucharada',c:10},{n:'Caldo de pollo',p:'1 taza',c:40},{n:'Sopa de verduras',p:'1 taza',c:100},{n:'Sopa de pollo',p:'1 taza',c:150},{n:'Crema de auyama',p:'1 taza',c:180},{n:'Lasaña de carne',p:'1 porción',c:500},{n:'Macarrones con queso',p:'1 taza',c:350},{n:'Risotto',p:'1 taza',c:300},{n:'Paella',p:'1 plato',c:500},{n:'Ceviche',p:'1 taza',c:200},{n:'Ensalada César con pollo',p:'1 plato',c:450},{n:'Ensalada mixta',p:'1 plato',c:150},{n:'Ensalada con aguacate',p:'1 plato',c:250},{n:'Auyama/calabaza',p:'100 g',c:35},{n:'Ñame hervido',p:'100 g',c:115},{n:'Ocumo/taro',p:'100 g',c:140},{n:'Harina de maíz precocida',p:'100 g',c:350},{n:'Harina de trigo',p:'100 g',c:365},{n:'Pan rallado',p:'30 g',c:110},{n:'Azúcar',p:'1 cucharada',c:50},{n:'Mayonesa light',p:'1 cucharada',c:35},{n:'Queso crema',p:'1 cucharada',c:50},{n:'Nutella',p:'1 cucharada',c:100},{n:'Jarabe de maple',p:'1 cucharada',c:52},{n:'Leche condensada',p:'1 cucharada',c:65},{n:'Proteína en polvo',p:'1 scoop',c:120},{n:'Creatina',p:'5 g',c:0},{n:'Gelatina',p:'1 porción',c:80},{n:'Avena cocida con agua',p:'1 taza',c:160},{n:'Avena con leche y banana',p:'1 bowl',c:400},{n:'Huevos revueltos',p:'2 huevos',c:180},{n:'Omelette de 3 huevos',p:'1 unidad',c:250},{n:'Tortilla española',p:'1 porción',c:300},{n:'Huevos benedictinos',p:'1 plato',c:500},{n:'Tostada con aguacate',p:'1 unidad',c:250},{n:'Tostada con huevo',p:'1 unidad',c:200},{n:'Tostada con queso',p:'1 unidad',c:180},{n:'Panquecas',p:'3 unidades',c:300},{n:'Waffles',p:'2 unidades',c:350},{n:'French toast',p:'2 rebanadas',c:300},{n:'Arepa pequeña',p:'1 unidad',c:150},{n:'Arepa con mantequilla',p:'1 unidad',c:300},{n:'Arepa con queso amarillo',p:'1 unidad',c:450},{n:'Arepa con huevo',p:'1 unidad',c:400},{n:'Arepa con perico',p:'1 unidad',c:400},{n:'Pasta con pollo',p:'1 plato',c:600},{n:'Pasta boloñesa',p:'1 plato',c:650},{n:'Pasta carbonara',p:'1 plato',c:750},{n:'Arroz frito',p:'1 taza',c:300},{n:'Arroz chino con pollo',p:'1 plato',c:650},{n:'Chow mein',p:'1 plato',c:600},{n:'Pollo teriyaki',p:'1 plato',c:500},{n:'Pollo al curry',p:'1 plato',c:550},{n:'Butter chicken',p:'1 plato',c:650},{n:'Curry de lentejas',p:'1 taza',c:300},{n:'Falafel',p:'4 unidades',c:330},{n:'Kebab de pollo',p:'1 unidad',c:450},{n:'Gyro',p:'1 unidad',c:600},{n:'Pita con pollo',p:'1 unidad',c:450},{n:'Pita con falafel',p:'1 unidad',c:400},{n:'Tacos de pollo',p:'3 unidades',c:500},{n:'Burrito de carne',p:'1 unidad',c:700},{n:'Bowl mexicano de pollo',p:'1 bowl',c:650},{n:'Guacamole con chips',p:'1 porción',c:450},{n:'Queso nacho',p:'2 cucharadas',c:100},{n:'Frijoles refritos',p:'1/2 taza',c:120},{n:'Edamame',p:'1 taza',c:190},{n:'Tofu',p:'100 g',c:75},{n:'Tempeh',p:'100 g',c:190},{n:'Seitan',p:'100 g',c:140},{n:'Lomo de cerdo',p:'100 g',c:200},{n:'Pavo',p:'100 g',c:135},{n:'Pavo molido',p:'100 g',c:170},{n:'Jamón de pavo',p:'1 lonja',c:30},{n:'Bacalao',p:'100 g',c:105},{n:'Tilapia',p:'100 g',c:130},{n:'Merluza',p:'100 g',c:90},{n:'Atún fresco',p:'100 g',c:140},{n:'Sardinas',p:'100 g',c:200},{n:'Pulpo',p:'100 g',c:80},{n:'Calamar',p:'100 g',c:90},{n:'Cangrejo',p:'100 g',c:100},{n:'Ostras',p:'6 unidades',c:50},{n:'Mejillones',p:'100 g',c:170},{n:'Trucha',p:'100 g',c:190},{n:'Queso gouda',p:'30 g',c:105},{n:'Queso feta',p:'30 g',c:80},{n:'Ricotta',p:'100 g',c:170},{n:'Requesón/cottage',p:'100 g',c:100},{n:'Queso manchego',p:'30 g',c:120},{n:'Queso de cabra',p:'30 g',c:110},{n:'Yogur de frutas',p:'1 envase',c:150},{n:'Kéfir',p:'1 taza',c:110},{n:'Leche chocolatada',p:'1 taza',c:190},{n:'Leche evaporada',p:'1/2 taza',c:170},{n:'Leche de soya',p:'1 taza',c:100},{n:'Leche de avena',p:'1 taza',c:120},{n:'Manzana con mantequilla de maní',p:'1 porción',c:190},{n:'Banana con mantequilla de maní',p:'1 porción',c:200},{n:'Yogur con granola',p:'1 bowl',c:300},{n:'Yogur con fruta',p:'1 bowl',c:200},{n:'Avena overnight',p:'1 bowl',c:350},{n:'Pudding de chía',p:'1 taza',c:250},{n:'Acai bowl',p:'1 bowl',c:450},{n:'Ensalada de frutas',p:'1 bowl',c:180},{n:'Frutos secos mixtos',p:'30 g',c:180},{n:'Barra de granola',p:'1 unidad',c:150},{n:'Barra de proteína',p:'1 unidad',c:200},{n:'Pan de ajo',p:'1 pieza',c:150},{n:'Bruschetta',p:'2 piezas',c:180},{n:'Hummus con pita',p:'1 porción',c:350},{n:'Sopa de tomate',p:'1 taza',c:120},{n:'Minestrone',p:'1 taza',c:150},{n:'Sopa de cebolla',p:'1 taza',c:200},{n:'Chili con carne',p:'1 taza',c:350},{n:'Carne guisada',p:'1 taza',c:350},{n:'Pollo guisado',p:'1 taza',c:300},{n:'Estofado de res',p:'1 taza',c:350},{n:'Albóndigas',p:'4 unidades',c:300},{n:'Carne asada',p:'150 g',c:350},{n:'Pollo asado',p:'150 g',c:280},{n:'Pechuga empanizada',p:'150 g',c:350},{n:'Pescado empanizado',p:'150 g',c:320},{n:'Calamares fritos',p:'150 g',c:350},{n:'Mozzarella sticks',p:'4 unidades',c:350},{n:'Onion rings',p:'6 unidades',c:300},{n:'Croquetas de pollo',p:'4 unidades',c:300},{n:'Tequeños con salsa',p:'3 unidades',c:500},{n:'Empanaditas',p:'3 unidades',c:300},{n:'Mini arepas',p:'3 unidades',c:300},{n:'Cachitos de jamón',p:'1 unidad',c:350},{n:'Pan de jamón',p:'1 rebanada',c:300},{n:'Cachapa pequeña',p:'1 unidad',c:300},{n:'Cachapa con queso y jamón',p:'1 unidad',c:600},{n:'Mandoca',p:'1 unidad',c:200},{n:'Chicharrón',p:'100 g',c:500},{n:'Morcilla',p:'100 g',c:330},{n:'Morcilla frita',p:'100 g',c:400},{n:'Pernil',p:'100 g',c:220},{n:'Costillas de cerdo',p:'100 g',c:300},{n:'Costillas BBQ',p:'100 g',c:320},{n:'Pulled pork',p:'100 g',c:250},{n:'Tocino',p:'100 g',c:540},{n:'Tocineta',p:'100 g',c:540},{n:'Pepperoni',p:'30 g',c:150},{n:'Salami',p:'30 g',c:120},{n:'Mortadela',p:'30 g',c:100},{n:'Prosciutto',p:'30 g',c:80},{n:'Aceitunas',p:'10 unidades',c:50},{n:'Pepinillos',p:'3 unidades',c:15},{n:'Alcaparras',p:'1 cucharada',c:2},{n:'Coco rallado',p:'30 g',c:200},{n:'Aceite vegetal',p:'1 cucharada',c:120},{n:'Aceite de coco',p:'1 cucharada',c:120},{n:'Vinagre',p:'1 cucharada',c:3},{n:'Sal',p:'1 cucharadita',c:0},{n:'Pimienta',p:'1 cucharadita',c:5},{n:'Orégano',p:'1 cucharadita',c:3},{n:'Canela',p:'1 cucharadita',c:6},{n:'Cacao en polvo',p:'1 cucharada',c:12},{n:'Harina de avena',p:'40 g',c:150},{n:'Harina de almendras',p:'30 g',c:175},{n:'Leche en polvo',p:'30 g',c:150},{n:'Arroz con leche',p:'1 taza',c:300},{n:'Tres leches',p:'1 porción',c:400},{n:'Quesillo venezolano',p:'1 porción',c:300},{n:'Flan',p:'1 porción',c:220},{n:'Arroz con coco',p:'1 taza',c:350},{n:'Dulce de leche',p:'2 cucharadas',c:130},{n:'Turrón',p:'30 g',c:160},{n:'Churros con chocolate',p:'1 porción',c:400},{n:'Paleta de helado',p:'1 unidad',c:150},{n:'Helado de chocolate',p:'1 taza',c:290},{n:'Yogur helado',p:'1 taza',c:220},{n:'Tiramisú',p:'1 porción',c:450},{n:'Panna cotta',p:'1 porción',c:300},{n:'Mousse de chocolate',p:'1 porción',c:350},{n:'Cookie con chispas',p:'1 grande',c:250},{n:'Brownie con helado',p:'1 porción',c:550},{n:'Torta tres leches',p:'1 porción',c:450},{n:'Pie de manzana',p:'1 porción',c:400},{n:'Pie de limón',p:'1 porción',c:350},{n:'Cheesecake de fresa',p:'1 porción',c:420},{n:'Alfajor',p:'1 unidad',c:200},{n:'Marshmallows',p:'4 unidades',c:100},{n:'Palomitas naturales',p:'3 tazas',c:90},{n:'Pretzels pequeños',p:'30 g',c:115},{n:'Crackers',p:'5 unidades',c:70},{n:'Rice cakes',p:'2 unidades',c:70},{n:'Tostadas de maíz',p:'2 unidades',c:120},{n:'Pan pita',p:'1 unidad',c:170},{n:'Bagel',p:'1 unidad',c:280},{n:'English muffin',p:'1 unidad',c:130},{n:'Donut glaseada',p:'1 unidad',c:250},{n:'Donut rellena',p:'1 unidad',c:300},{n:'Cinnamon roll',p:'1 unidad',c:450},{n:'Danish',p:'1 unidad',c:300},{n:'Pain au chocolat',p:'1 unidad',c:300},{n:'Scone',p:'1 unidad',c:250},{n:'Muffin de arándanos',p:'1 unidad',c:350},{n:'Muffin de chocolate',p:'1 unidad',c:400},{n:'Banana bread',p:'1 rebanada',c:250},{n:'Torta de zanahoria',p:'1 porción',c:400},{n:'Red velvet',p:'1 porción',c:400},{n:'Torta de vainilla',p:'1 porción',c:350},{n:'Galleta con chispas',p:'1 unidad',c:140},{n:'Galleta de avena',p:'1 unidad',c:100},{n:'Galleta de mantequilla',p:'1 unidad',c:70},{n:'Chocolate blanco',p:'30 g',c:160},{n:'Mantequilla de almendras',p:'1 cucharada',c:100},{n:'Tahini',p:'1 cucharada',c:90},{n:'Salsa de maní',p:'1 cucharada',c:90},{n:'Salsa teriyaki',p:'1 cucharada',c:30},{n:'Salsa picante',p:'1 cucharada',c:5},{n:'Sriracha',p:'1 cucharada',c:15},{n:'Ranch',p:'1 cucharada',c:70},{n:'Tzatziki',p:'2 cucharadas',c:30},{n:'Salsa marinara',p:'1/2 taza',c:70},{n:'Salsa Alfredo',p:'1/2 taza',c:300},{n:'Salsa de queso',p:'1/2 taza',c:250},{n:'Caldo de carne',p:'1 taza',c:40},{n:'Consomé',p:'1 taza',c:30},{n:'Sopa miso',p:'1 taza',c:60},{n:'Sopa de lentejas',p:'1 taza',c:180},{n:'Crema de champiñones',p:'1 taza',c:200},{n:'Gazpacho',p:'1 taza',c:90},{n:'Puré de papa',p:'1 taza',c:220},{n:'Puré de batata',p:'1 taza',c:200},{n:'Coleslaw',p:'1 taza',c:180},{n:'Verduras salteadas',p:'1 taza',c:120},{n:'Brócoli con queso',p:'1 taza',c:180},{n:'Espinaca salteada',p:'1 taza',c:100},{n:'Maíz en mazorca',p:'1 unidad',c:100},{n:'Espárragos',p:'100 g',c:20},{n:'Ejotes',p:'100 g',c:30},{n:'Remolacha',p:'100 g',c:45},{n:'Rábano',p:'100 g',c:16},{n:'Apio',p:'100 g',c:15},{n:'Coles de Bruselas',p:'100 g',c:43},{n:'Alcachofa',p:'1 unidad',c:60},{n:'Aceitunas negras',p:'10 unidades',c:45},{n:'Tomates cherry',p:'10 unidades',c:30},{n:'Aguacate entero',p:'1 unidad',c:320},{n:'Guacamole casero',p:'2 cucharadas',c:50},{n:'Pico de gallo',p:'1/2 taza',c:30},{n:'Salsa verde',p:'2 cucharadas',c:15},{n:'Salsa roja',p:'2 cucharadas',c:15},{n:'Chimichurri',p:'2 cucharadas',c:120},{n:'Pesto',p:'2 cucharadas',c:160},{n:'Hummus',p:'2 cucharadas',c:70},{n:'Baba ganoush',p:'2 cucharadas',c:50},{n:'Tahini',p:'2 cucharadas',c:180},{n:'Edamame',p:'100 g',c:120},{n:'Alubias cocidas',p:'1 taza',c:240},{n:'Garbanzos cocidos',p:'1 taza',c:270},{n:'Guisantes cocidos',p:'1 taza',c:135},{n:'Soja cocida',p:'1 taza',c:300},{n:'Tofu firme',p:'100 g',c:145},{n:'Leche vegetal sin azúcar',p:'1 taza',c:40},{n:'Bebida proteica',p:'1 botella',c:160},{n:'Batido proteico',p:'1 botella',c:200},{n:'Agua tónica',p:'1 lata',c:120},{n:'Agua con gas',p:'1 lata',c:0},{n:'Café americano',p:'1 taza',c:5},{n:'Espresso',p:'1 shot',c:3},{n:'Café con azúcar',p:'1 taza',c:50},{n:'Té verde',p:'1 taza',c:2},{n:'Té negro',p:'1 taza',c:2},{n:'Jugo verde',p:'1 vaso',c:100},{n:'Jugo de manzana',p:'1 vaso',c:115},{n:'Jugo de uva',p:'1 vaso',c:150},{n:'Smoothie de banana',p:'1 vaso',c:180},{n:'Smoothie de mango',p:'1 vaso',c:200},{n:'Smoothie de berries',p:'1 vaso',c:180},{n:'Limonada sin azúcar',p:'1 vaso',c:10},{n:'Chocolate milkshake',p:'1 vaso',c:500},{n:'Milkshake de vainilla',p:'1 vaso',c:450},{n:'Milkshake de fresa',p:'1 vaso',c:450},{n:'Frappuccino',p:'1 vaso',c:300},{n:'Café frappé',p:'1 vaso',c:250},{n:'Matcha latte',p:'1 vaso',c:180},{n:'Chai latte',p:'1 vaso',c:200},{n:'Agua saborizada',p:'1 botella',c:50},{n:'Arroz blanco',p:'100 g',c:130},{n:'Pasta seca',p:'100 g',c:350},{n:'Pollo cocido',p:'100 g',c:165},{n:'Carne de res cocida',p:'100 g',c:220},{n:'Queso blanco fresco',p:'100 g',c:300},{n:'Huevo cocido',p:'1 unidad',c:78},{n:'Clara de huevo',p:'1 unidad',c:17},{n:'Aguacate',p:'50 g',c:80},{n:'Banana',p:'100 g',c:89},{n:'Manzana',p:'100 g',c:52},{n:'Naranja',p:'100 g',c:47},{n:'Fresa',p:'100 g',c:32},{n:'Tomate',p:'100 g',c:18}];
+function normalizeSearchText(s){
+  return (s||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 }
-function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-var QUANTITY_WORDS = { uno:1, un:1, una:1, dos:2, tres:3, cuatro:4, cinco:5, seis:6, siete:7, ocho:8, nueve:9, diez:10, medio:0.5, media:0.5, par:2 };
-var PORTION_UNIT_WORDS = ['porciones','porcion','porción','rebanadas','rebanada','tajadas','tajada','pedazos','pedazo','trozos','trozo','slices','slice','rodajas','rodaja'];
-/* Construye el patrón de una frase del listado tolerando plurales en cualquiera de sus palabras
-   (arepa/arepas, queso/quesos, pan/panes) para no obligar a escribir siempre en singular. */
-function pluralTolerantPattern(kw){
-  return kw.split(' ').map(function(w){ return escapeRegExp(w)+'(?:es|s)?'; }).join('\\s+');
-}
-/* Heurística: busca las frases del listado (de la más larga a la más corta) dentro del texto
-   y suma sus calorías, quitando lo ya encontrado para no contar dos veces (para que
-   "arepa con queso" no sume también "queso" por separado). También detecta una cantidad
-   justo antes del alimento ("2 arepas", "dos rebanadas de tocineta", "2 slices de pizza")
-   y multiplica la calorías por esa cantidad. Es un estimado, no un cálculo nutricional exacto. */
-function estimateCalories(text){
-  var t = normalizeFoodText(text);
-  var total = 0, matched = [];
-  var sorted = FOOD_CALORIE_DB.slice().sort(function(a,b){ return b.kw.length - a.kw.length; });
-  var qtyWordsPattern = Object.keys(QUANTITY_WORDS).join('|');
-  var unitWordsPattern = PORTION_UNIT_WORDS.join('|');
-  sorted.forEach(function(item){
-    var re = new RegExp('\\b(?:(\\d+|'+qtyWordsPattern+')\\s+(?:(?:'+unitWordsPattern+')\\s+de\\s+)?)?'+pluralTolerantPattern(item.kw)+'\\b', 'g');
-    t = t.replace(re, function(fullMatch, qtyToken){
-      var qty = 1;
-      if(qtyToken){ qty = /^\d+$/.test(qtyToken) ? parseInt(qtyToken,10) : QUANTITY_WORDS[qtyToken]; }
-      total += item.cal * qty;
-      matched.push((qty!==1 ? (qty+'x ') : '') + item.kw);
-      return ' ';
-    });
+/* Busca coincidencias en FOOD_DB: primero las que empiezan justo con lo escrito, luego las
+   que tienen alguna palabra que empieza así, y por último cualquier coincidencia parcial.
+   Máximo 8 resultados, para no saturar el desplegable. */
+function searchFoodDb(query){
+  var q = normalizeSearchText(query);
+  if(q.length < 2) return [];
+  var scored = [];
+  FOOD_DB.forEach(function(f){
+    var n = normalizeSearchText(f.n);
+    var idx = n.indexOf(q);
+    if(idx===-1) return;
+    var wordStart = (idx===0) || (n.charAt(idx-1)===' ');
+    scored.push({ f:f, score: idx===0?0:(wordStart?1:2), idx:idx });
   });
-  return { calories: Math.round(total), matched: matched };
+  scored.sort(function(a,b){ if(a.score!==b.score) return a.score-b.score; if(a.idx!==b.idx) return a.idx-b.idx; return a.f.n.length-b.f.n.length; });
+  return scored.slice(0,8).map(function(s){ return s.f; });
 }
 var FINANZAS_TABS = [
   {id:'resumen', label:'Resumen'}, {id:'movimientos', label:'Movimientos'}, {id:'metas', label:'Metas'},
@@ -467,6 +422,7 @@ var ui = {
   debtKind:'debo', debtPaymentId:null,
   confirmDeleteId:null, confirmDeleteGoalId:null, confirmRedeemGoalId:null, confirmDeleteDebtId:null, confirmDeleteCatId:null, confirmDeleteBookId:null,
   confirmDeleteAccountId:null,
+  calMonthOffsets:{},
   catFormReturn:'txn', catManageType:'expense', tempCatColor:null,
   goalFundDirection:'in', goalFundGoalId:null,
   bolsaFundDirection:'in',
@@ -492,6 +448,7 @@ function defaultState(){
     exerciseGoal:null,
     meals:[],
     calorieGoal:null,
+    customCalendars:[ {id:'cal1', name:'Calendario 1', marks:{}}, {id:'cal2', name:'Calendario 2', marks:{}} ],
     expenseCats: DEFAULT_EXPENSE_CATS.map(function(c){ return Object.assign({},c); }),
     incomeCats: DEFAULT_INCOME_CATS.map(function(c){ return Object.assign({},c); })
   };
@@ -556,6 +513,19 @@ function normalizeState(s){
     return { id:m.id, date:m.date, text:m.text, calories:(typeof m.calories==='number'?m.calories:0), createdAt:m.createdAt||Date.now() };
   }) : [];
 
+  var customCalendars;
+  if(Array.isArray(s.customCalendars) && s.customCalendars.length===2){
+    customCalendars = s.customCalendars.map(function(c, idx){
+      var marks = {};
+      if(c && c.marks && typeof c.marks==='object'){
+        Object.keys(c.marks).forEach(function(k){ if(c.marks[k]==='yes' || c.marks[k]==='no'){ marks[k]=c.marks[k]; } });
+      }
+      return { id:(c&&c.id)||('cal'+(idx+1)), name:(c&&c.name)||('Calendario '+(idx+1)), marks:marks };
+    });
+  } else {
+    customCalendars = d.customCalendars.map(function(c){ return { id:c.id, name:c.name, marks:{} }; });
+  }
+
   /* Migración: los abonos/cobros de deudas ya no viven en fundMovements ni en debt.payments —
      ahora son transacciones reales de ingreso/gasto para que aparezcan en entradas y salidas. */
   debts.forEach(function(dbt){
@@ -616,7 +586,8 @@ function normalizeState(s){
     exerciseLogs: Array.isArray(s.exerciseLogs) ? s.exerciseLogs.filter(function(d){ return typeof d==='string'; }) : [],
     exerciseGoal: (s.exerciseGoal && typeof s.exerciseGoal==='object' && s.exerciseGoal.targetDate) ? { targetDate:s.exerciseGoal.targetDate, createdAt:s.exerciseGoal.createdAt||Date.now() } : null,
     meals: meals,
-    calorieGoal: (typeof s.calorieGoal==='number' && s.calorieGoal>0) ? s.calorieGoal : null
+    calorieGoal: (typeof s.calorieGoal==='number' && s.calorieGoal>0) ? s.calorieGoal : null,
+    customCalendars: customCalendars
   };
 }
 /* ---- Persistencia real vía /api/state (MongoDB detrás) ---- */
@@ -1093,9 +1064,54 @@ function bookCardHtml(b){
     '<div class="book-bar-track"><div class="book-bar-fill" style="width:'+pct+'%;background:'+fillColor+';"></div><div class="book-bar-label">'+label+'</div></div>'+
     '<div class="item-bottom"><div class="item-actions">'+
       (!b.done ? '<button class="btn-small" data-action="open-book-progress" data-id="'+b.id+'">Actualizar página</button>' : '')+
+      '<button class="btn-small" data-action="open-edit-book" data-id="'+b.id+'">Editar</button>'+
       deleteBtn+
     '</div></div>'+
   '</div>';
+}
+/* ---- Calendarios personalizados (solo visibles para Leo Jr) ---- */
+function buildCustomCalendarGridHtml(cal, offset){
+  var d = monthDate(offset);
+  var year = d.getFullYear(), month = d.getMonth();
+  var totalDays = new Date(year, month+1, 0).getDate();
+  var leadEmpty = mondayFirstIndex(new Date(year, month, 1));
+  var todayS = dateToStr(new Date());
+  var headers = ['L','M','M','J','V','S','D'].map(function(w){ return '<div class="exercise-weekday-label">'+w+'</div>'; }).join('');
+  var cells = '';
+  for(var i=0;i<leadEmpty;i++){ cells += '<div class="exercise-day empty"></div>'; }
+  for(var day=1; day<=totalDays; day++){
+    var ds = year+'-'+padNum(month+1)+'-'+padNum(day);
+    var isFuture = ds > todayS;
+    var mark = cal.marks[ds];
+    var cls = 'exercise-day'+(isFuture?' future':'')+(mark==='yes'?' cal-yes':'')+(mark==='no'?' cal-no':'');
+    var action = isFuture ? '' : (' data-action="toggle-custom-cal-day" data-cal="'+cal.id+'" data-date="'+ds+'"');
+    cells += '<div class="'+cls+'"'+action+'>'+day+'</div>';
+  }
+  return '<div class="exercise-calendar">'+headers+cells+'</div>';
+}
+function buildCustomCalendarCardHtml(cal){
+  var offset = ui.calMonthOffsets[cal.id] || 0;
+  return '<div class="card" style="flex:1 1 220px;min-width:220px;">'+
+    '<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;">'+
+      '<div class="item-name" style="font-size:13.5px;">'+esc(cal.name)+'</div>'+
+      '<button class="expand-btn" data-action="rename-custom-cal" data-cal="'+cal.id+'" title="Editar nombre">✎</button>'+
+    '</div>'+
+    '<div class="month-switch" style="justify-content:center;margin-bottom:4px;">'+
+      '<div class="month-nav">'+
+        '<button class="arrow" data-action="custom-cal-prev-month" data-cal="'+cal.id+'">‹</button>'+
+        '<div class="month-label">'+monthLabel(offset)+'</div>'+
+        '<button class="arrow" data-action="custom-cal-next-month" data-cal="'+cal.id+'" '+(offset>=0?'disabled':'')+'>›</button>'+
+      '</div>'+
+    '</div>'+
+    buildCustomCalendarGridHtml(cal, offset)+
+  '</div>';
+}
+function buildCustomCalendarsHtml(){
+  if(currentUser !== 'leo') return '';
+  return '<div class="section-title" style="margin-top:22px;">Mis calendarios</div>'+
+    '<div style="display:flex;gap:12px;flex-wrap:wrap;">'+
+      state.customCalendars.map(buildCustomCalendarCardHtml).join('')+
+    '</div>';
 }
 function buildAvancesHtml(){
   var inProgress = state.books.filter(function(b){ return !b.done; }).sort(function(a,b){ return b.createdAt-a.createdAt; });
@@ -1113,7 +1129,8 @@ function buildAvancesHtml(){
     '</span></div>'+
     '<div class="card module-card'+(expanded?' expanded':'')+'" id="'+cardId+'"><div class="module-scroll">'+
       inProgressHtml + doneHtml +
-    '</div></div>';
+    '</div></div>'+
+    buildCustomCalendarsHtml();
 }
 
 function mondayFirstIndex(date){ return (date.getDay()+6)%7; }
@@ -2201,6 +2218,29 @@ function openAddBookModal(){
   '</div></div>';
   document.getElementById('book-name').focus();
 }
+function openEditBookModal(bookId){
+  var b = findBook(bookId); if(!b) return;
+  document.getElementById('modal-root').innerHTML =
+  '<div class="overlay centered"><div class="sheet" data-stop>'+
+    '<button class="close-x" data-action="close-modal">×</button>'+
+    '<div class="sheet-title">Editar libro</div>'+
+    '<div class="field"><label>Nombre del libro</label><input type="text" id="edit-book-name" value="'+esc(b.name)+'"></div>'+
+    '<button class="btn-primary" data-action="save-book-name" data-id="'+b.id+'">Guardar</button>'+
+  '</div></div>';
+  document.getElementById('edit-book-name').focus();
+}
+function openRenameCalModal(calId){
+  var cal = state.customCalendars.find(function(c){ return c.id===calId; });
+  if(!cal) return;
+  document.getElementById('modal-root').innerHTML =
+  '<div class="overlay centered"><div class="sheet" data-stop>'+
+    '<button class="close-x" data-action="close-modal">×</button>'+
+    '<div class="sheet-title">Nombre del calendario</div>'+
+    '<div class="field"><label>¿Cómo lo quieres llamar?</label><input type="text" id="cal-rename-input" value="'+esc(cal.name)+'"></div>'+
+    '<button class="btn-primary" data-action="save-custom-cal-name" data-id="'+cal.id+'">Guardar</button>'+
+  '</div></div>';
+  document.getElementById('cal-rename-input').focus();
+}
 function openBookProgressModal(bookId){
   var b = findBook(bookId); if(!b) return;
   var initialPct = bookProgressPct(b);
@@ -2220,9 +2260,12 @@ function openAddMealModal(){
   '<div class="overlay centered"><div class="sheet" data-stop>'+
     '<button class="close-x" data-action="close-modal">×</button>'+
     '<div class="sheet-title">Nueva comida</div>'+
-    '<div class="field"><label>¿Qué comiste?</label><input type="text" id="meal-text" placeholder="Ej. Arepa con queso"></div>'+
-    '<div class="field"><label>Calorías (estimado, puedes ajustarlo)</label><input type="number" id="meal-calories" inputmode="numeric" min="0" step="1" placeholder="0" value="0"></div>'+
-    '<div class="field-hint" id="meal-calorie-hint">Escribe qué comiste y te sugiero un estimado.</div>'+
+    '<div class="field" style="position:relative;"><label>¿Qué comiste?</label><input type="text" id="meal-text" placeholder="Ej. nug..." autocomplete="off">'+
+      '<div id="meal-suggestions" class="meal-suggestions" style="display:none;"></div>'+
+    '</div>'+
+    '<div class="field" id="meal-quantity-field" style="display:none;"><label>Cantidad (<span id="meal-portion-label"></span>)</label><input type="number" id="meal-quantity" inputmode="decimal" min="0" step="0.5" value="1"></div>'+
+    '<div class="field"><label>Calorías totales</label><input type="number" id="meal-calories" inputmode="numeric" min="0" step="1" placeholder="0" value="0"></div>'+
+    '<div class="field-hint" id="meal-calorie-hint">Escribe qué comiste y elige una opción de la lista, o ponlo manual.</div>'+
     '<button class="btn-primary" data-action="save-meal">Agregar</button>'+
   '</div></div>';
   document.getElementById('meal-text').focus();
@@ -2594,6 +2637,37 @@ async function handleAction(action, el){
     case 'open-book-progress': openBookProgressModal(el.dataset.id); break;
     case 'ask-delete-book': ui.confirmDeleteBookId = el.dataset.id; render(); setTimeout(function(){ if(ui.confirmDeleteBookId===el.dataset.id){ ui.confirmDeleteBookId=null; render(); } },3000); break;
     case 'confirm-delete-book': state.books = state.books.filter(function(b){ return b.id!==el.dataset.id; }); ui.confirmDeleteBookId=null; await saveState(); render(); showToast('Libro eliminado.'); break;
+    case 'open-edit-book': openEditBookModal(el.dataset.id); break;
+    case 'save-book-name': {
+      var bkEdit = findBook(el.dataset.id); if(!bkEdit) return;
+      var newBookName = document.getElementById('edit-book-name').value.trim();
+      if(!newBookName){ showToast('Dale un nombre al libro.'); return; }
+      bkEdit.name = newBookName;
+      closeModal(); await saveState(); render(); showToast('Nombre actualizado.');
+      break;
+    }
+    case 'toggle-custom-cal-day': {
+      var calT = state.customCalendars.find(function(c){ return c.id===el.dataset.cal; });
+      var dsT = el.dataset.date;
+      if(!calT || dsT > dateToStr(new Date())) return;
+      var curMark = calT.marks[dsT];
+      if(curMark==='yes'){ calT.marks[dsT] = 'no'; }
+      else if(curMark==='no'){ delete calT.marks[dsT]; }
+      else { calT.marks[dsT] = 'yes'; }
+      await saveState(); render();
+      break;
+    }
+    case 'custom-cal-prev-month': { var cidPrev = el.dataset.cal; ui.calMonthOffsets[cidPrev] = (ui.calMonthOffsets[cidPrev]||0) - 1; render(); break; }
+    case 'custom-cal-next-month': { var cidNext = el.dataset.cal; var curOff = ui.calMonthOffsets[cidNext]||0; if(curOff<0){ ui.calMonthOffsets[cidNext] = curOff+1; render(); } break; }
+    case 'rename-custom-cal': openRenameCalModal(el.dataset.cal); break;
+    case 'save-custom-cal-name': {
+      var calRen = state.customCalendars.find(function(c){ return c.id===el.dataset.id; }); if(!calRen) return;
+      var newCalName = document.getElementById('cal-rename-input').value.trim();
+      if(!newCalName){ showToast('Ponle un nombre al calendario.'); return; }
+      calRen.name = newCalName;
+      closeModal(); await saveState(); render(); showToast('Nombre actualizado.');
+      break;
+    }
     case 'save-book-progress': {
       var bk = findBook(el.dataset.id); if(!bk) return;
       var pageVal = parseInt(document.getElementById('book-current-page').value, 10);
@@ -2632,6 +2706,27 @@ async function handleAction(action, el){
     case 'delete-exercise-goal': state.exerciseGoal = null; await saveState(); render(); showToast('Meta eliminada.'); break;
 
     case 'add-meal': openAddMealModal(); break;
+    case 'pick-food-suggestion': {
+      var mtSel = document.getElementById('meal-text');
+      var qtyFieldSel = document.getElementById('meal-quantity-field');
+      var qtyInputSel = document.getElementById('meal-quantity');
+      var calInputSel = document.getElementById('meal-calories');
+      var portionLbl = document.getElementById('meal-portion-label');
+      var hintSel = document.getElementById('meal-calorie-hint');
+      var suggBoxSel = document.getElementById('meal-suggestions');
+      if(mtSel){
+        mtSel.value = el.dataset.name;
+        mtSel.dataset.selectedCal = el.dataset.cal;
+        mtSel.dataset.selectedPortion = el.dataset.portion;
+      }
+      if(portionLbl) portionLbl.textContent = el.dataset.portion;
+      if(qtyInputSel) qtyInputSel.value = '1';
+      if(calInputSel) calInputSel.value = el.dataset.cal;
+      if(qtyFieldSel) qtyFieldSel.style.display = '';
+      if(suggBoxSel){ suggBoxSel.innerHTML=''; suggBoxSel.style.display='none'; }
+      if(hintSel) hintSel.textContent = '1 '+el.dataset.portion+' = '+el.dataset.cal+' kcal. Ajusta la cantidad si comiste más o menos.';
+      break;
+    }
     case 'save-meal': {
       var mText = document.getElementById('meal-text').value.trim();
       var mCalories = parseInt(document.getElementById('meal-calories').value, 10);
@@ -2709,14 +2804,36 @@ document.addEventListener('input', function(e){
   }
   if(e.target.id==='meal-text'){
     var hint = document.getElementById('meal-calorie-hint');
-    var caloriesInput = document.getElementById('meal-calories');
-    if(!hint || !caloriesInput) return;
-    var guess = estimateCalories(e.target.value);
-    if(guess.matched.length){
-      caloriesInput.value = guess.calories;
-      hint.textContent = 'Estimado: '+fmtKcal(guess.calories)+' ('+guess.matched.join(', ')+'). Puedes ajustarlo.';
+    var suggBox = document.getElementById('meal-suggestions');
+    var qtyField = document.getElementById('meal-quantity-field');
+    if(!hint || !suggBox) return;
+    /* Cualquier edición al texto invalida una selección previa de la lista. */
+    delete e.target.dataset.selectedCal;
+    delete e.target.dataset.selectedPortion;
+    if(qtyField) qtyField.style.display = 'none';
+    var q = e.target.value;
+    var matches = searchFoodDb(q);
+    if(matches.length){
+      suggBox.style.display = 'block';
+      suggBox.innerHTML = matches.map(function(f){
+        return '<div class="meal-suggestion-item" data-action="pick-food-suggestion" data-name="'+esc(f.n)+'" data-cal="'+f.c+'" data-portion="'+esc(f.p)+'">'+
+          '<span>'+esc(f.n)+'</span><span class="meal-suggestion-sub">'+esc(f.p)+' · '+f.c+' kcal</span>'+
+        '</div>';
+      }).join('');
+      hint.textContent = 'Elige una opción de la lista, o sigue escribiendo para ponerlo manual.';
     } else {
-      hint.textContent = e.target.value.trim() ? 'No reconozco ese alimento, pon tú el estimado de calorías.' : 'Escribe qué comiste y te sugiero un estimado.';
+      suggBox.style.display = 'none';
+      suggBox.innerHTML = '';
+      hint.textContent = q.trim() ? 'No está en la lista — puedes poner las calorías manualmente.' : 'Escribe qué comiste y elige una opción de la lista, o ponlo manual.';
+    }
+  }
+  if(e.target.id==='meal-quantity'){
+    var mtInput = document.getElementById('meal-text');
+    var calInput = document.getElementById('meal-calories');
+    if(mtInput && mtInput.dataset.selectedCal && calInput){
+      var qty = parseFloat(e.target.value);
+      if(isNaN(qty) || qty<0) qty = 0;
+      calInput.value = Math.round(parseFloat(mtInput.dataset.selectedCal) * qty);
     }
   }
 });
