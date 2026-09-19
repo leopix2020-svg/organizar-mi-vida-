@@ -1318,6 +1318,7 @@ function buildTodayMealsHtml(){
     meals.map(function(m){
       return '<div class="txn-row"><div style="flex:1;"><div class="item-name" style="font-size:13.5px;">'+esc(m.text)+'</div></div>'+
         '<div class="txn-amt">'+fmtKcal(m.calories)+'</div>'+
+        '<button class="btn-small" data-action="edit-meal" data-id="'+m.id+'">Editar</button>'+
         '<button class="btn-small danger" data-action="delete-meal" data-id="'+m.id+'">Borrar</button>'+
       '</div>';
     }).join('');
@@ -1347,7 +1348,7 @@ function buildWeekHistoryHtml(){
   var dates = last7Dates();
   var goal = state.calorieGoal;
   var weekDiffTotal = 0;
-  var rowsHtml = dates.map(function(ds){
+  var daysHtml = dates.map(function(ds){
     var meals = mealsForDate(ds);
     var total = dayCalorieTotal(ds);
     var hasLog = meals.length > 0;
@@ -1357,11 +1358,21 @@ function buildWeekHistoryHtml(){
       weekDiffTotal += diff;
       diffHtml = '<div style="font-size:11.5px;font-weight:600;color:'+(diff>0?'var(--spend)':'var(--growth)')+';">'+(diff>0?'+':'')+diff+' kcal</div>';
     }
-    var mealsList = hasLog ? meals.map(function(m){ return esc(m.text)+' ('+fmtKcal(m.calories)+')'; }).join(', ') : 'Sin registro';
-    return '<div class="txn-row" style="align-items:flex-start;">'+
-      '<div style="flex:1;min-width:0;"><div class="item-name" style="font-size:13px;">'+dayShortLabel(ds)+'</div>'+
-      '<div class="item-sub" style="white-space:normal;">'+mealsList+'</div></div>'+
-      '<div style="text-align:right;flex-shrink:0;"><div class="txn-amt">'+fmtKcal(total)+'</div>'+diffHtml+'</div>'+
+    var mealsRowsHtml = hasLog ? meals.map(function(m){
+      return '<div class="txn-row" style="padding:8px 10px;margin-left:14px;margin-bottom:6px;">'+
+        '<div style="flex:1;min-width:0;"><div class="item-name" style="font-size:12.5px;">'+esc(m.text)+'</div></div>'+
+        '<div class="txn-amt" style="font-size:12px;">'+fmtKcal(m.calories)+'</div>'+
+        '<button class="btn-small" data-action="edit-meal" data-id="'+m.id+'">Editar</button>'+
+        '<button class="btn-small danger" data-action="delete-meal" data-id="'+m.id+'">Borrar</button>'+
+      '</div>';
+    }).join('') : '<div class="item-sub" style="margin-left:14px;margin-bottom:6px;">Sin registro</div>';
+    return '<div>'+
+      '<div class="txn-row" style="align-items:flex-start;">'+
+        '<div style="flex:1;min-width:0;"><div class="item-name" style="font-size:13px;">'+dayShortLabel(ds)+'</div></div>'+
+        '<div style="text-align:right;flex-shrink:0;"><div class="txn-amt">'+fmtKcal(total)+'</div>'+diffHtml+'</div>'+
+        '<button class="btn-small" data-action="add-meal-for-date" data-date="'+ds+'" title="Agregar comida">+</button>'+
+      '</div>'+
+      mealsRowsHtml+
     '</div>';
   }).join('');
   var summaryHtml;
@@ -1375,6 +1386,52 @@ function buildWeekHistoryHtml(){
   }
   return '<div class="section-title" style="margin-top:22px;">Últimos 7 días</div>'+
     '<div class="card">'+summaryHtml+'</div>'+
+    daysHtml;
+}
+function mondayOnOrBefore(d){
+  var idx = mondayFirstIndex(d);
+  var m = new Date(d); m.setHours(0,0,0,0); m.setDate(m.getDate()-idx);
+  return m;
+}
+function weekMonthShort(d){ return d.toLocaleDateString('es-MX',{month:'short'}).replace('.',''); }
+function weekRangeLabel(startDate, endDate){
+  var sameMonth = startDate.getMonth()===endDate.getMonth();
+  if(sameMonth) return startDate.getDate()+' – '+endDate.getDate()+' '+weekMonthShort(endDate);
+  return startDate.getDate()+' '+weekMonthShort(startDate)+' – '+endDate.getDate()+' '+weekMonthShort(endDate);
+}
+function buildWeeklyCalorieHistoryHtml(){
+  var goal = state.calorieGoal;
+  if(!goal){
+    return '<div class="section-title" style="margin-top:22px;">Historial semanal</div>'+
+      '<div class="card"><div class="chart-desc" style="text-align:center;">Ponte una meta calórica (más abajo) para ver el resumen de cada semana.</div></div>';
+  }
+  var today = new Date(); today.setHours(0,0,0,0);
+  var thisMonday = mondayOnOrBefore(today);
+  var weeksCount = 8;
+  var rowsHtml = '';
+  for(var i=0;i<weeksCount;i++){
+    var start = new Date(thisMonday); start.setDate(start.getDate()-7*i);
+    var end = new Date(start); end.setDate(end.getDate()+6);
+    var diffTotal = 0, anyLog = false;
+    for(var d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
+      var ds = dateToStr(d);
+      if(mealsForDate(ds).length){ anyLog = true; diffTotal += (dayCalorieTotal(ds) - goal); }
+    }
+    var label = i===0 ? ('Esta semana · '+weekRangeLabel(start,end)) : weekRangeLabel(start,end);
+    var statusHtml;
+    if(!anyLog){
+      statusHtml = '<div class="item-sub">Sin registro</div>';
+    } else {
+      var absDiff = Math.abs(Math.round(diffTotal));
+      var over = diffTotal > 0;
+      statusHtml = '<div class="txn-amt" style="font-size:12.5px;font-weight:600;color:'+(over?'var(--spend)':'var(--growth)')+';">'+(over?'Te pasaste ':'Te ahorraste ')+absDiff+' kcal</div>';
+    }
+    rowsHtml += '<div class="txn-row">'+
+      '<div style="flex:1;min-width:0;"><div class="item-name" style="font-size:13px;">'+label+'</div></div>'+
+      statusHtml+
+    '</div>';
+  }
+  return '<div class="section-title" style="margin-top:22px;">Historial semanal</div>'+
     rowsHtml;
 }
 function buildHealthCalendarHtml(){
@@ -1410,6 +1467,7 @@ function buildHealthFoodHtml(){
     '</div>' : '';
   return buildTodayMealsHtml() +
     buildWeekHistoryHtml() +
+    buildWeeklyCalorieHistoryHtml() +
     '<div class="card" style="display:flex;flex-direction:column;align-items:center;margin-top:14px;">'+
       '<div class="chart-desc" style="margin-bottom:2px;">Este mes</div>'+
       buildHealthCalendarHtml()+
@@ -2255,18 +2313,27 @@ function openBookProgressModal(bookId){
   '</div></div>';
   document.getElementById('book-current-page').focus();
 }
-function openAddMealModal(){
+function openAddMealModal(opts){
+  opts = opts || {};
+  var editing = opts.editing || null;
+  var dates = last7Dates();
+  var minDate = dates[dates.length-1], maxDate = dates[0];
+  var presetDate = editing ? editing.date : (opts.presetDate || maxDate);
+  var title = editing ? 'Editar comida' : 'Nueva comida';
+  var btnLabel = editing ? 'Guardar' : 'Agregar';
   document.getElementById('modal-root').innerHTML =
   '<div class="overlay centered"><div class="sheet" data-stop>'+
     '<button class="close-x" data-action="close-modal">×</button>'+
-    '<div class="sheet-title">Nueva comida</div>'+
-    '<div class="field" style="position:relative;"><label>¿Qué comiste?</label><input type="text" id="meal-text" placeholder="Ej. nug..." autocomplete="off">'+
+    '<div class="sheet-title">'+title+'</div>'+
+    '<input type="hidden" id="meal-edit-id" value="'+(editing?esc(editing.id):'')+'">'+
+    '<div class="field"><label>Fecha</label><input type="date" id="meal-date" value="'+presetDate+'" min="'+minDate+'" max="'+maxDate+'"></div>'+
+    '<div class="field" style="position:relative;"><label>¿Qué comiste?</label><input type="text" id="meal-text" placeholder="Ej. nug..." autocomplete="off" value="'+(editing?esc(editing.text):'')+'">'+
       '<div id="meal-suggestions" class="meal-suggestions" style="display:none;"></div>'+
     '</div>'+
     '<div class="field" id="meal-quantity-field" style="display:none;"><label>Cantidad (<span id="meal-portion-label"></span>)</label><input type="number" id="meal-quantity" inputmode="decimal" min="0" step="0.5" value="1"></div>'+
-    '<div class="field"><label>Calorías totales</label><input type="number" id="meal-calories" inputmode="numeric" min="0" step="1" placeholder="0" value="0"></div>'+
+    '<div class="field"><label>Calorías totales</label><input type="number" id="meal-calories" inputmode="numeric" min="0" step="1" placeholder="0" value="'+(editing?editing.calories:0)+'"></div>'+
     '<div class="field-hint" id="meal-calorie-hint">Escribe qué comiste y elige una opción de la lista, o ponlo manual.</div>'+
-    '<button class="btn-primary" data-action="save-meal">Agregar</button>'+
+    '<button class="btn-primary" data-action="save-meal">'+btnLabel+'</button>'+
   '</div></div>';
   document.getElementById('meal-text').focus();
 }
@@ -2706,6 +2773,12 @@ async function handleAction(action, el){
     case 'delete-exercise-goal': state.exerciseGoal = null; await saveState(); render(); showToast('Meta eliminada.'); break;
 
     case 'add-meal': openAddMealModal(); break;
+    case 'add-meal-for-date': openAddMealModal({presetDate: el.dataset.date}); break;
+    case 'edit-meal': {
+      var mealToEdit = state.meals.find(function(x){ return x.id===el.dataset.id; });
+      if(mealToEdit) openAddMealModal({editing: mealToEdit});
+      break;
+    }
     case 'pick-food-suggestion': {
       var mtSel = document.getElementById('meal-text');
       var qtyFieldSel = document.getElementById('meal-quantity-field');
@@ -2730,10 +2803,22 @@ async function handleAction(action, el){
     case 'save-meal': {
       var mText = document.getElementById('meal-text').value.trim();
       var mCalories = parseInt(document.getElementById('meal-calories').value, 10);
+      var mDateEl = document.getElementById('meal-date');
+      var mDates = last7Dates();
+      var mMinDate = mDates[mDates.length-1], mMaxDate = mDates[0];
+      var mDate = (mDateEl && mDateEl.value) ? mDateEl.value : mMaxDate;
       if(!mText){ showToast('Escribe qué comiste.'); return; }
       if(isNaN(mCalories) || mCalories<0) mCalories = 0;
-      state.meals.push({ id:uid(), date:dateToStr(new Date()), text:mText, calories:mCalories, createdAt:Date.now() });
-      closeModal(); await saveState(); render(); showToast('Comida agregada.');
+      if(mDate < mMinDate || mDate > mMaxDate){ showToast('Solo puedes registrar comidas de los últimos 7 días.'); return; }
+      var mEditId = document.getElementById('meal-edit-id') ? document.getElementById('meal-edit-id').value : '';
+      if(mEditId){
+        var existingMeal = state.meals.find(function(m){ return m.id===mEditId; });
+        if(existingMeal){ existingMeal.text = mText; existingMeal.calories = mCalories; existingMeal.date = mDate; }
+        closeModal(); await saveState(); render(); showToast('Comida actualizada.');
+      } else {
+        state.meals.push({ id:uid(), date:mDate, text:mText, calories:mCalories, createdAt:Date.now() });
+        closeModal(); await saveState(); render(); showToast('Comida agregada.');
+      }
       break;
     }
     case 'delete-meal': {
