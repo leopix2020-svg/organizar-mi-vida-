@@ -1358,22 +1358,25 @@ function buildWeekHistoryHtml(){
       weekDiffTotal += diff;
       diffHtml = '<div style="font-size:11.5px;font-weight:600;color:'+(diff>0?'var(--spend)':'var(--growth)')+';">'+(diff>0?'+':'')+diff+' kcal</div>';
     }
-    var mealsRowsHtml = hasLog ? meals.map(function(m){
-      return '<div class="txn-row" style="padding:8px 10px;margin-left:14px;margin-bottom:6px;">'+
-        '<div style="flex:1;min-width:0;"><div class="item-name" style="font-size:12.5px;">'+esc(m.text)+'</div></div>'+
-        '<div class="txn-amt" style="font-size:12px;">'+fmtKcal(m.calories)+'</div>'+
-        '<button class="btn-small" data-action="edit-meal" data-id="'+m.id+'">Editar</button>'+
-        '<button class="btn-small danger" data-action="delete-meal" data-id="'+m.id+'">Borrar</button>'+
-      '</div>';
-    }).join('') : '<div class="item-sub" style="margin-left:14px;margin-bottom:6px;">Sin registro</div>';
-    return '<div>'+
-      '<div class="txn-row" style="align-items:flex-start;">'+
-        '<div style="flex:1;min-width:0;"><div class="item-name" style="font-size:13px;">'+dayShortLabel(ds)+'</div></div>'+
+    var cardId = 'mealday-'+ds;
+    var expanded = !!ui.expandedCards[cardId];
+    var mealsRowsHtml = '';
+    if(expanded){
+      mealsRowsHtml = hasLog ? meals.map(function(m){
+        return '<div class="txn-row" style="padding:8px 10px;margin-left:14px;margin-bottom:6px;">'+
+          '<div style="flex:1;min-width:0;"><div class="item-name" style="font-size:12.5px;">'+esc(m.text)+'</div></div>'+
+          '<div class="txn-amt" style="font-size:12px;">'+fmtKcal(m.calories)+'</div>'+
+          '<button class="btn-small" data-action="edit-meal" data-id="'+m.id+'">Editar</button>'+
+          '<button class="btn-small danger" data-action="delete-meal" data-id="'+m.id+'">Borrar</button>'+
+        '</div>';
+      }).join('') : '<div class="item-sub" style="margin-left:14px;margin-bottom:6px;">Sin registro</div>';
+    }
+    return '<div class="txn-row" style="align-items:flex-start;cursor:pointer;" data-action="toggle-card-expand" data-id="'+cardId+'">'+
+        '<div style="flex:1;min-width:0;"><div class="item-name" style="font-size:13px;">'+(expanded?'▾':'▸')+' '+dayShortLabel(ds)+'</div></div>'+
         '<div style="text-align:right;flex-shrink:0;"><div class="txn-amt">'+fmtKcal(total)+'</div>'+diffHtml+'</div>'+
         '<button class="btn-small" data-action="add-meal-for-date" data-date="'+ds+'" title="Agregar comida">+</button>'+
       '</div>'+
-      mealsRowsHtml+
-    '</div>';
+      mealsRowsHtml;
   }).join('');
   var summaryHtml;
   if(!goal){
