@@ -4,12 +4,12 @@
 // Variable de entorno necesaria en Vercel (Project Settings -> Environment Variables):
 //   FINNHUB_API_KEY -> tu llave gratuita de https://finnhub.io (Sign up -> API Key)
 //
-// La misma clave de cada persona (APP_SECRET / APP_SECRET_ISA) protege este endpoint,
+// La misma clave de cada persona (APP_SECRET / APP_SECRET_TIZIBIZI) protege este endpoint,
 // para que nadie más gaste nuestra cuota gratis de consultas.
 
 const USERS = {
   leo: { secretEnv: 'APP_SECRET' },
-  isa: { secretEnv: 'APP_SECRET_ISA' }
+  tizi: { secretEnv: 'APP_SECRET_TIZIBIZI' }
 };
 
 module.exports = async function handler(req, res) {

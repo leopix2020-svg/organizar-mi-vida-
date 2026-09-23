@@ -1,12 +1,12 @@
 // Función serverless de Vercel: guarda y lee los datos de "Mi Vida Organizada"
-// en MongoDB. Cada persona de la familia (Leo Jr, Isa, ...) tiene su propia
+// en MongoDB. Cada persona de la familia (Leo Jr, Tizi, ...) tiene su propia
 // clave y su propio documento, así los datos nunca se mezclan entre sí.
 //
 // Variables de entorno necesarias en Vercel (Project Settings -> Environment Variables):
-//   MONGODB_URI     -> cadena de conexión de tu cluster de MongoDB Atlas
-//   APP_SECRET      -> la clave de Leo Jr (la que ya se usaba antes)
-//   APP_SECRET_ISA  -> la clave de Isa
-//   MONGODB_DB      -> (opcional) nombre de la base de datos, por defecto "misfinanzas"
+//   MONGODB_URI          -> cadena de conexión de tu cluster de MongoDB Atlas
+//   APP_SECRET           -> la clave de Leo Jr (la que ya se usaba antes)
+//   APP_SECRET_TIZIBIZI  -> la clave de Tizi
+//   MONGODB_DB           -> (opcional) nombre de la base de datos, por defecto "misfinanzas"
 //
 // Para agregar una persona más en el futuro: agrégala aquí abajo en USERS
 // (con un docId nuevo y el nombre de una variable de entorno nueva), y crea
@@ -19,7 +19,7 @@ const COLLECTION = 'state';
 
 const USERS = {
   leo: { docId: 'app-state', secretEnv: 'APP_SECRET' },
-  isa: { docId: 'state-isa', secretEnv: 'APP_SECRET_ISA' }
+  tizi: { docId: 'state-tizi', secretEnv: 'APP_SECRET_TIZIBIZI' }
 };
 
 // En un entorno serverless, cada invocación puede reutilizar procesos "tibios".
