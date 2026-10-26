@@ -39,26 +39,33 @@ export function Donut(props: { s: AppState; segments: DonutSegment[]; r?: number
   return <svg {...svgProps}>{arcs}{labels}</svg>;
 }
 
-export interface BarGroup { label: string; values: { v: number; color: string; name?: string }[]; }
+export interface MonthGroup { label: string; values: { v: number; color: string; name?: string }[]; }
 
-export function MiniBarChart(props: { s: AppState; data: BarGroup[] }) {
-  const W = 300, H = 104, padBottom = 20, padTop = 8;
+/* Varias líneas (una por serie) con picos rectos y sin relleno; un punto por mes con su tooltip. */
+export function MiniLinesChart(props: { s: AppState; data: MonthGroup[] }) {
+  const W = 300, H = 104, padBottom = 20, padTop = 8, dotR = 3.5;
   let maxV = 1;
   props.data.forEach(d => { d.values.forEach(v => { if (v.v > maxV) maxV = v.v; }); });
   const groupW = W / props.data.length;
-  const out: JSX.Element[] = [];
-  props.data.forEach((d, i) => {
-    const n = d.values.length;
-    const barW = Math.min(15, (groupW - 8) / n);
-    const groupX = i * groupW + (groupW - barW * n) / 2;
-    d.values.forEach((v, j) => {
-      const h = maxV > 0 ? (v.v / maxV) * (H - padBottom - padTop) : 0;
+  const xAt = (i: number) => i * groupW + groupW / 2;
+  const yAt = (v: number) => H - padBottom - (v / maxV) * (H - padBottom - padTop);
+  const seriesCount = props.data.length ? props.data[0].values.length : 0;
+  const lines: JSX.Element[] = [], dots: JSX.Element[] = [];
+  for (let j = 0; j < seriesCount; j++) {
+    const color = props.data[0].values[j].color;
+    lines.push(<polyline key={'l' + j} points={props.data.map((d, i) => xAt(i).toFixed(1) + ',' + yAt(d.values[j].v).toFixed(1)).join(' ')} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"></polyline>);
+    props.data.forEach((d, i) => {
+      const v = d.values[j];
       const tip = (v.name ? v.name + ' · ' : '') + d.label + ': ' + fmt(props.s, v.v);
-      out.push(<rect key={i + '-' + j} x={(groupX + j * barW).toFixed(1)} y={(H - padBottom - h).toFixed(1)} width={(barW - 3).toFixed(1)} height={Math.max(h, 0).toFixed(1)} rx="3" fill={v.color} data-tooltip={tip}></rect>);
+      dots.push(<circle key={'d' + j + '-' + i} cx={xAt(i).toFixed(1)} cy={yAt(v.v).toFixed(1)} r={dotR} fill={v.color} stroke="var(--surface)" strokeWidth="1.2" data-tooltip={tip}></circle>);
     });
-    out.push(<text key={'t' + i} x={(i * groupW + groupW / 2).toFixed(1)} y={H - 6} fontSize="9.5" fill="var(--text-faint)" textAnchor="middle" fontFamily="Inter, sans-serif">{d.label}</text>);
-  });
-  return <svg viewBox={'0 0 ' + W + ' ' + H} style={{ width: '100%', height: 'auto', display: 'block' }}>{out}</svg>;
+  }
+  return (
+    <svg viewBox={'0 0 ' + W + ' ' + H} style={{ width: '100%', height: 'auto', display: 'block' }}>
+      {lines}{dots}
+      {props.data.map((d, i) => <text key={'t' + i} x={xAt(i).toFixed(1)} y={H - 6} fontSize="9.5" fill="var(--text-faint)" textAnchor="middle" fontFamily="Inter, sans-serif">{d.label}</text>)}
+    </svg>
+  );
 }
 
 export function MiniMoneyLineChart(props: { points: { v: number; label: string; tooltip?: string }[]; color?: string }) {

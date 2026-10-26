@@ -12,7 +12,7 @@ import {
 import { fmt, fmtCur, fmtPct, monthLabel, monthShortLabel, shortDate } from '../lib/format';
 import type { AppState, Debt, Period, Txn, TxnType } from '../lib/types';
 import { openModal, type Ui } from '../store';
-import { Donut, MiniBarChart, type DonutSegment } from './charts';
+import { Donut, MiniLinesChart, type DonutSegment } from './charts';
 
 interface Ctx { s: AppState; ui: Ui; p: Period; }
 
@@ -143,7 +143,7 @@ function ResumenTop({ c }: { c: Ctx }) {
       <div className="balance-sub"><div>Ingresos<strong>{fmtCur(s, income, cf)}</strong></div><div>Gastos<strong>{fmtCur(s, expense, cf)}</strong></div></div>
     </div>
     <div className="section-title">{'Ingresos vs. gastos' + (cf ? (' · ' + cf) : '')}</div>
-    <div className="card"><MiniBarChart s={s} data={chartData} /><div className="chart-legend"><span><span className="dot" style={{ background: cc.income }}></span>Ingresos</span><span><span className="dot" style={{ background: cc.expense }}></span>Gastos</span></div></div>
+    <div className="card"><MiniLinesChart s={s} data={chartData} /><div className="chart-legend"><span><span className="dot" style={{ background: cc.income }}></span>Ingresos</span><span><span className="dot" style={{ background: cc.expense }}></span>Gastos</span></div></div>
     <CategoriesCombo c={c} currencyFilter={cf} />
   </>;
 }

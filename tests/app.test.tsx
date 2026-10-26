@@ -4,6 +4,8 @@ import oldState from './fixtures/old-state.json';
 import { App } from '../src/App';
 import { init, saveState } from '../src/api/client';
 import { FINANZAS_TABS } from '../src/lib/constants';
+import { monthExpense, monthIncome } from '../src/lib/finance';
+import { fmt, monthShortLabel } from '../src/lib/format';
 import { getStore, resetUi, setStore, setUi } from '../src/store';
 import { dbDoc, dbState, fakeFetch, historyCol, seed, server } from './helpers/fakeServer';
 
@@ -120,6 +122,20 @@ describe('app', () => {
     expect(server.quoteCalls).toBe(1);
     expect(screen.getByText('Cargando…')).toBeTruthy();
     server.failQuotes = false;
+  });
+
+  it('ingresos vs. gastos: dos líneas de 6 meses con los montos correctos', async () => {
+    const { container } = await startApp();
+    const lines = container.querySelectorAll('#main-content polyline');
+    expect(lines.length).toBe(2);
+    lines.forEach(l => expect(l.getAttribute('points')!.split(' ').length).toBe(6));
+    expect(container.querySelectorAll('#main-content rect').length).toBe(0);
+    const st = getStore().state!;
+    const tips = [...container.querySelectorAll('#main-content circle[data-tooltip]')].map(c => c.getAttribute('data-tooltip'));
+    for (let o = -5; o <= 0; o++) {
+      expect(tips).toContain('Ingresos · ' + monthShortLabel(o) + ': ' + fmt(st, monthIncome(st, o, 'USD')));
+      expect(tips).toContain('Gastos · ' + monthShortLabel(o) + ': ' + fmt(st, monthExpense(st, o, 'USD')));
+    }
   });
 
   it('todas las pantallas se dibujan (celular y escritorio)', async () => {
