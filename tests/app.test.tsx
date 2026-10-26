@@ -32,11 +32,22 @@ beforeAll(() => {
 beforeEach(() => { seed('leo', oldState); (window as any).__desktop = false; });
 
 describe('app', () => {
-  it('carga sin guardar y solo muestra Finanzas y Bolsa', async () => {
+  it('carga sin guardar y muestra Finanzas, Bolsa y Ejercicio', async () => {
     const { container } = await startApp();
     expect(getStore().screen.kind).toBe('app');
     expect(server.puts).toBe(0);
-    expect([...container.querySelectorAll('.rail button')].map(b => b.textContent)).toEqual(['Finanzas', 'Bolsa']);
+    expect([...container.querySelectorAll('.rail button')].map(b => b.textContent)).toEqual(['Finanzas', 'Bolsa', 'Ejercicio']);
+  });
+
+  it('peso corporal: anotar y ver', async () => {
+    const { container } = await startApp();
+    fireEvent.click(screen.getByText('Ejercicio'));
+    fireEvent.click(screen.getByText('+ Anotar'));
+    fireEvent.change(screen.getByPlaceholderText('Ej. 72.5'), { target: { value: '72.5' } });
+    await act(async () => { fireEvent.click(screen.getByText('Guardar')); });
+    await flush();
+    expect(dbState().bodyWeights[0].kg).toBe(72.5);
+    expect(container.textContent).toContain('72.5 kg');
   });
 
   it('si la carga falla, no abre ni guarda', async () => {
@@ -152,7 +163,54 @@ describe('app', () => {
     const desk = await startApp();
     expect(desk.container.querySelector('.dash-grid')).toBeTruthy();
   });
-  /* Va al final: su aviso importante bloquea otros avisos por 3,5 s. */
+  /* Estas dos van al final: sus avisos importantes bloquean otros avisos por 3,5 s. */
+  it('ejercicio: crear rutina desde el catálogo, registrar sesiones y ver récord', async () => {
+    const { container } = await startApp();
+    const doc = container.ownerDocument;
+    fireEvent.click(screen.getByText('Ejercicio'));
+    fireEvent.click(screen.getByText('+ Nueva'));
+    fireEvent.change(screen.getByPlaceholderText('Ej. Rutina A'), { target: { value: 'Rutina A' } });
+    const search = screen.getByPlaceholderText('Ej. flex, push, dominadas…');
+    fireEvent.change(search, { target: { value: 'push' } });
+    fireEvent.click(doc.querySelector('.suggestion-item')!);
+    fireEvent.change(search, { target: { value: 'curl mart' } });
+    fireEvent.click(doc.querySelector('.suggestion-item')!);
+    fireEvent.change(search, { target: { value: 'Mi ejercicio raro' } });
+    fireEvent.click(screen.getByText('+ Crear «Mi ejercicio raro»'));
+    fireEvent.click(doc.querySelectorAll('.workout-block .segmented button')[1]);
+    fireEvent.click(screen.getByText('Agregar a la rutina'));
+    await act(async () => { fireEvent.click(screen.getByText('Crear rutina')); });
+    await flush();
+    let st = dbState();
+    expect(st.routines[0].name).toBe('Rutina A');
+    expect(st.exercises.map((e: any) => [e.name, e.weighted])).toEqual([['Flexiones', false], ['Curl martillo', true], ['Mi ejercicio raro', false]]);
+
+    async function logSession(flexReps: string[], curlKg: string) {
+      fireEvent.click(screen.getByText('Hoy hice…'));
+      const blocks = [...doc.querySelectorAll('.workout-block')];
+      flexReps.forEach((r, i) => {
+        if (i > 0 && blocks[0].querySelectorAll('.set-row').length <= i) fireEvent.click(blocks[0].querySelector('.btn-small:not(.danger)')!);
+        fireEvent.change([...doc.querySelectorAll('.workout-block')][0].querySelectorAll('.set-row')[i].querySelector('input')!, { target: { value: r } });
+      });
+      const curlRow = [...doc.querySelectorAll('.workout-block')][1].querySelector('.set-row')!;
+      fireEvent.change(curlRow.querySelectorAll('input')[0], { target: { value: '10' } });
+      fireEvent.change(curlRow.querySelectorAll('input')[1], { target: { value: curlKg } });
+      await act(async () => { fireEvent.click(screen.getByText('Guardar sesión')); });
+      await flush();
+    }
+    await logSession(['12', '10'], '8');
+    st = dbState();
+    expect(st.workouts.length).toBe(1);
+    expect(st.workouts[0].entries[0].sets).toEqual([{ reps: 12, kg: null }, { reps: 10, kg: null }]);
+    expect(st.workouts[0].entries.length).toBe(2);
+
+    await logSession(['15', '10'], '10');
+    expect(getStore().toast!.msg).toContain('récord en Flexiones');
+    expect(dbState().workouts.length).toBe(2);
+    expect(container.textContent).toContain('🏆');
+    expect(container.querySelectorAll('#main-content polyline').length).toBeGreaterThan(0);
+  });
+
   it('conflicto con otro dispositivo: no pisa y recarga lo nuevo', async () => {
     await startApp();
     const other = JSON.parse(dbDoc().value);

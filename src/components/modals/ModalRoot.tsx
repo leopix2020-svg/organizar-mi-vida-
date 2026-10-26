@@ -6,6 +6,7 @@ import {
 } from './FinanceModals';
 import { ResetModal, RestoreModal, SettingsModal } from './SettingsModals';
 import { TxnModal } from './TxnModal';
+import { BodyWeightModal, ExerciseModal, RoutineModal, WorkoutModal } from './WorkoutModals';
 
 export function ModalRoot({ s, ui }: { s: AppState; ui: Ui }) {
   const m = ui.modal;
@@ -30,6 +31,10 @@ export function ModalRoot({ s, ui }: { s: AppState; ui: Ui }) {
     case 'settings': return <SettingsModal key={key} s={s} />;
     case 'reset': return <ResetModal key={key} />;
     case 'restore': return <RestoreModal key={key} parsed={m.parsed} />;
+    case 'routine': return <RoutineModal key={key} s={s} routineId={m.routineId} />;
+    case 'workout': return <WorkoutModal key={key} s={s} workoutId={m.workoutId} />;
+    case 'exercise': return <ExerciseModal key={key} s={s} exerciseId={m.exerciseId} />;
+    case 'bodyWeight': return <BodyWeightModal key={key} s={s} id={m.id} />;
     default: return null;
   }
 }

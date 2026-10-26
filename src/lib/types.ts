@@ -49,6 +49,11 @@ export interface AppState {
   bolsaPositions: BolsaPosition[];
   expenseCats: Category[];
   incomeCats: Category[];
+  /* Ejercicio */
+  exercises: Exercise[];
+  routines: Routine[];
+  workouts: Workout[];
+  bodyWeights: BodyWeight[];
   /* Datos de Salud y Avances (secciones quitadas): no se muestran, pero se conservan. */
   books: unknown[];
   exerciseLogs: string[];
@@ -57,6 +62,15 @@ export interface AppState {
   calorieGoal: number | null;
   customCalendars: unknown[];
 }
+
+/* ---- Ejercicio ---- */
+/* weighted: el ejercicio usa pesa. En los que no, kg es el lastre opcional (mochila). */
+export interface Exercise { id: string; name: string; weighted: boolean; }
+export interface Routine { id: string; name: string; exerciseIds: string[]; createdAt: number; }
+export interface WorkoutSet { reps: number; kg: number | null; }
+export interface WorkoutEntry { exerciseId: string; sets: WorkoutSet[]; }
+export interface Workout { id: string; date: string; routineId: string | null; routineName: string; entries: WorkoutEntry[]; createdAt: number; }
+export interface BodyWeight { id: string; date: string; kg: number; createdAt: number; }
 
 /* Período que se está viendo en Finanzas (afecta resumen, movimientos y gráficas). */
 export interface Period { viewMode: 'total' | 'mensual'; monthOffset: number; }

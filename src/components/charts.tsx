@@ -41,14 +41,23 @@ export function Donut(props: { s: AppState; segments: DonutSegment[]; r?: number
 
 export interface MonthGroup { label: string; values: { v: number; color: string; name?: string }[]; }
 
-/* Varias líneas (una por serie) con picos rectos y sin relleno; un punto por mes con su tooltip. */
-export function MiniLinesChart(props: { s: AppState; data: MonthGroup[] }) {
+/* Varias líneas (una por serie) con picos rectos y sin relleno; un punto por grupo con su tooltip.
+   format: cómo se muestra cada valor (por defecto, dinero). fitRange: el eje se ajusta a los datos en vez de arrancar en 0. */
+export function MiniLinesChart(props: { s: AppState; data: MonthGroup[]; format?: (v: number) => string; fitRange?: boolean }) {
   const W = 300, H = 104, padBottom = 20, padTop = 8, dotR = 3.5;
-  let maxV = 1;
-  props.data.forEach(d => { d.values.forEach(v => { if (v.v > maxV) maxV = v.v; }); });
+  const format = props.format || ((v: number) => fmt(props.s, v));
+  const all: number[] = [];
+  props.data.forEach(d => { d.values.forEach(v => all.push(v.v)); });
+  let minV = 0, maxV = 1;
+  all.forEach(v => { if (v > maxV) maxV = v; });
+  if (props.fitRange && all.length) {
+    const lo = Math.min.apply(null, all), hi = Math.max.apply(null, all);
+    const pad = Math.max(1, (hi - lo) * 0.15);
+    minV = lo - pad; maxV = hi + pad;
+  }
   const groupW = W / props.data.length;
   const xAt = (i: number) => i * groupW + groupW / 2;
-  const yAt = (v: number) => H - padBottom - (v / maxV) * (H - padBottom - padTop);
+  const yAt = (v: number) => H - padBottom - ((v - minV) / (maxV - minV)) * (H - padBottom - padTop);
   const seriesCount = props.data.length ? props.data[0].values.length : 0;
   const lines: JSX.Element[] = [], dots: JSX.Element[] = [];
   for (let j = 0; j < seriesCount; j++) {
@@ -56,7 +65,7 @@ export function MiniLinesChart(props: { s: AppState; data: MonthGroup[] }) {
     lines.push(<polyline key={'l' + j} points={props.data.map((d, i) => xAt(i).toFixed(1) + ',' + yAt(d.values[j].v).toFixed(1)).join(' ')} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"></polyline>);
     props.data.forEach((d, i) => {
       const v = d.values[j];
-      const tip = (v.name ? v.name + ' · ' : '') + d.label + ': ' + fmt(props.s, v.v);
+      const tip = (v.name ? v.name + ' · ' : '') + d.label + ': ' + format(v.v);
       dots.push(<circle key={'d' + j + '-' + i} cx={xAt(i).toFixed(1)} cy={yAt(v.v).toFixed(1)} r={dotR} fill={v.color} stroke="var(--surface)" strokeWidth="1.2" data-tooltip={tip}></circle>);
     });
   }

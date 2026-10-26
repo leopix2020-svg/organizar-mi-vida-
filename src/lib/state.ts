@@ -11,6 +11,7 @@ export function defaultState(): AppState {
     accounts: [{ id: uid(), name: 'Efectivo', startingBalance: 0, currency: null }],
     bolsa: { amountInvested: 0, currentValue: 0, feeAmount: 0, lastUpdated: null },
     bolsaPositions: [],
+    exercises: [], routines: [], workouts: [], bodyWeights: [],
     books: [],
     exerciseLogs: [],
     exerciseGoal: null,
@@ -157,6 +158,13 @@ export function normalizeState(s: any): AppState {
     }) : [],
     expenseCats: expenseCats,
     incomeCats: incomeCats,
+    exercises: Array.isArray(s.exercises) ? s.exercises.filter((e: any) => e && e.id && e.name).map((e: any) => ({ id: e.id, name: e.name, weighted: !!e.weighted })) : [],
+    routines: Array.isArray(s.routines) ? s.routines.filter((r: any) => r && r.id).map((r: any) => ({ id: r.id, name: r.name || 'Rutina', exerciseIds: Array.isArray(r.exerciseIds) ? r.exerciseIds.filter((x: unknown) => typeof x === 'string') : [], createdAt: r.createdAt || Date.now() })) : [],
+    workouts: Array.isArray(s.workouts) ? s.workouts.filter((w: any) => w && w.id && w.date).map((w: any) => ({
+      id: w.id, date: w.date, routineId: w.routineId || null, routineName: w.routineName || '', createdAt: w.createdAt || Date.now(),
+      entries: Array.isArray(w.entries) ? w.entries.map((en: any) => ({ exerciseId: en.exerciseId, sets: Array.isArray(en.sets) ? en.sets.map((st: any) => ({ reps: Number(st.reps) || 0, kg: typeof st.kg === 'number' ? st.kg : null })) : [] })) : []
+    })) : [],
+    bodyWeights: Array.isArray(s.bodyWeights) ? s.bodyWeights.filter((b: any) => b && b.id && typeof b.kg === 'number').map((b: any) => ({ id: b.id, date: b.date, kg: b.kg, createdAt: b.createdAt || Date.now() })) : [],
     books: books,
     exerciseLogs: Array.isArray(s.exerciseLogs) ? s.exerciseLogs.filter(function (d: unknown) { return typeof d === 'string'; }) : [],
     exerciseGoal: (s.exerciseGoal && typeof s.exerciseGoal === 'object' && s.exerciseGoal.targetDate) ? { targetDate: s.exerciseGoal.targetDate, createdAt: s.exerciseGoal.createdAt || Date.now() } : null,

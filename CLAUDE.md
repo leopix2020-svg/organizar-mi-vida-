@@ -11,12 +11,12 @@ App personal para organizar la vida, hoy centrada en **finanzas** (Salud y Avanc
 |---|---|
 | `index.html` | Entrada de Vite (solo carga fuentes y `src/main.tsx`). |
 | `src/styles.css` | Todos los estilos (los mismos de la versión HTML; temas cálido y oscuro). |
-| `src/lib/` | Lógica pura, sin pantalla: `types.ts`, `constants.ts` (categorías, monedas, `USERS`), `state.ts` (`defaultState`, `normalizeState` con las migraciones), `finance.ts` (saldos, metas, deudas, patrimonio, períodos), `format.ts` (moneda y fechas locales), `stocks.ts` (Bolsa del riel), `backup.ts`. |
+| `src/lib/` | Lógica pura, sin pantalla: `types.ts`, `constants.ts` (categorías, monedas, `USERS`), `state.ts` (`defaultState`, `normalizeState` con las migraciones), `finance.ts` (saldos, metas, deudas, patrimonio, períodos), `format.ts` (moneda y fechas locales), `stocks.ts` (Bolsa del riel), `workout.ts` (Ejercicio: catálogo de ~70 ejercicios, búsqueda, récords, semanas), `backup.ts`. |
 | `src/store.ts` | Store global (`state` = datos, `ui` = lo que se ve, sesión, avisos). `commit(fn)` aplica un cambio sobre una copia y guarda. |
 | `src/api/client.ts` | Login/sesión, carga, guardado en fila con versión, conflicto, precios. |
 | `src/actions.ts` | Acciones compartidas (borrar con "¿Seguro?", FAB, abrir modales que exigen "Por mes"). |
 | `src/App.tsx` | Pantallas de entrada, riel, encabezado y estructura general. |
-| `src/components/` | `Finanzas.tsx` (todas las pestañas + tablero de escritorio), `BolsaSection.tsx`, `charts.tsx` (donas, barras, líneas), `Overlays.tsx` (aviso y tooltip), `modals/` (un componente por modal; `ModalRoot.tsx` los elige según `ui.modal`). |
+| `src/components/` | `Finanzas.tsx` (todas las pestañas + tablero de escritorio), `BolsaSection.tsx`, `EjercicioSection.tsx`, `charts.tsx` (donas, barras, líneas), `Overlays.tsx` (aviso y tooltip), `modals/` (un componente por modal; `ModalRoot.tsx` los elige según `ui.modal`). |
 | `tests/` | Pruebas con Vitest + jsdom (`npm test`). `fixtures/expected-numbers.json` son los números calculados con la versión HTML anterior: la lógica debe seguir dándolos igual. |
 | `api/state.js` | Función serverless de Vercel: guarda/lee el estado de cada usuario en MongoDB (GET/PUT/POST), con control de versión e historial (ver sección 3). |
 | `api/quote.js` | Función serverless de Vercel: precios de acciones vía Finnhub (`?symbols=AAPL,MSFT`). |
@@ -41,7 +41,14 @@ App personal para organizar la vida, hoy centrada en **finanzas** (Salud y Avanc
 - Después de publicar cambios, recargar todas las pestañas abiertas: una pestaña con código viejo no manda versión y sus guardados se rechazan.
 
 ## 4. Estructura de la app
-Riel de navegación con dos áreas: **Finanzas** y **Bolsa** (acciones reales con precios de Finnhub; distinta de la pestaña Bolsa dentro de Finanzas, que es un valor manual).
+Riel de navegación con tres áreas: **Finanzas**, **Bolsa** (acciones reales con precios de Finnhub; distinta de la pestaña Bolsa dentro de Finanzas, que es un valor manual) y **Ejercicio**.
+
+**Ejercicio** (desde 2026-10-26)
+- Datos: `exercises` (nombre + `weighted` = usa pesa), `routines` (nombre + lista de `exerciseIds`, sin repeticiones objetivo), `workouts` (fecha, rutina, y por ejercicio sus series `{reps, kg}`), `bodyWeights`. Todo en kilos.
+- En ejercicios sin pesa, `kg` es el lastre opcional (mochila).
+- Un ejercicio es uno solo aunque esté en varias rutinas; así se compara su avance. El catálogo precargado está en `workout.ts` y solo pasa al estado cuando se usa. No se puede borrar un ejercicio ya registrado.
+- Pantalla: resumen de la semana, "Hoy hice…" (sugiere la rutina que hace más tiempo no haces y muestra lo de la vez anterior), avance con gráfica de líneas por ejercicio o rutina y comparación contra la semana pasada, récords 🏆 (supera la mejor serie anterior en reps o kg; la primera vez no cuenta), calendario de días entrenados, historial, rutinas, mis ejercicios y peso corporal.
+- Acordado no incluir: temporizador de descanso ni notas por sesión. Los días de ejercicio viejos de Salud (`exerciseLogs`) no se muestran.
 
 **Finanzas** (pestañas: Resumen, Movimientos, Metas, Wallets, Bolsa, Deudas)
 - Multi-moneda (USD por defecto, también VES/bolívares). Pestañas de moneda arriba del selector de período.
