@@ -12,7 +12,9 @@ async function deletePosition(id: string) {
 }
 
 export function BolsaSection({ s, ui }: { s: AppState; ui: Ui }) {
-  useEffect(() => { void refreshQuotesIfNeeded(); });
+  /* Precios: al entrar a la sección o al cambiar las acciones, no en cada redibujo. */
+  const tickersKey = s.bolsaPositions.map(p => p.ticker).join(',');
+  useEffect(() => { void refreshQuotesIfNeeded(); }, [tickersKey]);
   const quotes = ui.quotesCache;
   const positions = s.bolsaPositions || [];
   const totalInvested = positions.reduce((a, p) => a + p.amountInvested, 0);

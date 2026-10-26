@@ -397,7 +397,10 @@ export function FinanzasView(props: { s: AppState; ui: Ui; desktop: boolean }) {
   const { s, ui, desktop } = props;
   const c: Ctx = { s: s, ui: ui, p: { viewMode: ui.viewMode, monthOffset: ui.monthOffset } };
   const needsQuotes = desktop || ui.tab === 'inversiones';
-  useEffect(() => { if (needsQuotes) void refreshQuotesIfNeeded(); });
+  /* Precios: se piden al entrar a la pantalla o al cambiar las acciones, no en cada redibujo
+     (si la consulta falla, así no se repite en bucle). */
+  const tickersKey = s.bolsaPositions.map(p => p.ticker).join(',');
+  useEffect(() => { if (needsQuotes) void refreshQuotesIfNeeded(); }, [needsQuotes, ui.tab, tickersKey]);
   if (desktop) return <Dashboard c={c} />;
   if (ui.tab === 'resumen') return <><ResumenTop c={c} /><GoalsPreview c={c} /><SummaryMini c={c} /></>;
   if (ui.tab === 'movimientos') return <Movimientos c={c} />;

@@ -82,10 +82,14 @@ export function dbDoc(user: 'leo' | 'tizi' = 'leo') { return stateCol.docs.find(
 export function dbState(user: 'leo' | 'tizi' = 'leo') { return JSON.parse(dbDoc(user).value); }
 
 /* fetch del navegador conectado al handler real. */
-export const server = { failGet: false, puts: 0 };
+export const server = { failGet: false, failQuotes: false, puts: 0, quoteCalls: 0 };
 export async function fakeFetch(url: string, opts: RequestInit = {}) {
   const method = opts.method || 'GET';
-  if (url.indexOf('/api/quote') === 0) return { ok: true, status: 200, json: async () => ({ quotes: {} }) };
+  if (url.indexOf('/api/quote') === 0) {
+    server.quoteCalls++;
+    if (server.failQuotes) return { ok: false, status: 500, json: async () => ({ error: 'x' }) };
+    return { ok: true, status: 200, json: async () => ({ quotes: {} }) };
+  }
   if (server.failGet && method === 'GET') return { ok: false, status: 500, json: async () => ({}) };
   if (method === 'PUT') server.puts++;
   const body = typeof opts.body === 'string' ? JSON.parse(opts.body) : opts.body;

@@ -112,6 +112,16 @@ describe('app', () => {
     expect(JSON.stringify(dbState())).toBe(original);
   });
 
+  it('si fallan los precios de la bolsa, no los pide en bucle', async () => {
+    server.failQuotes = true; server.quoteCalls = 0;
+    await startApp();
+    act(() => setUi({ section: 'bolsa' }));
+    await flush(); await flush();
+    expect(server.quoteCalls).toBe(1);
+    expect(screen.getByText('Cargando…')).toBeTruthy();
+    server.failQuotes = false;
+  });
+
   it('todas las pantallas se dibujan (celular y escritorio)', async () => {
     const { container } = await startApp();
     for (const t of FINANZAS_TABS) {
