@@ -167,11 +167,6 @@
   .field input, .field select, .field textarea{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);font-family:'Inter',sans-serif;font-size:15px;color:var(--text);}
   .field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--gold);outline-offset:-1px;}
   .field-hint{font-size:12px;color:var(--text-faint);margin-top:6px;}
-  .meal-suggestions{position:absolute;left:0;right:0;top:100%;margin-top:2px;background:var(--surface);border:1px solid var(--line);border-radius:10px;max-height:220px;overflow-y:auto;z-index:5;box-shadow:0 6px 16px rgba(0,0,0,0.12);}
-  .meal-suggestion-item{padding:9px 12px;font-size:13px;cursor:pointer;display:flex;flex-direction:column;gap:2px;border-bottom:1px solid var(--line);}
-  .meal-suggestion-item:last-child{border-bottom:none;}
-  .meal-suggestion-item:active{background:var(--input-bg);}
-  .meal-suggestion-sub{font-size:11px;color:var(--text-faint);}
   .segmented{display:flex;background:var(--input-bg);border:1px solid var(--line);border-radius:10px;padding:3px;margin-bottom:16px;}
   .segmented button{flex:1;background:none;border:none;padding:9px 0;border-radius:8px;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;color:var(--text-faint);cursor:pointer;}
   .segmented button.active.income{background:var(--growth-soft);color:var(--growth);}
@@ -193,10 +188,6 @@
   .chart-tooltip.show{opacity:1;}
   [data-theme="dark"] .chart-tooltip{background:#000;border:1px solid #39FF6A;color:#39FF6A;}
   .cat-row, .cat-row .bar-fill{cursor:default;}
-
-  .book-bar-track{height:22px;background:var(--line);border-radius:11px;overflow:hidden;margin-bottom:10px;position:relative;}
-  .book-bar-fill{height:100%;border-radius:11px;transition:width .2s;}
-  .book-bar-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;letter-spacing:0.03em;text-shadow:0 1px 3px rgba(0,0,0,0.5);}
 
   .patrimonio-flex{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;}
   .card.patrimonio-flex{background:var(--growth-soft);border-color:transparent;}
@@ -232,35 +223,14 @@
   .currency-row .view-toggle{flex-shrink:1;}
   .icon-btn.small{width:30px;height:30px;font-size:15px;flex-shrink:0;}
 
-  .module-card{padding:0;overflow:hidden;}
-  .module-scroll{max-height:280px;overflow-y:auto;padding:16px;}
-  .module-card.expanded .module-scroll{max-height:none;}
-
-  .exercise-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;width:100%;max-width:320px;margin:16px auto 0;}
-  .exercise-weekday-label{font-size:9px;color:var(--text-faint);text-align:center;font-weight:600;}
-  .exercise-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:10px;cursor:pointer;background:var(--input-bg);border:1px solid var(--line);color:var(--text-soft);}
-  .exercise-day.done{background:var(--growth);color:#fff;border-color:var(--growth);font-weight:700;}
-  .exercise-day.over{background:var(--spend);color:#fff;border-color:var(--spend);font-weight:700;cursor:default;}
-  .exercise-day.logged{background:var(--gold-soft);border-color:var(--gold);color:var(--text);cursor:default;}
-  .exercise-day.cal-yes{background:var(--spend);color:#fff;border-color:var(--spend);font-weight:700;}
-  .exercise-day.cal-no{background:var(--growth);color:#fff;border-color:var(--growth);font-weight:700;}
-  .exercise-day.future{opacity:0.35;cursor:default;}
-  .exercise-day.empty{visibility:hidden;cursor:default;}
-  .book-top-row{display:flex;gap:10px;align-items:flex-start;}
-  .book-cover{width:44px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--line);flex-shrink:0;background:var(--input-bg);}
-  .book-cover-placeholder{display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text-faint);}
-
   .placeholder-card{text-align:center;padding:40px 20px;}
   .placeholder-card .big{font-size:34px;margin-bottom:10px;}
   .placeholder-card h3{font-family:'Fraunces',serif;font-size:19px;margin:0 0 8px;}
   .placeholder-card p{font-size:13.5px;color:var(--text-soft);margin:0;line-height:1.5;}
 
   .dash-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start;}
-  .ejercicio-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch;}
   .bolsa-charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   @media (max-width:640px){ .bolsa-charts-grid{grid-template-columns:1fr;} }
-  .ejercicio-col{display:flex;flex-direction:column;}
-  .ejercicio-col > *:last-child{flex:1;display:flex;flex-direction:column;justify-content:center;}
   .dash-col{display:flex;flex-direction:column;min-width:0;}
 
   ::-webkit-scrollbar{width:0;}
@@ -326,14 +296,6 @@
       <span class="rail-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M16.5 7.5c0-1.66-2-3-4.5-3S7.5 5.84 7.5 7.5c0 1.66 2 2.5 4.5 3s4.5 1.34 4.5 3-2 3-4.5 3-4.5-1.34-4.5-3"/></svg></span>
       Bolsa
     </button>
-    <button data-section="ejercicios">
-      <span class="rail-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5l11 11M4 9l3-3 2 2-3 3-2-2zM15 18l3-3 2 2-3 3-2-2zM2 2l3 3M19 19l3 3"/></svg></span>
-      Salud
-    </button>
-    <button data-section="avances">
-      <span class="rail-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>
-      Avances
-    </button>
   </div>
 
   <div class="app-main">
@@ -385,30 +347,6 @@ var GOAL_COLORS = ['#4C7A5D','#C08A28','#5B7B92','#7C5295','#A8452C','#3E8E7E'];
 var CATEGORY_COLOR_PALETTE = ['#A8452C','#8A6D3B','#5B7B92','#7C5295','#C08A28','#2F6B52','#4C7A5D','#3E8E7E','#6B7280','#B0424F'];
 var CURRENCIES = { MXN:{locale:'es-MX'}, USD:{locale:'en-US'}, EUR:{locale:'es-ES'}, COP:{locale:'es-CO'}, ARS:{locale:'es-AR'}, GTQ:{locale:'es-GT'}, PEN:{locale:'es-PE'}, VES:{locale:'es-VE'} };
 
-/* Lista de ~500 alimentos con su porción de referencia y calorías (provista por Isabel).
-   Se usa para autocompletar mientras escribe y calcular las calorías según la cantidad,
-   en vez de adivinar por palabras clave. n=nombre, p=porción de referencia, c=calorías. */
-var FOOD_DB=[{n:'Arepa mediana',p:'1 unidad (100 g)',c:220},{n:'Arepa grande',p:'1 unidad (150 g)',c:330},{n:'Tocineta',p:'1 tira',c:60},{n:'Nugget de pollo',p:'1 unidad',c:100},{n:'Pechuga de pollo',p:'100 g',c:165},{n:'Muslo de pollo sin piel',p:'100 g',c:150},{n:'Alita de pollo',p:'1 unidad',c:100},{n:'Carne molida',p:'100 g',c:250},{n:'Carne de res magra',p:'100 g',c:200},{n:'Bistec de res',p:'100 g',c:220},{n:'Carne mechada',p:'100 g',c:210},{n:'Cerdo',p:'100 g',c:240},{n:'Chuleta de cerdo',p:'100 g',c:250},{n:'Jamón',p:'1 lonja',c:35},{n:'Salchicha',p:'1 unidad',c:150},{n:'Chorizo',p:'1 unidad',c:180},{n:'Atún en agua',p:'1 lata',c:120},{n:'Salmón',p:'100 g',c:208},{n:'Camarones',p:'100 g',c:100},{n:'Huevo',p:'1 unidad',c:70},{n:'Claras de huevo',p:'3 unidades',c:50},{n:'Queso blanco',p:'30 g',c:100},{n:'Queso amarillo',p:'1 lonja',c:70},{n:'Mozzarella',p:'30 g',c:85},{n:'Parmesano',p:'20 g',c:85},{n:'Cheddar',p:'30 g',c:120},{n:'Crema de leche',p:'1 cucharada',c:50},{n:'Mayonesa',p:'1 cucharada',c:95},{n:'Ketchup',p:'1 cucharada',c:20},{n:'Mostaza',p:'1 cucharada',c:10},{n:'Aguacate',p:'100 g',c:160},{n:'Aceite de oliva',p:'1 cucharada',c:120},{n:'Mantequilla',p:'1 cucharada',c:100},{n:'Arroz blanco cocido',p:'1 taza',c:205},{n:'Arroz integral cocido',p:'1 taza',c:215},{n:'Pasta cocida',p:'1 taza',c:220},{n:'Pasta con salsa de tomate',p:'1 taza',c:250},{n:'Papas fritas',p:'100 g',c:310},{n:'Papa hervida',p:'100 g',c:85},{n:'Papa al horno',p:'100 g',c:95},{n:'Batata',p:'100 g',c:90},{n:'Yuca hervida',p:'100 g',c:160},{n:'Yuca frita',p:'100 g',c:330},{n:'Plátano maduro',p:'1 mediano',c:220},{n:'Plátano frito',p:'100 g',c:300},{n:'Tostones',p:'100 g',c:220},{n:'Caraotas negras cocidas',p:'1 taza',c:225},{n:'Lentejas cocidas',p:'1 taza',c:230},{n:'Frijoles cocidos',p:'1 taza',c:225},{n:'Pan blanco',p:'1 rebanada',c:75},{n:'Pan integral',p:'1 rebanada',c:80},{n:'Pan de hamburguesa',p:'1 unidad',c:150},{n:'Pan perro caliente',p:'1 unidad',c:130},{n:'Croissant',p:'1 unidad',c:230},{n:'Tortilla de trigo',p:'1 unidad',c:140},{n:'Tortilla de maíz',p:'1 unidad',c:60},{n:'Avena seca',p:'40 g',c:150},{n:'Granola',p:'40 g',c:180},{n:'Cereal de maíz',p:'30 g',c:110},{n:'Quinoa cocida',p:'1 taza',c:220},{n:'Cuscús cocido',p:'1 taza',c:175},{n:'Lechuga',p:'100 g',c:15},{n:'Tomate',p:'1 mediano',c:25},{n:'Cebolla',p:'100 g',c:40},{n:'Zanahoria',p:'100 g',c:40},{n:'Pepino',p:'100 g',c:15},{n:'Brócoli',p:'100 g',c:35},{n:'Coliflor',p:'100 g',c:25},{n:'Espinaca',p:'100 g',c:25},{n:'Pimentón',p:'100 g',c:30},{n:'Calabacín',p:'100 g',c:20},{n:'Berenjena',p:'100 g',c:25},{n:'Champiñones',p:'100 g',c:22},{n:'Maíz dulce',p:'100 g',c:90},{n:'Guisantes',p:'100 g',c:80},{n:'Repollo',p:'100 g',c:25},{n:'Ajo',p:'1 diente',c:5},{n:'Manzana',p:'1 mediana',c:95},{n:'Banana',p:'1 mediana',c:105},{n:'Naranja',p:'1 mediana',c:60},{n:'Mandarina',p:'1 unidad',c:45},{n:'Mango',p:'1 taza',c:100},{n:'Piña',p:'1 taza',c:80},{n:'Fresas',p:'1 taza',c:50},{n:'Uvas',p:'1 taza',c:105},{n:'Sandía',p:'1 taza',c:45},{n:'Melón',p:'1 taza',c:55},{n:'Papaya',p:'1 taza',c:60},{n:'Kiwi',p:'1 unidad',c:45},{n:'Pera',p:'1 mediana',c:100},{n:'Durazno',p:'1 unidad',c:60},{n:'Ciruela',p:'1 unidad',c:30},{n:'Coco',p:'100 g',c:350},{n:'Almendras',p:'30 g',c:175},{n:'Maní',p:'30 g',c:170},{n:'Nueces',p:'30 g',c:200},{n:'Merey/anacardos',p:'30 g',c:165},{n:'Pistachos',p:'30 g',c:170},{n:'Mantequilla de maní',p:'1 cucharada',c:95},{n:'Chía',p:'1 cucharada',c:60},{n:'Linaza',p:'1 cucharada',c:55},{n:'Pasas',p:'30 g',c:90},{n:'Miel',p:'1 cucharada',c:65},{n:'Mermelada',p:'1 cucharada',c:50},{n:'Leche entera',p:'1 taza',c:150},{n:'Leche descremada',p:'1 taza',c:90},{n:'Leche de almendras',p:'1 taza',c:40},{n:'Yogur natural',p:'1 taza',c:120},{n:'Yogur griego',p:'170 g',c:100},{n:'Yogur griego entero',p:'170 g',c:170},{n:'Quesillo/flan',p:'1 porción',c:250},{n:'Helado de vainilla',p:'1 taza',c:270},{n:'Chocolate con leche',p:'30 g',c:160},{n:'Chocolate negro',p:'30 g',c:170},{n:'Galleta María',p:'1 unidad',c:25},{n:'Galleta Oreo',p:'1 unidad',c:53},{n:'Brownie',p:'1 porción',c:350},{n:'Torta de chocolate',p:'1 porción',c:400},{n:'Cheesecake',p:'1 porción',c:400},{n:'Donut',p:'1 unidad',c:250},{n:'Muffin',p:'1 unidad',c:350},{n:'Churro',p:'1 unidad',c:150},{n:'Palomitas con mantequilla',p:'3 tazas',c:180},{n:'Papas de paquete',p:'30 g',c:160},{n:'Nachos/totopos',p:'30 g',c:150},{n:'Pretzel',p:'1 unidad',c:110},{n:'Pizza de queso',p:'1 slice',c:285},{n:'Pizza pepperoni',p:'1 slice',c:300},{n:'Hamburguesa con queso',p:'1 unidad',c:550},{n:'Hamburguesa sencilla',p:'1 unidad',c:450},{n:'Hot dog',p:'1 unidad',c:350},{n:'Perro caliente venezolano',p:'1 unidad',c:600},{n:'Pollo frito',p:'1 pieza',c:250},{n:'Tiras de pollo',p:'3 unidades',c:350},{n:'Nuggets',p:'6 unidades',c:300},{n:'Papas fritas McDonald\'s',p:'porción mediana',c:320},{n:'Papas fritas grandes',p:'porción',c:480},{n:'Sándwich de pollo',p:'1 unidad',c:450},{n:'Sándwich de jamón y queso',p:'1 unidad',c:400},{n:'Club sandwich',p:'1 unidad',c:650},{n:'Wrap de pollo',p:'1 unidad',c:450},{n:'Burrito de pollo',p:'1 unidad',c:600},{n:'Taco de carne',p:'1 unidad',c:180},{n:'Quesadilla de queso',p:'1 unidad',c:450},{n:'Nachos con queso',p:'1 plato',c:700},{n:'Sushi roll',p:'8 piezas',c:400},{n:'Sashimi de salmón',p:'6 piezas',c:250},{n:'Ramen',p:'1 bowl',c:500},{n:'Empanada de carne frita',p:'1 unidad',c:300},{n:'Empanada de pollo frita',p:'1 unidad',c:280},{n:'Empanada de queso frita',p:'1 unidad',c:320},{n:'Tequeño',p:'1 unidad',c:150},{n:'Cachapa con queso',p:'1 unidad',c:500},{n:'Patacón con carne',p:'1 unidad',c:650},{n:'Pabellón criollo',p:'1 plato',c:850},{n:'Hallaca',p:'1 unidad',c:450},{n:'Asado negro',p:'1 porción',c:350},{n:'Pasticho/lasagna',p:'1 porción',c:500},{n:'Arroz con pollo',p:'1 plato',c:550},{n:'Pollo a la plancha con arroz',p:'1 plato',c:550},{n:'Pollo a la plancha con ensalada',p:'1 plato',c:350},{n:'Carne con arroz',p:'1 plato',c:600},{n:'Carne con papas',p:'1 plato',c:650},{n:'Arepa con queso',p:'1 unidad',c:450},{n:'Arepa con pernil',p:'1 unidad',c:550},{n:'Arepa reina pepiada',p:'1 unidad',c:600},{n:'Arepa de carne mechada',p:'1 unidad',c:550},{n:'Arepa de pollo',p:'1 unidad',c:500},{n:'Arepa con jamón y queso',p:'1 unidad',c:500},{n:'Arepa con queso y tocineta',p:'1 unidad',c:550},{n:'Arepa dominó',p:'1 unidad',c:500},{n:'Arepa pelúa',p:'1 unidad',c:600},{n:'Arepa sifrina',p:'1 unidad',c:650},{n:'Arepa catira',p:'1 unidad',c:550},{n:'Batido de banana con leche',p:'1 vaso',c:250},{n:'Smoothie de fresa',p:'1 vaso',c:200},{n:'Jugo de naranja',p:'1 vaso',c:110},{n:'Jugo de mango',p:'1 vaso',c:150},{n:'Jugo de piña',p:'1 vaso',c:130},{n:'Limonada azucarada',p:'1 vaso',c:120},{n:'Refresco regular',p:'1 lata',c:140},{n:'Refresco sin azúcar',p:'1 lata',c:0},{n:'Bebida energética',p:'1 lata',c:110},{n:'Café negro',p:'1 taza',c:5},{n:'Café con leche',p:'1 taza',c:100},{n:'Cappuccino',p:'1 taza',c:120},{n:'Latte',p:'1 taza',c:150},{n:'Chocolate caliente',p:'1 taza',c:200},{n:'Té con azúcar',p:'1 taza',c:50},{n:'Agua de coco',p:'1 vaso',c:45},{n:'Cerveza',p:'1 lata',c:150},{n:'Vino',p:'1 copa',c:125},{n:'Whisky',p:'1 medida',c:100},{n:'Ron',p:'1 medida',c:100},{n:'Mojito',p:'1 vaso',c:200},{n:'Margarita',p:'1 vaso',c:250},{n:'Guacamole',p:'100 g',c:150},{n:'Hummus',p:'100 g',c:170},{n:'Salsa de ajo',p:'1 cucharada',c:100},{n:'Salsa BBQ',p:'1 cucharada',c:30},{n:'Salsa César',p:'1 cucharada',c:80},{n:'Salsa de tomate',p:'1 cucharada',c:20},{n:'Vinagreta',p:'1 cucharada',c:70},{n:'Pesto',p:'1 cucharada',c:80},{n:'Salsa de soya',p:'1 cucharada',c:10},{n:'Caldo de pollo',p:'1 taza',c:40},{n:'Sopa de verduras',p:'1 taza',c:100},{n:'Sopa de pollo',p:'1 taza',c:150},{n:'Crema de auyama',p:'1 taza',c:180},{n:'Lasaña de carne',p:'1 porción',c:500},{n:'Macarrones con queso',p:'1 taza',c:350},{n:'Risotto',p:'1 taza',c:300},{n:'Paella',p:'1 plato',c:500},{n:'Ceviche',p:'1 taza',c:200},{n:'Ensalada César con pollo',p:'1 plato',c:450},{n:'Ensalada mixta',p:'1 plato',c:150},{n:'Ensalada con aguacate',p:'1 plato',c:250},{n:'Auyama/calabaza',p:'100 g',c:35},{n:'Ñame hervido',p:'100 g',c:115},{n:'Ocumo/taro',p:'100 g',c:140},{n:'Harina de maíz precocida',p:'100 g',c:350},{n:'Harina de trigo',p:'100 g',c:365},{n:'Pan rallado',p:'30 g',c:110},{n:'Azúcar',p:'1 cucharada',c:50},{n:'Mayonesa light',p:'1 cucharada',c:35},{n:'Queso crema',p:'1 cucharada',c:50},{n:'Nutella',p:'1 cucharada',c:100},{n:'Jarabe de maple',p:'1 cucharada',c:52},{n:'Leche condensada',p:'1 cucharada',c:65},{n:'Proteína en polvo',p:'1 scoop',c:120},{n:'Creatina',p:'5 g',c:0},{n:'Gelatina',p:'1 porción',c:80},{n:'Avena cocida con agua',p:'1 taza',c:160},{n:'Avena con leche y banana',p:'1 bowl',c:400},{n:'Huevos revueltos',p:'2 huevos',c:180},{n:'Omelette de 3 huevos',p:'1 unidad',c:250},{n:'Tortilla española',p:'1 porción',c:300},{n:'Huevos benedictinos',p:'1 plato',c:500},{n:'Tostada con aguacate',p:'1 unidad',c:250},{n:'Tostada con huevo',p:'1 unidad',c:200},{n:'Tostada con queso',p:'1 unidad',c:180},{n:'Panquecas',p:'3 unidades',c:300},{n:'Waffles',p:'2 unidades',c:350},{n:'French toast',p:'2 rebanadas',c:300},{n:'Arepa pequeña',p:'1 unidad',c:150},{n:'Arepa con mantequilla',p:'1 unidad',c:300},{n:'Arepa con queso amarillo',p:'1 unidad',c:450},{n:'Arepa con huevo',p:'1 unidad',c:400},{n:'Arepa con perico',p:'1 unidad',c:400},{n:'Pasta con pollo',p:'1 plato',c:600},{n:'Pasta boloñesa',p:'1 plato',c:650},{n:'Pasta carbonara',p:'1 plato',c:750},{n:'Arroz frito',p:'1 taza',c:300},{n:'Arroz chino con pollo',p:'1 plato',c:650},{n:'Chow mein',p:'1 plato',c:600},{n:'Pollo teriyaki',p:'1 plato',c:500},{n:'Pollo al curry',p:'1 plato',c:550},{n:'Butter chicken',p:'1 plato',c:650},{n:'Curry de lentejas',p:'1 taza',c:300},{n:'Falafel',p:'4 unidades',c:330},{n:'Kebab de pollo',p:'1 unidad',c:450},{n:'Gyro',p:'1 unidad',c:600},{n:'Pita con pollo',p:'1 unidad',c:450},{n:'Pita con falafel',p:'1 unidad',c:400},{n:'Tacos de pollo',p:'3 unidades',c:500},{n:'Burrito de carne',p:'1 unidad',c:700},{n:'Bowl mexicano de pollo',p:'1 bowl',c:650},{n:'Guacamole con chips',p:'1 porción',c:450},{n:'Queso nacho',p:'2 cucharadas',c:100},{n:'Frijoles refritos',p:'1/2 taza',c:120},{n:'Edamame',p:'1 taza',c:190},{n:'Tofu',p:'100 g',c:75},{n:'Tempeh',p:'100 g',c:190},{n:'Seitan',p:'100 g',c:140},{n:'Lomo de cerdo',p:'100 g',c:200},{n:'Pavo',p:'100 g',c:135},{n:'Pavo molido',p:'100 g',c:170},{n:'Jamón de pavo',p:'1 lonja',c:30},{n:'Bacalao',p:'100 g',c:105},{n:'Tilapia',p:'100 g',c:130},{n:'Merluza',p:'100 g',c:90},{n:'Atún fresco',p:'100 g',c:140},{n:'Sardinas',p:'100 g',c:200},{n:'Pulpo',p:'100 g',c:80},{n:'Calamar',p:'100 g',c:90},{n:'Cangrejo',p:'100 g',c:100},{n:'Ostras',p:'6 unidades',c:50},{n:'Mejillones',p:'100 g',c:170},{n:'Trucha',p:'100 g',c:190},{n:'Queso gouda',p:'30 g',c:105},{n:'Queso feta',p:'30 g',c:80},{n:'Ricotta',p:'100 g',c:170},{n:'Requesón/cottage',p:'100 g',c:100},{n:'Queso manchego',p:'30 g',c:120},{n:'Queso de cabra',p:'30 g',c:110},{n:'Yogur de frutas',p:'1 envase',c:150},{n:'Kéfir',p:'1 taza',c:110},{n:'Leche chocolatada',p:'1 taza',c:190},{n:'Leche evaporada',p:'1/2 taza',c:170},{n:'Leche de soya',p:'1 taza',c:100},{n:'Leche de avena',p:'1 taza',c:120},{n:'Manzana con mantequilla de maní',p:'1 porción',c:190},{n:'Banana con mantequilla de maní',p:'1 porción',c:200},{n:'Yogur con granola',p:'1 bowl',c:300},{n:'Yogur con fruta',p:'1 bowl',c:200},{n:'Avena overnight',p:'1 bowl',c:350},{n:'Pudding de chía',p:'1 taza',c:250},{n:'Acai bowl',p:'1 bowl',c:450},{n:'Ensalada de frutas',p:'1 bowl',c:180},{n:'Frutos secos mixtos',p:'30 g',c:180},{n:'Barra de granola',p:'1 unidad',c:150},{n:'Barra de proteína',p:'1 unidad',c:200},{n:'Pan de ajo',p:'1 pieza',c:150},{n:'Bruschetta',p:'2 piezas',c:180},{n:'Hummus con pita',p:'1 porción',c:350},{n:'Sopa de tomate',p:'1 taza',c:120},{n:'Minestrone',p:'1 taza',c:150},{n:'Sopa de cebolla',p:'1 taza',c:200},{n:'Chili con carne',p:'1 taza',c:350},{n:'Carne guisada',p:'1 taza',c:350},{n:'Pollo guisado',p:'1 taza',c:300},{n:'Estofado de res',p:'1 taza',c:350},{n:'Albóndigas',p:'4 unidades',c:300},{n:'Carne asada',p:'150 g',c:350},{n:'Pollo asado',p:'150 g',c:280},{n:'Pechuga empanizada',p:'150 g',c:350},{n:'Pescado empanizado',p:'150 g',c:320},{n:'Calamares fritos',p:'150 g',c:350},{n:'Mozzarella sticks',p:'4 unidades',c:350},{n:'Onion rings',p:'6 unidades',c:300},{n:'Croquetas de pollo',p:'4 unidades',c:300},{n:'Tequeños con salsa',p:'3 unidades',c:500},{n:'Empanaditas',p:'3 unidades',c:300},{n:'Mini arepas',p:'3 unidades',c:300},{n:'Cachitos de jamón',p:'1 unidad',c:350},{n:'Pan de jamón',p:'1 rebanada',c:300},{n:'Cachapa pequeña',p:'1 unidad',c:300},{n:'Cachapa con queso y jamón',p:'1 unidad',c:600},{n:'Mandoca',p:'1 unidad',c:200},{n:'Chicharrón',p:'100 g',c:500},{n:'Morcilla',p:'100 g',c:330},{n:'Morcilla frita',p:'100 g',c:400},{n:'Pernil',p:'100 g',c:220},{n:'Costillas de cerdo',p:'100 g',c:300},{n:'Costillas BBQ',p:'100 g',c:320},{n:'Pulled pork',p:'100 g',c:250},{n:'Tocino',p:'100 g',c:540},{n:'Tocineta',p:'100 g',c:540},{n:'Pepperoni',p:'30 g',c:150},{n:'Salami',p:'30 g',c:120},{n:'Mortadela',p:'30 g',c:100},{n:'Prosciutto',p:'30 g',c:80},{n:'Aceitunas',p:'10 unidades',c:50},{n:'Pepinillos',p:'3 unidades',c:15},{n:'Alcaparras',p:'1 cucharada',c:2},{n:'Coco rallado',p:'30 g',c:200},{n:'Aceite vegetal',p:'1 cucharada',c:120},{n:'Aceite de coco',p:'1 cucharada',c:120},{n:'Vinagre',p:'1 cucharada',c:3},{n:'Sal',p:'1 cucharadita',c:0},{n:'Pimienta',p:'1 cucharadita',c:5},{n:'Orégano',p:'1 cucharadita',c:3},{n:'Canela',p:'1 cucharadita',c:6},{n:'Cacao en polvo',p:'1 cucharada',c:12},{n:'Harina de avena',p:'40 g',c:150},{n:'Harina de almendras',p:'30 g',c:175},{n:'Leche en polvo',p:'30 g',c:150},{n:'Arroz con leche',p:'1 taza',c:300},{n:'Tres leches',p:'1 porción',c:400},{n:'Quesillo venezolano',p:'1 porción',c:300},{n:'Flan',p:'1 porción',c:220},{n:'Arroz con coco',p:'1 taza',c:350},{n:'Dulce de leche',p:'2 cucharadas',c:130},{n:'Turrón',p:'30 g',c:160},{n:'Churros con chocolate',p:'1 porción',c:400},{n:'Paleta de helado',p:'1 unidad',c:150},{n:'Helado de chocolate',p:'1 taza',c:290},{n:'Yogur helado',p:'1 taza',c:220},{n:'Tiramisú',p:'1 porción',c:450},{n:'Panna cotta',p:'1 porción',c:300},{n:'Mousse de chocolate',p:'1 porción',c:350},{n:'Cookie con chispas',p:'1 grande',c:250},{n:'Brownie con helado',p:'1 porción',c:550},{n:'Torta tres leches',p:'1 porción',c:450},{n:'Pie de manzana',p:'1 porción',c:400},{n:'Pie de limón',p:'1 porción',c:350},{n:'Cheesecake de fresa',p:'1 porción',c:420},{n:'Alfajor',p:'1 unidad',c:200},{n:'Marshmallows',p:'4 unidades',c:100},{n:'Palomitas naturales',p:'3 tazas',c:90},{n:'Pretzels pequeños',p:'30 g',c:115},{n:'Crackers',p:'5 unidades',c:70},{n:'Rice cakes',p:'2 unidades',c:70},{n:'Tostadas de maíz',p:'2 unidades',c:120},{n:'Pan pita',p:'1 unidad',c:170},{n:'Bagel',p:'1 unidad',c:280},{n:'English muffin',p:'1 unidad',c:130},{n:'Donut glaseada',p:'1 unidad',c:250},{n:'Donut rellena',p:'1 unidad',c:300},{n:'Cinnamon roll',p:'1 unidad',c:450},{n:'Danish',p:'1 unidad',c:300},{n:'Pain au chocolat',p:'1 unidad',c:300},{n:'Scone',p:'1 unidad',c:250},{n:'Muffin de arándanos',p:'1 unidad',c:350},{n:'Muffin de chocolate',p:'1 unidad',c:400},{n:'Banana bread',p:'1 rebanada',c:250},{n:'Torta de zanahoria',p:'1 porción',c:400},{n:'Red velvet',p:'1 porción',c:400},{n:'Torta de vainilla',p:'1 porción',c:350},{n:'Galleta con chispas',p:'1 unidad',c:140},{n:'Galleta de avena',p:'1 unidad',c:100},{n:'Galleta de mantequilla',p:'1 unidad',c:70},{n:'Chocolate blanco',p:'30 g',c:160},{n:'Mantequilla de almendras',p:'1 cucharada',c:100},{n:'Tahini',p:'1 cucharada',c:90},{n:'Salsa de maní',p:'1 cucharada',c:90},{n:'Salsa teriyaki',p:'1 cucharada',c:30},{n:'Salsa picante',p:'1 cucharada',c:5},{n:'Sriracha',p:'1 cucharada',c:15},{n:'Ranch',p:'1 cucharada',c:70},{n:'Tzatziki',p:'2 cucharadas',c:30},{n:'Salsa marinara',p:'1/2 taza',c:70},{n:'Salsa Alfredo',p:'1/2 taza',c:300},{n:'Salsa de queso',p:'1/2 taza',c:250},{n:'Caldo de carne',p:'1 taza',c:40},{n:'Consomé',p:'1 taza',c:30},{n:'Sopa miso',p:'1 taza',c:60},{n:'Sopa de lentejas',p:'1 taza',c:180},{n:'Crema de champiñones',p:'1 taza',c:200},{n:'Gazpacho',p:'1 taza',c:90},{n:'Puré de papa',p:'1 taza',c:220},{n:'Puré de batata',p:'1 taza',c:200},{n:'Coleslaw',p:'1 taza',c:180},{n:'Verduras salteadas',p:'1 taza',c:120},{n:'Brócoli con queso',p:'1 taza',c:180},{n:'Espinaca salteada',p:'1 taza',c:100},{n:'Maíz en mazorca',p:'1 unidad',c:100},{n:'Espárragos',p:'100 g',c:20},{n:'Ejotes',p:'100 g',c:30},{n:'Remolacha',p:'100 g',c:45},{n:'Rábano',p:'100 g',c:16},{n:'Apio',p:'100 g',c:15},{n:'Coles de Bruselas',p:'100 g',c:43},{n:'Alcachofa',p:'1 unidad',c:60},{n:'Aceitunas negras',p:'10 unidades',c:45},{n:'Tomates cherry',p:'10 unidades',c:30},{n:'Aguacate entero',p:'1 unidad',c:320},{n:'Guacamole casero',p:'2 cucharadas',c:50},{n:'Pico de gallo',p:'1/2 taza',c:30},{n:'Salsa verde',p:'2 cucharadas',c:15},{n:'Salsa roja',p:'2 cucharadas',c:15},{n:'Chimichurri',p:'2 cucharadas',c:120},{n:'Pesto',p:'2 cucharadas',c:160},{n:'Hummus',p:'2 cucharadas',c:70},{n:'Baba ganoush',p:'2 cucharadas',c:50},{n:'Tahini',p:'2 cucharadas',c:180},{n:'Edamame',p:'100 g',c:120},{n:'Alubias cocidas',p:'1 taza',c:240},{n:'Garbanzos cocidos',p:'1 taza',c:270},{n:'Guisantes cocidos',p:'1 taza',c:135},{n:'Soja cocida',p:'1 taza',c:300},{n:'Tofu firme',p:'100 g',c:145},{n:'Leche vegetal sin azúcar',p:'1 taza',c:40},{n:'Bebida proteica',p:'1 botella',c:160},{n:'Batido proteico',p:'1 botella',c:200},{n:'Agua tónica',p:'1 lata',c:120},{n:'Agua con gas',p:'1 lata',c:0},{n:'Café americano',p:'1 taza',c:5},{n:'Espresso',p:'1 shot',c:3},{n:'Café con azúcar',p:'1 taza',c:50},{n:'Té verde',p:'1 taza',c:2},{n:'Té negro',p:'1 taza',c:2},{n:'Jugo verde',p:'1 vaso',c:100},{n:'Jugo de manzana',p:'1 vaso',c:115},{n:'Jugo de uva',p:'1 vaso',c:150},{n:'Smoothie de banana',p:'1 vaso',c:180},{n:'Smoothie de mango',p:'1 vaso',c:200},{n:'Smoothie de berries',p:'1 vaso',c:180},{n:'Limonada sin azúcar',p:'1 vaso',c:10},{n:'Chocolate milkshake',p:'1 vaso',c:500},{n:'Milkshake de vainilla',p:'1 vaso',c:450},{n:'Milkshake de fresa',p:'1 vaso',c:450},{n:'Frappuccino',p:'1 vaso',c:300},{n:'Café frappé',p:'1 vaso',c:250},{n:'Matcha latte',p:'1 vaso',c:180},{n:'Chai latte',p:'1 vaso',c:200},{n:'Agua saborizada',p:'1 botella',c:50},{n:'Arroz blanco',p:'100 g',c:130},{n:'Pasta seca',p:'100 g',c:350},{n:'Pollo cocido',p:'100 g',c:165},{n:'Carne de res cocida',p:'100 g',c:220},{n:'Queso blanco fresco',p:'100 g',c:300},{n:'Huevo cocido',p:'1 unidad',c:78},{n:'Clara de huevo',p:'1 unidad',c:17},{n:'Aguacate',p:'50 g',c:80},{n:'Banana',p:'100 g',c:89},{n:'Manzana',p:'100 g',c:52},{n:'Naranja',p:'100 g',c:47},{n:'Fresa',p:'100 g',c:32},{n:'Tomate',p:'100 g',c:18}];
-function normalizeSearchText(s){
-  return (s||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-}
-/* Busca coincidencias en FOOD_DB: primero las que empiezan justo con lo escrito, luego las
-   que tienen alguna palabra que empieza así, y por último cualquier coincidencia parcial.
-   Máximo 8 resultados, para no saturar el desplegable. */
-function searchFoodDb(query){
-  var q = normalizeSearchText(query);
-  if(q.length < 2) return [];
-  var scored = [];
-  FOOD_DB.forEach(function(f){
-    var n = normalizeSearchText(f.n);
-    var idx = n.indexOf(q);
-    if(idx===-1) return;
-    var wordStart = (idx===0) || (n.charAt(idx-1)===' ');
-    scored.push({ f:f, score: idx===0?0:(wordStart?1:2), idx:idx });
-  });
-  scored.sort(function(a,b){ if(a.score!==b.score) return a.score-b.score; if(a.idx!==b.idx) return a.idx-b.idx; return a.f.n.length-b.f.n.length; });
-  return scored.slice(0,8).map(function(s){ return s.f; });
-}
 var FINANZAS_TABS = [
   {id:'resumen', label:'Resumen'}, {id:'movimientos', label:'Movimientos'}, {id:'metas', label:'Metas'},
   {id:'cuentas', label:'Wallets'}, {id:'inversiones', label:'Bolsa'}, {id:'deudas', label:'Deudas'}
@@ -420,15 +358,15 @@ var ui = {
   section:'finanzas', tab:'resumen', monthOffset:0, viewMode:'total',
   txnType:'expense', txnCat:null, txnAccountId:null, txnDraft:null,
   debtKind:'debo', debtPaymentId:null,
-  confirmDeleteId:null, confirmDeleteGoalId:null, confirmRedeemGoalId:null, confirmDeleteDebtId:null, confirmDeleteCatId:null, confirmDeleteBookId:null,
+  confirmDeleteId:null, confirmDeleteGoalId:null, confirmRedeemGoalId:null, confirmDeleteDebtId:null, confirmDeleteCatId:null,
   confirmDeleteAccountId:null,
-  calMonthOffsets:{},
   catFormReturn:'txn', catManageType:'expense', tempCatColor:null,
   goalFundDirection:'in', goalFundGoalId:null,
   bolsaFundDirection:'in',
   currencyTab:null,
   expandedCards:{},
-  quotesCache:{}, quotesLoading:false
+  quotesCache:{}, quotesLoading:false,
+  pendingRestore:null
 };
 var resizeTimer = null;
 
@@ -505,6 +443,8 @@ function normalizeState(s){
 
   var transactions = Array.isArray(s.transactions) ? s.transactions.slice() : [];
   var fundMovements = Array.isArray(s.fundMovements) ? s.fundMovements.slice() : [];
+  /* Libros, ejercicio, comidas y calendarios ya no se muestran (se quitaron Salud y Avances),
+     pero se siguen normalizando y guardando para no borrar esos datos de MongoDB. */
   var books = Array.isArray(s.books) ? s.books.map(function(b){
     return { id:b.id, name:b.name, totalPages:b.totalPages, currentPage:b.currentPage||0, done:!!b.done, createdAt:b.createdAt||Date.now(), finishedAt:b.finishedAt||null, cover:b.cover||null };
   }) : [];
@@ -663,23 +603,93 @@ async function refreshQuotesIfNeeded(){
   ui.quotesLoading = false;
 }
 
+/* stateVersion: versión del documento en el servidor que tenemos cargada. Viaja en cada guardado;
+   si otro dispositivo guardó antes, el servidor responde 409 y no se pisa nada. */
+var stateVersion = 0;
+var saveQueue = Promise.resolve();
+
+/* Devuelve {ok:true, state, version}; {ok:false} si falló la conexión o el servidor;
+   o {unauthorized:true} si la clave fue rechazada (ya se mostró la pantalla de clave).
+   Si falla, NUNCA devuelve un estado vacío: así no se puede guardar encima de los datos reales. */
 async function loadState(){
   try{
     var res = await apiRequest('GET');
+    if(!res.ok) return {ok:false};
+    var data = await res.json();
+    var loaded = (data && data.value) ? normalizeState(JSON.parse(data.value)) : defaultState();
+    return {ok:true, state:loaded, version:(data && typeof data.version==='number') ? data.version : 0};
+  } catch(e){
+    if(e && e.message==='unauthorized') return {unauthorized:true};
+    console.error('Load error', e);
+    return {ok:false};
+  }
+}
+/* Los guardados van en fila, uno detrás de otro, para que cada uno lleve la versión más reciente. */
+function saveState(){
+  saveQueue = saveQueue.then(doSaveState, doSaveState);
+  return saveQueue;
+}
+async function doSaveState(){
+  if(!state) return;
+  try{
+    var res = await apiRequest('PUT', { value: JSON.stringify(state), baseVersion: stateVersion });
     if(res.ok){
       var data = await res.json();
-      if(data && data.value) return normalizeState(JSON.parse(data.value));
-    } else {
-      showToast('No se pudo conectar con el servidor.');
+      if(data && typeof data.version==='number') stateVersion = data.version;
+      return;
     }
-  } catch(e){ console.error('Load error', e); }
-  return defaultState();
+    if(res.status === 409){ await reloadAfterConflict(); return; }
+    showToastHold('No se pudo guardar. Intenta de nuevo.');
+  } catch(e){
+    if(e && e.message==='unauthorized') return;
+    console.error('Storage error', e); showToastHold('No se pudo guardar. Revisa tu conexión.');
+  }
 }
-async function saveState(){
-  try{
-    var res = await apiRequest('PUT', { value: JSON.stringify(state) });
-    if(!res.ok) showToast('No se pudo guardar. Intenta de nuevo.');
-  } catch(e){ console.error('Storage error', e); showToast('No se pudo guardar. Revisa tu conexión.'); }
+async function reloadAfterConflict(){
+  var r = await loadState();
+  if(r.unauthorized) return;
+  if(!r.ok){ state = null; showLoadError(); return; }
+  state = r.state; stateVersion = r.version;
+  closeModal(); render();
+  showToastHold('Hubo cambios desde otro dispositivo. Cargué lo más nuevo: repite tu última acción.');
+}
+
+/* ---- Respaldo: descargar y cargar todos los datos en un archivo .json ---- */
+var BACKUP_APP_ID = 'mi-vida-organizada';
+function downloadBackup(suffix){
+  var payload = { app:BACKUP_APP_ID, user:currentUser, exportedAt:new Date().toISOString(), state:state };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'respaldo-'+currentUser+'-'+todayStr()+(suffix?('-'+suffix):'')+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+}
+/* Acepta el respaldo de la app ({app, user, state}) o el estado "crudo" bajado por consola.
+   Devuelve {state, user, exportedAt} o {error}. */
+function parseBackup(text){
+  var obj;
+  try{ obj = JSON.parse(text); } catch(e){ return {error:'El archivo no es un respaldo válido.'}; }
+  var raw = obj, user = null, exportedAt = null;
+  if(obj && obj.app===BACKUP_APP_ID){ raw = obj.state; user = obj.user || null; exportedAt = obj.exportedAt || null; }
+  if(!raw || typeof raw!=='object' || !Array.isArray(raw.transactions) || !Array.isArray(raw.accounts)) return {error:'El archivo no es un respaldo válido.'};
+  if(user && user!==currentUser){ var u = findUser(user); return {error:'Este respaldo es de '+(u?u.name:user)+', no se puede cargar aquí.'}; }
+  return {state:raw, user:user, exportedAt:exportedAt};
+}
+function openRestoreConfirm(parsed){
+  ui.pendingRestore = parsed.state;
+  var s = parsed.state;
+  var me = findUser(currentUser);
+  var when = parsed.exportedAt ? new Date(parsed.exportedAt).toLocaleString('es-MX',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : null;
+  var summary = (when ? ('Respaldo del '+when+'. ') : '') + s.transactions.length+' movimientos, '+s.accounts.length+' wallets, '+(Array.isArray(s.goals)?s.goals.length:0)+' metas y '+(Array.isArray(s.debts)?s.debts.length:0)+' deudas.';
+  document.getElementById('modal-root').innerHTML =
+  '<div class="overlay centered"><div class="sheet" data-stop>'+
+    '<div class="sheet-title">¿Cargar este respaldo?</div>'+
+    '<p style="font-size:13.5px;color:var(--text-soft);margin:0 0 10px;">'+esc(summary)+'</p>'+
+    '<p style="font-size:13.5px;color:var(--text-soft);margin:0 0 18px;">Esto reemplaza todos tus datos actuales. Antes de cargarlo te descargo una copia de lo que tienes ahora.'+(!parsed.user ? (' Asegúrate de que este respaldo sea de '+esc(me?me.name:'')+'.') : '')+'</p>'+
+    '<button class="btn-primary" data-action="do-restore">Sí, cargar respaldo</button>'+
+    '<button class="btn-text" data-action="close-modal">Cancelar</button>'+
+  '</div></div>';
 }
 
 function fmt(amount){
@@ -693,7 +703,7 @@ function monthLabel(offset){ var d=monthDate(offset); var s=d.toLocaleDateString
 function monthShortLabel(offset){ var d=monthDate(offset); var s=d.toLocaleDateString('es-MX',{month:'short'}).replace('.',''); return s.charAt(0).toUpperCase()+s.slice(1); }
 function monthKey(offset){ var d=monthDate(offset); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function isInMonth(dateStr, offset){ var d=new Date(dateStr+'T00:00:00'); var ref=monthDate(offset); return d.getFullYear()===ref.getFullYear() && d.getMonth()===ref.getMonth(); }
-function todayStr(){ return new Date().toISOString().slice(0,10); }
+function todayStr(){ return dateToStr(new Date()); }
 function daysInMonth(offset){ var d=monthDate(offset); return new Date(d.getFullYear(), d.getMonth()+1, 0).getDate(); }
 function monthBoundsStr(offset){
   var d = monthDate(offset);
@@ -706,7 +716,10 @@ function monthBoundsStr(offset){
 function monthDefaultDateStr(offset){ return offset===0 ? todayStr() : monthBoundsStr(offset).max; }
 function greetingText(){ var h=new Date().getHours(); if(h<12) return 'Buenos días'; if(h<19) return 'Buenas tardes'; return 'Buenas noches'; }
 function catInfo(type,id){ var list = type==='income' ? state.incomeCats : state.expenseCats; var found=null; for(var i=0;i<list.length;i++){ if(list[i].id===id){ found=list[i]; break; } } return found || list[0] || {label:'Otros',color:'#6B7280'}; }
-function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(showToast._t); showToast._t=setTimeout(function(){ t.classList.remove('show'); }, 2800); }
+/* showToastHold muestra un aviso importante y evita que el siguiente aviso normal lo tape. */
+var toastHoldUntil = 0;
+function showToastHold(msg){ toastHoldUntil = 0; showToast(msg); toastHoldUntil = Date.now()+3500; }
+function showToast(msg){ if(Date.now() < toastHoldUntil) return; var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(showToast._t); showToast._t=setTimeout(function(){ t.classList.remove('show'); }, 2800); }
 function esc(s){ return (s||'').replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function chartColors(){ return state.theme==='dark' ? {income:'#39FF6A', expense:'#1F5C38', ahorro:'#22C55E'} : {income:'#4C7A5D', expense:'#A8452C', ahorro:'#C08A28'}; }
 function applyTheme(){ document.documentElement.setAttribute('data-theme', state.theme || 'warm'); }
@@ -774,7 +787,13 @@ function currencyPeriodNet(currencyCode){
 }
 function addAccount(name, startingBalance, currency){ state.accounts.push({id:uid(), name:name, startingBalance:startingBalance||0, currency:currency||null}); }
 function updateAccountName(id,name){ var a=findAccount(id); if(a) a.name=name; }
-function deleteAccount(id){ if(state.accounts.length<=1) return false; state.accounts = state.accounts.filter(function(a){ return a.id!==id; }); return true; }
+function accountHasActivity(id){
+  return state.transactions.some(function(t){ return t.accountId===id; }) ||
+    state.transfers.some(function(tr){ return tr.fromId===id || tr.toId===id; }) ||
+    state.fundMovements.some(function(f){ return f.accountId===id; });
+}
+/* Un wallet con movimientos no se borra: dejaría movimientos y aportes a metas sin wallet. */
+function deleteAccount(id){ if(state.accounts.length<=1) return 'last'; if(accountHasActivity(id)) return 'activity'; state.accounts = state.accounts.filter(function(a){ return a.id!==id; }); return 'ok'; }
 function currencyOptionsHtml(selected){
   var opts = Object.keys(CURRENCIES).map(function(c){ return '<option value="'+c+'" '+(selected===c?'selected':'')+'>'+c+'</option>'; }).join('');
   return '<option value="" '+(!selected?'selected':'')+'>Igual que la app ('+state.currency+')</option>' + opts;
@@ -958,45 +977,6 @@ function miniBarChart(data){
   });
   return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block;">'+out+'</svg>';
 }
-function miniLineChart(points, opts){
-  opts = opts || {};
-  var small = !!opts.small;
-  var W = small ? 180 : 300;
-  var H = small ? 60 : 112;
-  var padBottom = small ? 6 : 20, padTop = small ? 10 : 16, padX = small ? 6 : 10;
-  var dotR = small ? 2.5 : 4;
-  var color = opts.color || 'var(--growth)';
-  var target = opts.target;
-  var maxV = Math.max(1, target||0);
-  points.forEach(function(p){ if(p.v>maxV) maxV=p.v; });
-  var n = points.length;
-  var innerW = W - padX*2;
-  var stepX = n>1 ? innerW/(n-1) : 0;
-  function xAt(i){ return padX + i*stepX; }
-  function yAt(v){ return H-padBottom - (v/maxV)*(H-padBottom-padTop); }
-
-  var out = '';
-  if(target){
-    var ty = yAt(target);
-    out += '<line x1="'+padX+'" y1="'+ty.toFixed(1)+'" x2="'+(W-padX)+'" y2="'+ty.toFixed(1)+'" stroke="var(--text-faint)" stroke-width="1" stroke-dasharray="3 3"></line>'+
-      (small ? '' : '<text x="'+(W-padX)+'" y="'+(ty-4).toFixed(1)+'" font-size="8.5" fill="var(--text-faint)" text-anchor="end" font-family="Inter, sans-serif">meta '+target+'</text>');
-  }
-
-  var coords = points.map(function(p,i){ return {x:xAt(i), y:yAt(p.v)}; });
-  var linePts = coords.map(function(c){ return c.x.toFixed(1)+','+c.y.toFixed(1); }).join(' ');
-  var areaPath = 'M'+coords[0].x.toFixed(1)+','+(H-padBottom)+' L'+coords.map(function(c){ return c.x.toFixed(1)+','+c.y.toFixed(1); }).join(' L')+' L'+coords[coords.length-1].x.toFixed(1)+','+(H-padBottom)+' Z';
-  out += '<path d="'+areaPath+'" fill="'+color+'" fill-opacity="0.12" stroke="none"></path>';
-  out += '<polyline points="'+linePts+'" fill="none" stroke="'+color+'" stroke-width="'+(small?2:2.5)+'" stroke-linejoin="round" stroke-linecap="round"></polyline>';
-
-  points.forEach(function(p,i){
-    var c = coords[i];
-    var tip = (p.label?p.label+': ':'') + p.v + (p.v===1?' sesión':' sesiones');
-    out += '<circle cx="'+c.x.toFixed(1)+'" cy="'+c.y.toFixed(1)+'" r="'+dotR+'" fill="'+color+'" stroke="var(--surface)" stroke-width="1.2" data-tooltip="'+esc(tip)+'"></circle>'+
-      (small ? '' : '<text x="'+c.x.toFixed(1)+'" y="'+(H-6)+'" font-size="9" fill="var(--text-faint)" text-anchor="middle" font-family="Inter, sans-serif">'+esc(p.label)+'</text>');
-  });
-
-  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block;">'+out+'</svg>';
-}
 function chartAnchor(){ return ui.viewMode==='mensual' ? ui.monthOffset : 0; }
 function buildIncomeExpenseChart(currencyFilter){
   var cc = chartColors(); var anchor = chartAnchor();
@@ -1031,453 +1011,8 @@ function buildDonut(segments, opts){
   return '<svg viewBox="0 0 '+vb+' '+vb+'" width="'+vb+'" height="'+vb+'" style="max-width:100%;height:auto;">'+arcs+labels+'</svg>';
 }
 
-function findBook(id){ return state.books.find(function(b){ return b.id===id; }); }
-function bookProgressPct(b){ if(!b.totalPages) return 0; return Math.min(100, Math.round((b.currentPage/b.totalPages)*100)); }
-/* Busca la portada de un libro por título en Open Library (API pública, sin llave).
-   Si no encuentra nada o falla la conexión, devuelve null y la tarjeta muestra un ícono genérico. */
-async function fetchBookCover(title){
-  try{
-    var url = 'https://openlibrary.org/search.json?title='+encodeURIComponent(title)+'&limit=1&fields=cover_i';
-    var res = await fetch(url);
-    if(!res.ok) return null;
-    var data = await res.json();
-    var doc = data && data.docs && data.docs[0];
-    if(doc && doc.cover_i){ return 'https://covers.openlibrary.org/b/id/'+doc.cover_i+'-M.jpg'; }
-    return null;
-  } catch(e){ console.error('Cover fetch error', e); return null; }
-}
-function bookCardHtml(b){
-  var pct = bookProgressPct(b);
-  var fillColor = b.done ? 'var(--growth)' : 'var(--gold)';
-  var label = b.done ? 'Finalizado' : (pct+'%');
-  var sub = b.done ? (b.totalPages+' páginas') : ('Página '+b.currentPage+' de '+b.totalPages);
-  var coverErr = "this.replaceWith(Object.assign(document.createElement('div'),{className:'book-cover book-cover-placeholder',textContent:'📖'}));";
-  var coverHtml = b.cover ?
-    '<img class="book-cover" src="'+esc(b.cover)+'" alt="" loading="lazy" onerror="'+coverErr+'">' :
-    '<div class="book-cover book-cover-placeholder">📖</div>';
-  var isConfirmDel = ui.confirmDeleteBookId === b.id;
-  var deleteBtn = isConfirmDel ?
-    '<button class="btn-small danger" data-action="confirm-delete-book" data-id="'+b.id+'">¿Seguro?</button>' :
-    '<button class="btn-small danger" data-action="ask-delete-book" data-id="'+b.id+'">Quitar</button>';
-  return '<div class="item-card">'+
-    '<div class="item-top"><div class="book-top-row">'+coverHtml+'<div><div class="item-name">'+esc(b.name)+'</div><div class="item-sub">'+sub+'</div></div></div></div>'+
-    '<div class="book-bar-track"><div class="book-bar-fill" style="width:'+pct+'%;background:'+fillColor+';"></div><div class="book-bar-label">'+label+'</div></div>'+
-    '<div class="item-bottom"><div class="item-actions">'+
-      (!b.done ? '<button class="btn-small" data-action="open-book-progress" data-id="'+b.id+'">Actualizar página</button>' : '')+
-      '<button class="btn-small" data-action="open-edit-book" data-id="'+b.id+'">Editar</button>'+
-      deleteBtn+
-    '</div></div>'+
-  '</div>';
-}
-/* ---- Calendarios personalizados (solo visibles para Leo Jr) ---- */
-function buildCustomCalendarGridHtml(cal, offset){
-  var d = monthDate(offset);
-  var year = d.getFullYear(), month = d.getMonth();
-  var totalDays = new Date(year, month+1, 0).getDate();
-  var leadEmpty = mondayFirstIndex(new Date(year, month, 1));
-  var todayS = dateToStr(new Date());
-  var headers = ['L','M','M','J','V','S','D'].map(function(w){ return '<div class="exercise-weekday-label">'+w+'</div>'; }).join('');
-  var cells = '';
-  for(var i=0;i<leadEmpty;i++){ cells += '<div class="exercise-day empty"></div>'; }
-  for(var day=1; day<=totalDays; day++){
-    var ds = year+'-'+padNum(month+1)+'-'+padNum(day);
-    var isFuture = ds > todayS;
-    var mark = cal.marks[ds];
-    var cls = 'exercise-day'+(isFuture?' future':'')+(mark==='yes'?' cal-yes':'')+(mark==='no'?' cal-no':'');
-    var action = isFuture ? '' : (' data-action="toggle-custom-cal-day" data-cal="'+cal.id+'" data-date="'+ds+'"');
-    cells += '<div class="'+cls+'"'+action+'>'+day+'</div>';
-  }
-  return '<div class="exercise-calendar">'+headers+cells+'</div>';
-}
-function buildCustomCalendarCardHtml(cal){
-  var offset = ui.calMonthOffsets[cal.id] || 0;
-  return '<div class="card" style="flex:1 1 220px;min-width:220px;">'+
-    '<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;">'+
-      '<div class="item-name" style="font-size:13.5px;">'+esc(cal.name)+'</div>'+
-      '<button class="expand-btn" data-action="rename-custom-cal" data-cal="'+cal.id+'" title="Editar nombre">✎</button>'+
-    '</div>'+
-    '<div class="month-switch" style="justify-content:center;margin-bottom:4px;">'+
-      '<div class="month-nav">'+
-        '<button class="arrow" data-action="custom-cal-prev-month" data-cal="'+cal.id+'">‹</button>'+
-        '<div class="month-label">'+monthLabel(offset)+'</div>'+
-        '<button class="arrow" data-action="custom-cal-next-month" data-cal="'+cal.id+'" '+(offset>=0?'disabled':'')+'>›</button>'+
-      '</div>'+
-    '</div>'+
-    buildCustomCalendarGridHtml(cal, offset)+
-  '</div>';
-}
-function buildCustomCalendarsHtml(){
-  if(currentUser !== 'leo') return '';
-  return '<div class="section-title" style="margin-top:22px;">Mis calendarios</div>'+
-    '<div style="display:flex;gap:12px;flex-wrap:wrap;">'+
-      state.customCalendars.map(buildCustomCalendarCardHtml).join('')+
-    '</div>';
-}
-function buildAvancesHtml(){
-  var inProgress = state.books.filter(function(b){ return !b.done; }).sort(function(a,b){ return b.createdAt-a.createdAt; });
-  var done = state.books.filter(function(b){ return b.done; }).sort(function(a,b){ return (b.finishedAt||'').localeCompare(a.finishedAt||''); });
-  var inProgressHtml = inProgress.length===0 ?
-    '<div class="empty-state"><div class="big">📖</div>Aún no tienes libros en progreso.<br>Toca "+ Agregar libro" para anotar el primero.</div>' :
-    inProgress.map(bookCardHtml).join('');
-  var doneHtml = done.length===0 ? '' :
-    '<div class="section-title" style="margin-top:22px;">Libros leídos</div>' + done.map(bookCardHtml).join('');
-  var cardId = 'module-libros';
-  var expanded = !!ui.expandedCards[cardId];
-  return '<div class="section-title">Libros <span style="display:flex;gap:6px;">'+
-      '<button class="btn-small" data-action="add-book">+ Agregar libro</button>'+
-      '<button class="expand-btn" data-action="toggle-card-expand" data-id="'+cardId+'" title="'+(expanded?'Contraer':'Expandir')+'">'+(expanded?'⤡':'⤢')+'</button>'+
-    '</span></div>'+
-    '<div class="card module-card'+(expanded?' expanded':'')+'" id="'+cardId+'"><div class="module-scroll">'+
-      inProgressHtml + doneHtml +
-    '</div></div>'+
-    buildCustomCalendarsHtml();
-}
-
-function mondayFirstIndex(date){ return (date.getDay()+6)%7; }
 function padNum(n){ return String(n).padStart(2,'0'); }
 function dateToStr(d){ return d.getFullYear()+'-'+padNum(d.getMonth()+1)+'-'+padNum(d.getDate()); }
-function currentWeekBounds(){
-  var now = new Date(); now.setHours(0,0,0,0);
-  var idx = mondayFirstIndex(now);
-  var monday = new Date(now); monday.setDate(now.getDate()-idx);
-  var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
-  return {start:monday, end:sunday};
-}
-function exerciseCountInRange(startDate, endDate){
-  var s = dateToStr(startDate), e = dateToStr(endDate);
-  return state.exerciseLogs.filter(function(d){ return d>=s && d<=e; }).length;
-}
-function exerciseWeekCount(){ var wb = currentWeekBounds(); return exerciseCountInRange(wb.start, wb.end); }
-function exerciseWeeklySeries(weeksCount){
-  var wb = currentWeekBounds();
-  var weeks = [];
-  for(var i=weeksCount-1;i>=0;i--){
-    var monday = new Date(wb.start); monday.setDate(monday.getDate()-7*i);
-    var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
-    weeks.push({ label: padNum(monday.getDate())+'/'+padNum(monday.getMonth()+1), v: exerciseCountInRange(monday, sunday) });
-  }
-  return weeks;
-}
-function exerciseMonthCount(){
-  var now = new Date();
-  var first = new Date(now.getFullYear(), now.getMonth(), 1);
-  var last = new Date(now.getFullYear(), now.getMonth()+1, 0);
-  return exerciseCountInRange(first, last);
-}
-function exercisePct(count, target){ return Math.min(100, Math.round((count/target)*100)); }
-function buildExerciseCalendarHtml(){
-  var now = new Date();
-  var year = now.getFullYear(), month = now.getMonth();
-  var totalDays = new Date(year, month+1, 0).getDate();
-  var leadEmpty = mondayFirstIndex(new Date(year, month, 1));
-  var todayS = dateToStr(now);
-  var headers = ['L','M','M','J','V','S','D'].map(function(d){ return '<div class="exercise-weekday-label">'+d+'</div>'; }).join('');
-  var cells = '';
-  for(var i=0;i<leadEmpty;i++){ cells += '<div class="exercise-day empty"></div>'; }
-  for(var day=1; day<=totalDays; day++){
-    var ds = year+'-'+padNum(month+1)+'-'+padNum(day);
-    var isFuture = ds > todayS;
-    var isDone = state.exerciseLogs.indexOf(ds) > -1;
-    var cls = 'exercise-day'+(isDone?' done':'')+(isFuture?' future':'');
-    var action = isFuture ? '' : (' data-action="toggle-exercise-day" data-date="'+ds+'"');
-    cells += '<div class="'+cls+'"'+action+'>'+day+'</div>';
-  }
-  return '<div class="exercise-calendar">'+headers+cells+'</div>';
-}
-function exerciseGoalDaysLeft(goal){
-  var target = new Date(goal.targetDate+'T00:00:00');
-  var now = new Date(); now.setHours(0,0,0,0);
-  return Math.ceil((target-now)/86400000);
-}
-function exerciseGoalTotalDays(goal){
-  var start = new Date(goal.createdAt); start.setHours(0,0,0,0);
-  var target = new Date(goal.targetDate+'T00:00:00');
-  return Math.max(1, Math.round((target-start)/86400000));
-}
-function exerciseGoalSessionsTarget(goal){
-  // Meta de sesiones a un ritmo de 4 por semana (el mismo ritmo que usamos en "Esta semana"),
-  // repartido en las semanas reales entre hoy que se creó la meta y la fecha objetivo.
-  var totalDays = exerciseGoalTotalDays(goal);
-  return Math.max(1, Math.round((totalDays/7)*4));
-}
-function exerciseGoalDoneCount(goal){
-  var start = new Date(goal.createdAt); start.setHours(0,0,0,0);
-  var startStr = dateToStr(start);
-  var targetStr = goal.targetDate;
-  return state.exerciseLogs.filter(function(d){ return d >= startStr && d <= targetStr; }).length;
-}
-function exerciseGoalPct(goal){
-  // El % refleja las sesiones que REALMENTE marcaste como ejercitadas (del calendario)
-  // contra la meta de sesiones, no solo el paso del calendario.
-  var sessionsTarget = exerciseGoalSessionsTarget(goal);
-  var doneCount = exerciseGoalDoneCount(goal);
-  return Math.max(0, Math.min(100, Math.round((doneCount/sessionsTarget)*100)));
-}
-function buildExerciseGoalHtml(){
-  var goal = state.exerciseGoal;
-  var wc = state.theme==='dark' ? '#39FF6A' : '#4C7A5D';
-  if(!goal){
-    return '<div class="section-title">Meta</div>'+
-      '<div class="card" style="text-align:center;">'+
-        '<div class="chart-desc" style="margin-bottom:10px;">Ponete una fecha objetivo y te digo cuánto llevas del camino (calculamos a un ritmo de 4 sesiones por semana, como en "Esta semana").</div>'+
-        '<button class="btn-small" data-action="add-exercise-goal">+ Agregar meta</button>'+
-      '</div>';
-  }
-  var daysLeft = exerciseGoalDaysLeft(goal);
-  var sessionsTarget = exerciseGoalSessionsTarget(goal);
-  var doneCount = exerciseGoalDoneCount(goal);
-  var pct = exerciseGoalPct(goal);
-  var dateLabel = new Date(goal.targetDate+'T00:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
-  var daysText = daysLeft > 0 ? ('Faltan '+daysLeft+' días') : (daysLeft===0 ? 'Es hoy' : 'La fecha ya pasó');
-  return '<div class="section-title">Meta <span style="display:flex;gap:6px;">'+
-      '<button class="btn-small" data-action="add-exercise-goal">Editar</button>'+
-      '<button class="btn-small danger" data-action="delete-exercise-goal">Quitar</button>'+
-    '</span></div>'+
-    '<div class="card">'+
-      '<div class="chart-desc" style="margin-bottom:10px;">Meta para el '+dateLabel+'</div>'+
-      '<div class="item-name" style="margin-bottom:8px;">'+doneCount+' de '+sessionsTarget+' sesiones</div>'+
-      '<div class="book-bar-track"><div class="book-bar-fill" style="width:'+pct+'%;background:'+wc+';"></div><div class="book-bar-label">'+pct+'%</div></div>'+
-      '<div class="chart-desc" style="text-align:center;margin-top:8px;">'+daysText+'</div>'+
-    '</div>';
-}
-function buildEjercicioHtml(){
-  var weekCount = exerciseWeekCount(), weekPct = exercisePct(weekCount,4);
-  var monthCount = exerciseMonthCount(), monthPct = exercisePct(monthCount,12);
-  var wc = state.theme==='dark' ? '#39FF6A' : '#4C7A5D';
-
-  var weekBlock = '<div class="section-title">Esta semana</div>'+
-    '<div class="card">'+
-      '<div class="book-bar-track"><div class="book-bar-fill" style="width:'+weekPct+'%;background:'+wc+';"></div><div class="book-bar-label">'+weekPct+'%</div></div>'+
-      '<div class="chart-desc" style="text-align:center;">'+weekCount+' de 4 esta semana</div>'+
-    '</div>';
-
-  var monthDonut = buildDonut([
-    {value:monthCount, color:wc, label:'Días de ejercicio'},
-    {value:Math.max(0,12-monthCount), color:'var(--line)', label:'Falta'}
-  ], {r:58, cx:68, cy:68, sw:18});
-
-  var monthBlock = '<div class="section-title">Este mes</div>'+
-    '<div class="card" style="display:flex;flex-direction:column;align-items:center;">'+
-      monthDonut+
-      '<div class="chart-desc" style="margin-top:8px;">'+monthCount+' de 12 este mes ('+monthPct+'%)</div>'+
-      buildExerciseCalendarHtml()+
-    '</div>';
-
-  var weeklyLine = miniLineChart(exerciseWeeklySeries(6), {color:wc, target:4, small:true});
-  var weeklyBlock = '<div class="section-title" style="font-size:13px;margin:10px 0 6px;">Sesiones por semana</div>'+
-    '<div class="card" style="padding:10px;">'+weeklyLine+'</div>';
-
-  return weekBlock +
-    '<div class="ejercicio-grid">'+
-      '<div class="ejercicio-col">'+monthBlock+'</div>'+
-      '<div class="ejercicio-col">'+buildExerciseGoalHtml()+weeklyBlock+'</div>'+
-    '</div>' +
-    buildHealthFoodHtml();
-}
-
-/* ---- Alimentación / calorías ---- */
-function fmtKcal(n){ return Math.round(n||0) + ' kcal'; }
-function dayCalorieTotal(dateStr){
-  return state.meals.filter(function(m){ return m.date===dateStr; }).reduce(function(a,m){ return a+(m.calories||0); }, 0);
-}
-function mealsForDate(dateStr){
-  return state.meals.filter(function(m){ return m.date===dateStr; }).sort(function(a,b){ return a.createdAt-b.createdAt; });
-}
-function buildCalorieGoalHtml(){
-  var goal = state.calorieGoal;
-  if(!goal){
-    return '<div class="section-title">Meta calórica</div>'+
-      '<div class="card" style="text-align:center;">'+
-        '<div class="chart-desc" style="margin-bottom:10px;">Si quieres, ponte un estimado de cuántas calorías consumir al día (por ejemplo 1500) y te muestro qué tan cerca vas. Es opcional, no hace falta tenerla.</div>'+
-        '<button class="btn-small" data-action="add-calorie-goal">+ Agregar meta</button>'+
-      '</div>';
-  }
-  return '<div class="section-title">Meta calórica <span style="display:flex;gap:6px;">'+
-      '<button class="btn-small" data-action="add-calorie-goal">Editar</button>'+
-      '<button class="btn-small danger" data-action="delete-calorie-goal">Quitar</button>'+
-    '</span></div>'+
-    '<div class="card" style="text-align:center;"><div class="item-name">'+fmtKcal(goal)+' al día</div></div>';
-}
-function buildTodayMealsHtml(){
-  var todayS = dateToStr(new Date());
-  var meals = mealsForDate(todayS);
-  var total = dayCalorieTotal(todayS);
-  var goal = state.calorieGoal;
-  var over = !!(goal && total > goal);
-  var progressHtml;
-  if(goal){
-    var pct = Math.min(100, Math.round((total/goal)*100));
-    var barColor = over ? 'var(--spend)' : 'var(--gold)';
-    progressHtml = '<div class="book-bar-track"><div class="book-bar-fill" style="width:'+pct+'%;background:'+barColor+';"></div><div class="book-bar-label">'+fmtKcal(total)+' / '+fmtKcal(goal)+'</div></div>'+
-      (over ? '<div class="chart-desc" style="text-align:center;color:var(--spend);">Te pasaste de la meta hoy.</div>' : '');
-  } else {
-    progressHtml = '<div class="chart-desc" style="text-align:center;">Hoy llevas '+fmtKcal(total)+'.</div>';
-  }
-  var mealsHtml = meals.length===0 ?
-    '<div class="empty-state" style="padding:14px 0;"><div class="big">🍽️</div>Aún no has anotado comidas hoy.</div>' :
-    meals.map(function(m){
-      return '<div class="txn-row"><div style="flex:1;"><div class="item-name" style="font-size:13.5px;">'+esc(m.text)+'</div></div>'+
-        '<div class="txn-amt">'+fmtKcal(m.calories)+'</div>'+
-        '<button class="btn-small" data-action="edit-meal" data-id="'+m.id+'">Editar</button>'+
-        '<button class="btn-small danger" data-action="delete-meal" data-id="'+m.id+'">Borrar</button>'+
-      '</div>';
-    }).join('');
-  return '<div class="section-title" style="margin-top:22px;">Comidas de hoy <button class="btn-small" data-action="add-meal">+ Agregar comida</button></div>'+
-    '<div class="card">'+progressHtml+'</div>'+
-    mealsHtml;
-}
-function last7Dates(){
-  var arr = [];
-  for(var i=0;i<7;i++){
-    var d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-i);
-    arr.push(dateToStr(d));
-  }
-  return arr; /* hoy primero, hasta hace 6 días */
-}
-function dayShortLabel(ds){
-  var d = new Date(ds+'T00:00:00');
-  var todayS = dateToStr(new Date());
-  var yd = new Date(); yd.setDate(yd.getDate()-1);
-  var yestS = dateToStr(yd);
-  if(ds===todayS) return 'Hoy';
-  if(ds===yestS) return 'Ayer';
-  var days = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  return days[d.getDay()]+' '+padNum(d.getDate())+'/'+padNum(d.getMonth()+1);
-}
-function buildWeekHistoryHtml(){
-  var dates = last7Dates();
-  var goal = state.calorieGoal;
-  var weekDiffTotal = 0;
-  var daysHtml = dates.map(function(ds){
-    var meals = mealsForDate(ds);
-    var total = dayCalorieTotal(ds);
-    var hasLog = meals.length > 0;
-    var diffHtml = '';
-    if(goal && hasLog){
-      var diff = Math.round(total - goal);
-      weekDiffTotal += diff;
-      diffHtml = '<div style="font-size:11.5px;font-weight:600;color:'+(diff>0?'var(--spend)':'var(--growth)')+';">'+(diff>0?'+':'')+diff+' kcal</div>';
-    }
-    var cardId = 'mealday-'+ds;
-    var expanded = !!ui.expandedCards[cardId];
-    var mealsRowsHtml = '';
-    if(expanded){
-      mealsRowsHtml = hasLog ? meals.map(function(m){
-        return '<div class="txn-row" style="padding:8px 10px;margin-left:14px;margin-bottom:6px;">'+
-          '<div style="flex:1;min-width:0;"><div class="item-name" style="font-size:12.5px;">'+esc(m.text)+'</div></div>'+
-          '<div class="txn-amt" style="font-size:12px;">'+fmtKcal(m.calories)+'</div>'+
-          '<button class="btn-small" data-action="edit-meal" data-id="'+m.id+'">Editar</button>'+
-          '<button class="btn-small danger" data-action="delete-meal" data-id="'+m.id+'">Borrar</button>'+
-        '</div>';
-      }).join('') : '<div class="item-sub" style="margin-left:14px;margin-bottom:6px;">Sin registro</div>';
-    }
-    return '<div class="txn-row" style="align-items:flex-start;cursor:pointer;" data-action="toggle-card-expand" data-id="'+cardId+'">'+
-        '<div style="flex:1;min-width:0;"><div class="item-name" style="font-size:13px;">'+(expanded?'▾':'▸')+' '+dayShortLabel(ds)+'</div></div>'+
-        '<div style="text-align:right;flex-shrink:0;"><div class="txn-amt">'+fmtKcal(total)+'</div>'+diffHtml+'</div>'+
-        '<button class="btn-small" data-action="add-meal-for-date" data-date="'+ds+'" title="Agregar comida">+</button>'+
-      '</div>'+
-      mealsRowsHtml;
-  }).join('');
-  var summaryHtml;
-  if(!goal){
-    summaryHtml = '<div class="chart-desc" style="text-align:center;">Ponte una meta calórica (más abajo) para ver cuánto te pasaste o ahorraste en la semana.</div>';
-  } else {
-    var absDiff = Math.abs(Math.round(weekDiffTotal));
-    if(weekDiffTotal > 0){ summaryHtml = '<div class="item-name" style="text-align:center;color:var(--spend);">Te pasaste '+absDiff+' kcal en total esta semana.</div>'; }
-    else if(weekDiffTotal < 0){ summaryHtml = '<div class="item-name" style="text-align:center;color:var(--growth);">Te ahorraste '+absDiff+' kcal en total esta semana.</div>'; }
-    else { summaryHtml = '<div class="item-name" style="text-align:center;">Quedaste justo en la meta esta semana.</div>'; }
-  }
-  return '<div class="section-title" style="margin-top:22px;">Últimos 7 días</div>'+
-    '<div class="card">'+summaryHtml+'</div>'+
-    daysHtml;
-}
-function mondayOnOrBefore(d){
-  var idx = mondayFirstIndex(d);
-  var m = new Date(d); m.setHours(0,0,0,0); m.setDate(m.getDate()-idx);
-  return m;
-}
-function weekMonthShort(d){ return d.toLocaleDateString('es-MX',{month:'short'}).replace('.',''); }
-function weekRangeLabel(startDate, endDate){
-  var sameMonth = startDate.getMonth()===endDate.getMonth();
-  if(sameMonth) return startDate.getDate()+' – '+endDate.getDate()+' '+weekMonthShort(endDate);
-  return startDate.getDate()+' '+weekMonthShort(startDate)+' – '+endDate.getDate()+' '+weekMonthShort(endDate);
-}
-function buildWeeklyCalorieHistoryHtml(){
-  var goal = state.calorieGoal;
-  if(!goal){
-    return '<div class="section-title" style="margin-top:22px;">Historial semanal</div>'+
-      '<div class="card"><div class="chart-desc" style="text-align:center;">Ponte una meta calórica (más abajo) para ver el resumen de cada semana.</div></div>';
-  }
-  var today = new Date(); today.setHours(0,0,0,0);
-  var thisMonday = mondayOnOrBefore(today);
-  var weeksCount = 8;
-  var rowsHtml = '';
-  for(var i=0;i<weeksCount;i++){
-    var start = new Date(thisMonday); start.setDate(start.getDate()-7*i);
-    var end = new Date(start); end.setDate(end.getDate()+6);
-    var diffTotal = 0, anyLog = false;
-    for(var d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
-      var ds = dateToStr(d);
-      if(mealsForDate(ds).length){ anyLog = true; diffTotal += (dayCalorieTotal(ds) - goal); }
-    }
-    var label = i===0 ? ('Esta semana · '+weekRangeLabel(start,end)) : weekRangeLabel(start,end);
-    var statusHtml;
-    if(!anyLog){
-      statusHtml = '<div class="item-sub">Sin registro</div>';
-    } else {
-      var absDiff = Math.abs(Math.round(diffTotal));
-      var over = diffTotal > 0;
-      statusHtml = '<div class="txn-amt" style="font-size:12.5px;font-weight:600;color:'+(over?'var(--spend)':'var(--growth)')+';">'+(over?'Te pasaste ':'Te ahorraste ')+absDiff+' kcal</div>';
-    }
-    rowsHtml += '<div class="txn-row">'+
-      '<div style="flex:1;min-width:0;"><div class="item-name" style="font-size:13px;">'+label+'</div></div>'+
-      statusHtml+
-    '</div>';
-  }
-  return '<div class="section-title" style="margin-top:22px;">Historial semanal</div>'+
-    rowsHtml;
-}
-function buildHealthCalendarHtml(){
-  var now = new Date();
-  var year = now.getFullYear(), month = now.getMonth();
-  var totalDays = new Date(year, month+1, 0).getDate();
-  var leadEmpty = mondayFirstIndex(new Date(year, month, 1));
-  var todayS = dateToStr(now);
-  var goal = state.calorieGoal;
-  var headers = ['L','M','M','J','V','S','D'].map(function(d){ return '<div class="exercise-weekday-label">'+d+'</div>'; }).join('');
-  var cells = '';
-  for(var i=0;i<leadEmpty;i++){ cells += '<div class="exercise-day empty"></div>'; }
-  for(var day=1; day<=totalDays; day++){
-    var ds = year+'-'+padNum(month+1)+'-'+padNum(day);
-    var isFuture = ds > todayS;
-    var total = dayCalorieTotal(ds);
-    var hasLog = total > 0;
-    var cls = 'exercise-day';
-    var tip = '';
-    if(isFuture){ cls += ' future'; }
-    else if(hasLog && goal){ cls += (total > goal) ? ' over' : ' done'; tip = ' data-tooltip="'+esc(fmtKcal(total)+' / '+fmtKcal(goal))+'"'; }
-    else if(hasLog){ cls += ' logged'; tip = ' data-tooltip="'+esc(fmtKcal(total))+'"'; }
-    cells += '<div class="'+cls+'"'+tip+'>'+day+'</div>';
-  }
-  return '<div class="exercise-calendar">'+headers+cells+'</div>';
-}
-function buildHealthFoodHtml(){
-  var goal = state.calorieGoal;
-  var legend = goal ?
-    '<div class="chart-desc" style="margin-top:10px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">'+
-      '<span><span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--growth);margin-right:4px;"></span>Dentro de la meta</span>'+
-      '<span><span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--spend);margin-right:4px;"></span>Te pasaste</span>'+
-    '</div>' : '';
-  return buildTodayMealsHtml() +
-    buildWeekHistoryHtml() +
-    buildWeeklyCalorieHistoryHtml() +
-    '<div class="card" style="display:flex;flex-direction:column;align-items:center;margin-top:14px;">'+
-      '<div class="chart-desc" style="margin-bottom:2px;">Este mes</div>'+
-      buildHealthCalendarHtml()+
-      legend+
-    '</div>'+
-    buildCalorieGoalHtml();
-}
 function renderRail(){ document.querySelectorAll('.rail button').forEach(function(b){ b.classList.toggle('active', b.dataset.section===ui.section); }); }
 function renderCurrencyRow(showToggle){
   var row = document.getElementById('currency-row');
@@ -1511,14 +1046,8 @@ function renderHeaderAndTabs(){
     document.getElementById('greeting').innerHTML = greetingText() + '<span>¿Cómo van tus wallets hoy?</span>';
     document.getElementById('tabs').innerHTML = FINANZAS_TABS.map(function(t){ return '<button data-fintab="'+t.id+'" class="'+(ui.tab===t.id?'active':'')+'">'+t.label+'</button>'; }).join('');
     document.getElementById('tabs').style.display = 'flex';
-  } else if(ui.section === 'ejercicios'){
-    document.getElementById('greeting').innerHTML = 'Salud<span>Ejercicio y alimentación, un día a la vez</span>';
-    document.getElementById('tabs').innerHTML = ''; document.getElementById('tabs').style.display = 'none';
   } else if(ui.section === 'bolsa'){
     document.getElementById('greeting').innerHTML = 'Bolsa<span>Tus acciones reales, con precios de verdad</span>';
-    document.getElementById('tabs').innerHTML = ''; document.getElementById('tabs').style.display = 'none';
-  } else {
-    document.getElementById('greeting').innerHTML = 'Avances personales<span>Tus metas de vida, un paso a la vez</span>';
     document.getElementById('tabs').innerHTML = ''; document.getElementById('tabs').style.display = 'none';
   }
   document.querySelector('.fab').style.display = (inFinanzas && !isDesktop()) ? 'flex' : 'none';
@@ -1629,8 +1158,8 @@ function buildGoalsPreviewHtml(){
 function periodWalletsLabel(){ return ui.viewMode==='mensual' ? ('Movimiento de '+monthLabel(ui.monthOffset).toLowerCase()) : 'Total en wallets'; }
 function periodWalletsValue(){ return ui.viewMode==='mensual' ? (periodIncome()-periodExpense()) : accountsTotal(); }
 function buildSummaryMiniHtml(){
-  var debtsOwed = state.debts.filter(function(d){ return d.kind==='debo' && !d.settled; }).reduce(function(a,d){ return a+d.amount; },0);
-  var debtsToReceive = state.debts.filter(function(d){ return d.kind==='me_deben' && !d.settled; }).reduce(function(a,d){ return a+d.amount; },0);
+  var debtsOwed = state.debts.filter(function(d){ return d.kind==='debo' && !d.settled; }).reduce(function(a,d){ return a+debtRemaining(d); },0);
+  var debtsToReceive = state.debts.filter(function(d){ return d.kind==='me_deben' && !d.settled; }).reduce(function(a,d){ return a+debtRemaining(d); },0);
   return '<div class="summary-mini" style="margin-bottom:14px;">'+
     '<div class="card" data-action="goto-tab" data-tab="cuentas" style="cursor:pointer;"><div class="label">'+periodWalletsLabel()+'</div><div class="val">'+fmt(periodWalletsValue())+'</div></div>'+
     '<div class="card" data-action="goto-tab" data-tab="inversiones" style="cursor:pointer;"><div class="label">En la bolsa</div><div class="val">'+fmt(state.bolsa.currentValue)+'</div></div>'+
@@ -1836,7 +1365,7 @@ async function saveBolsaPosition(){
   var submitBtn = document.getElementById('bolsa-pos-submit');
   var ticker = (tickerInput.value||'').trim().toUpperCase();
   var amount = parseFloat(amountInput.value);
-  var purchaseDate = new Date().toISOString().slice(0,10);
+  var purchaseDate = todayStr();
   errorEl.style.display = 'none';
   if(!ticker){ errorEl.textContent='Escribe un símbolo, como AAPL.'; errorEl.style.display=''; return; }
   if(!amount || amount<=0){ errorEl.textContent='Escribe cuánto invertiste.'; errorEl.style.display=''; return; }
@@ -2020,11 +1549,10 @@ function renderFinanzasDashboard(){
 }
 
 function render(){
+  if(!state) return;
   applyTheme();
   renderRail();
   renderHeaderAndTabs();
-  if(ui.section === 'ejercicios'){ document.getElementById('main-content').innerHTML = buildEjercicioHtml(); return; }
-  if(ui.section === 'avances'){ document.getElementById('main-content').innerHTML = buildAvancesHtml(); return; }
   if(ui.section === 'bolsa'){ document.getElementById('main-content').innerHTML = buildBolsaSectionHtml(); refreshQuotesIfNeeded(); return; }
 
   if(isDesktop()){ renderFinanzasDashboard(); return; }
@@ -2268,100 +1796,6 @@ function openIncomeEstimateModal(){
   '</div></div>';
   document.getElementById('income-estimate-amount').focus();
 }
-function openAddBookModal(){
-  document.getElementById('modal-root').innerHTML =
-  '<div class="overlay centered"><div class="sheet" data-stop>'+
-    '<button class="close-x" data-action="close-modal">×</button>'+
-    '<div class="sheet-title">Nuevo libro</div>'+
-    '<div class="field"><label>Nombre del libro</label><input type="text" id="book-name" placeholder="Ej. Cien años de soledad"></div>'+
-    '<div class="field"><label>Número de páginas</label><input type="number" id="book-pages" inputmode="numeric" min="1" step="1" placeholder="Ej. 350"></div>'+
-    '<button class="btn-primary" data-action="save-book">Agregar libro</button>'+
-  '</div></div>';
-  document.getElementById('book-name').focus();
-}
-function openEditBookModal(bookId){
-  var b = findBook(bookId); if(!b) return;
-  document.getElementById('modal-root').innerHTML =
-  '<div class="overlay centered"><div class="sheet" data-stop>'+
-    '<button class="close-x" data-action="close-modal">×</button>'+
-    '<div class="sheet-title">Editar libro</div>'+
-    '<div class="field"><label>Nombre del libro</label><input type="text" id="edit-book-name" value="'+esc(b.name)+'"></div>'+
-    '<button class="btn-primary" data-action="save-book-name" data-id="'+b.id+'">Guardar</button>'+
-  '</div></div>';
-  document.getElementById('edit-book-name').focus();
-}
-function openRenameCalModal(calId){
-  var cal = state.customCalendars.find(function(c){ return c.id===calId; });
-  if(!cal) return;
-  document.getElementById('modal-root').innerHTML =
-  '<div class="overlay centered"><div class="sheet" data-stop>'+
-    '<button class="close-x" data-action="close-modal">×</button>'+
-    '<div class="sheet-title">Nombre del calendario</div>'+
-    '<div class="field"><label>¿Cómo lo quieres llamar?</label><input type="text" id="cal-rename-input" value="'+esc(cal.name)+'"></div>'+
-    '<button class="btn-primary" data-action="save-custom-cal-name" data-id="'+cal.id+'">Guardar</button>'+
-  '</div></div>';
-  document.getElementById('cal-rename-input').focus();
-}
-function openBookProgressModal(bookId){
-  var b = findBook(bookId); if(!b) return;
-  var initialPct = bookProgressPct(b);
-  document.getElementById('modal-root').innerHTML =
-  '<div class="overlay centered"><div class="sheet" data-stop>'+
-    '<button class="close-x" data-action="close-modal">×</button>'+
-    '<div class="sheet-title">'+esc(b.name)+'</div>'+
-    '<div class="field-hint" style="margin-bottom:14px;">Tiene '+b.totalPages+' páginas en total.</div>'+
-    '<div class="field"><label>¿En qué página vas?</label><input type="number" id="book-current-page" inputmode="numeric" min="0" max="'+b.totalPages+'" step="1" value="'+b.currentPage+'" data-total="'+b.totalPages+'"></div>'+
-    '<div class="field-hint" id="book-progress-preview">Vas por el '+initialPct+'%.</div>'+
-    '<button class="btn-primary" data-action="save-book-progress" data-id="'+b.id+'">Guardar</button>'+
-  '</div></div>';
-  document.getElementById('book-current-page').focus();
-}
-function openAddMealModal(opts){
-  opts = opts || {};
-  var editing = opts.editing || null;
-  var dates = last7Dates();
-  var minDate = dates[dates.length-1], maxDate = dates[0];
-  var presetDate = editing ? editing.date : (opts.presetDate || maxDate);
-  var title = editing ? 'Editar comida' : 'Nueva comida';
-  var btnLabel = editing ? 'Guardar' : 'Agregar';
-  document.getElementById('modal-root').innerHTML =
-  '<div class="overlay centered"><div class="sheet" data-stop>'+
-    '<button class="close-x" data-action="close-modal">×</button>'+
-    '<div class="sheet-title">'+title+'</div>'+
-    '<input type="hidden" id="meal-edit-id" value="'+(editing?esc(editing.id):'')+'">'+
-    '<div class="field"><label>Fecha</label><input type="date" id="meal-date" value="'+presetDate+'" min="'+minDate+'" max="'+maxDate+'"></div>'+
-    '<div class="field" style="position:relative;"><label>¿Qué comiste?</label><input type="text" id="meal-text" placeholder="Ej. nug..." autocomplete="off" value="'+(editing?esc(editing.text):'')+'">'+
-      '<div id="meal-suggestions" class="meal-suggestions" style="display:none;"></div>'+
-    '</div>'+
-    '<div class="field" id="meal-quantity-field" style="display:none;"><label>Cantidad (<span id="meal-portion-label"></span>)</label><input type="number" id="meal-quantity" inputmode="decimal" min="0" step="0.5" value="1"></div>'+
-    '<div class="field"><label>Calorías totales</label><input type="number" id="meal-calories" inputmode="numeric" min="0" step="1" placeholder="0" value="'+(editing?editing.calories:0)+'"></div>'+
-    '<div class="field-hint" id="meal-calorie-hint">Escribe qué comiste y elige una opción de la lista, o ponlo manual.</div>'+
-    '<button class="btn-primary" data-action="save-meal">'+btnLabel+'</button>'+
-  '</div></div>';
-  document.getElementById('meal-text').focus();
-}
-function openCalorieGoalModal(){
-  document.getElementById('modal-root').innerHTML =
-  '<div class="overlay centered"><div class="sheet" data-stop>'+
-    '<button class="close-x" data-action="close-modal">×</button>'+
-    '<div class="sheet-title">Meta calórica diaria</div>'+
-    '<div class="field"><label>¿Cuánto deberías consumir al día?</label><input type="number" id="calorie-goal-value" inputmode="numeric" min="1" step="1" placeholder="Ej. 1500" value="'+(state.calorieGoal||'')+'"></div>'+
-    '<div class="field-hint" style="margin-bottom:14px;">Es opcional: si no la defines, solo se lleva el registro sin comparar contra nada.</div>'+
-    '<button class="btn-primary" data-action="save-calorie-goal">Guardar</button>'+
-  '</div></div>';
-  document.getElementById('calorie-goal-value').focus();
-}
-function openExerciseGoalModal(){
-  var existing = state.exerciseGoal;
-  document.getElementById('modal-root').innerHTML =
-  '<div class="overlay centered"><div class="sheet" data-stop>'+
-    '<button class="close-x" data-action="close-modal">×</button>'+
-    '<div class="sheet-title">Meta de ejercicio</div>'+
-    '<div class="field"><label>¿Para cuándo?</label><input type="date" id="exercise-goal-date" value="'+(existing?existing.targetDate:'')+'" min="'+dateToStr(new Date())+'"></div>'+
-    '<button class="btn-primary" data-action="save-exercise-goal">Guardar</button>'+
-  '</div></div>';
-  document.getElementById('exercise-goal-date').focus();
-}
 function openSettings(){
   var curOptions = Object.keys(CURRENCIES).map(function(c){ return '<option value="'+c+'" '+(state.currency===c?'selected':'')+'>'+c+'</option>'; }).join('') +
     '<option value="OTRO" '+(!CURRENCIES[state.currency]?'selected':'')+'>Otra (símbolo personalizado)</option>';
@@ -2379,6 +1813,14 @@ function openSettings(){
     '<div class="field" id="custom-symbol-field" style="'+(CURRENCIES[state.currency] ? 'display:none;' : '')+'"><label>Símbolo personalizado</label><input type="text" id="settings-symbol" maxlength="4" value="'+esc(state.customSymbol||'$')+'"></div>'+
     '<button class="btn-primary" data-action="save-settings">Guardar ajustes</button>'+
     '<div class="field-hint" style="text-align:center;margin-top:6px;">Las categorías de gasto e ingreso se editan desde la ventana de "Nuevo movimiento".</div>'+
+    '<div class="field" style="margin-top:16px;"><label>Respaldo</label>'+
+      '<div style="display:flex;gap:10px;">'+
+        '<button class="btn-small" style="flex:1;padding:10px;" data-action="download-backup">Descargar respaldo</button>'+
+        '<button class="btn-small" style="flex:1;padding:10px;" data-action="pick-backup">Cargar respaldo</button>'+
+      '</div>'+
+      '<input type="file" id="backup-file" accept=".json,application/json" style="display:none;">'+
+      '<div class="field-hint">Guarda en un archivo una copia de todos tus datos, o vuelve a cargar una.</div>'+
+    '</div>'+
     '<button class="btn-text" data-action="ask-reset" style="color:var(--spend);margin-top:10px;">Borrar todos mis datos</button>'+
     '<button class="btn-text" data-action="logout" style="margin-top:2px;">Cerrar sesión / cambiar de usuario</button>'+
     '<div style="font-size:11.5px;color:var(--text-faint);text-align:center;margin-top:10px;">Tus datos se guardan de forma privada. Solo tú puedes verlos con tu clave.</div>'+
@@ -2524,7 +1966,7 @@ async function handleAction(action, el){
       break;
     }
     case 'ask-delete-account': ui.confirmDeleteAccountId = el.dataset.id; render(); setTimeout(function(){ if(ui.confirmDeleteAccountId===el.dataset.id){ ui.confirmDeleteAccountId=null; render(); } },3000); break;
-    case 'confirm-delete-account': { var okA = deleteAccount(el.dataset.id); if(!okA){ showToast('Debes dejar al menos un wallet.'); ui.confirmDeleteAccountId=null; render(); return; } ui.confirmDeleteAccountId=null; await saveState(); render(); showToast('Wallet eliminado.'); break; }
+    case 'confirm-delete-account': { var resA = deleteAccount(el.dataset.id); if(resA!=='ok'){ showToast(resA==='last' ? 'Debes dejar al menos un wallet.' : 'Este wallet tiene movimientos, no se puede eliminar. Puedes cambiarle el nombre con "Editar".'); ui.confirmDeleteAccountId=null; render(); return; } ui.confirmDeleteAccountId=null; await saveState(); render(); showToast('Wallet eliminado.'); break; }
 
     case 'open-transfer': openTransferModal(); break;
     case 'save-transfer': {
@@ -2653,6 +2095,16 @@ async function handleAction(action, el){
       closeModal(); await saveState(); render(); showToast('Estimado guardado.');
       break;
     }
+    case 'download-backup': downloadBackup(); showToast('Respaldo descargado.'); break;
+    case 'pick-backup': { var fileEl = document.getElementById('backup-file'); if(fileEl){ fileEl.value=''; fileEl.click(); } break; }
+    case 'do-restore': {
+      if(!ui.pendingRestore) return;
+      downloadBackup('antes-de-cargar');
+      state = normalizeState(ui.pendingRestore);
+      ui.pendingRestore = null;
+      closeModal(); await saveState(); render(); showToast('Respaldo cargado.');
+      break;
+    }
     case 'ask-reset': askReset(); break;
     case 'do-reset': { state = defaultState(); closeModal(); await saveState(); render(); showToast('Tus datos se borraron.'); break; }
     case 'logout': { closeModal(); clearSecret(currentUser); localStorage.removeItem('mvo-last-user'); state = null; showUserPicker(); break; }
@@ -2689,66 +2141,6 @@ async function handleAction(action, el){
     case 'confirm-delete-cat': { deleteCategory(el.dataset.type, el.dataset.id); ui.confirmDeleteCatId=null; await saveState(); render(); openCatManageSheet(el.dataset.type); showToast('Categoría eliminada.'); break; }
     case 'cancel-cat-form': ui.tempCatColor = null; catFormBack(); break;
 
-    case 'add-book': openAddBookModal(); break;
-    case 'save-book': {
-      var bName = document.getElementById('book-name').value.trim();
-      var bPages = parseInt(document.getElementById('book-pages').value, 10);
-      if(!bName){ showToast('Dale un nombre al libro.'); return; }
-      if(!bPages || bPages<=0){ showToast('Ingresa un número de páginas válido.'); return; }
-      var newBook = { id:uid(), name:bName, totalPages:bPages, currentPage:0, done:false, createdAt:Date.now(), finishedAt:null, cover:null };
-      state.books.push(newBook);
-      closeModal(); await saveState(); render(); showToast('Libro agregado.');
-      /* Busca la portada en segundo plano para no bloquear la carga del libro. */
-      fetchBookCover(bName).then(async function(coverUrl){
-        if(coverUrl && findBook(newBook.id)){ newBook.cover = coverUrl; await saveState(); render(); }
-      });
-      break;
-    }
-    case 'open-book-progress': openBookProgressModal(el.dataset.id); break;
-    case 'ask-delete-book': ui.confirmDeleteBookId = el.dataset.id; render(); setTimeout(function(){ if(ui.confirmDeleteBookId===el.dataset.id){ ui.confirmDeleteBookId=null; render(); } },3000); break;
-    case 'confirm-delete-book': state.books = state.books.filter(function(b){ return b.id!==el.dataset.id; }); ui.confirmDeleteBookId=null; await saveState(); render(); showToast('Libro eliminado.'); break;
-    case 'open-edit-book': openEditBookModal(el.dataset.id); break;
-    case 'save-book-name': {
-      var bkEdit = findBook(el.dataset.id); if(!bkEdit) return;
-      var newBookName = document.getElementById('edit-book-name').value.trim();
-      if(!newBookName){ showToast('Dale un nombre al libro.'); return; }
-      bkEdit.name = newBookName;
-      closeModal(); await saveState(); render(); showToast('Nombre actualizado.');
-      break;
-    }
-    case 'toggle-custom-cal-day': {
-      var calT = state.customCalendars.find(function(c){ return c.id===el.dataset.cal; });
-      var dsT = el.dataset.date;
-      if(!calT || dsT > dateToStr(new Date())) return;
-      var curMark = calT.marks[dsT];
-      if(curMark==='yes'){ calT.marks[dsT] = 'no'; }
-      else if(curMark==='no'){ delete calT.marks[dsT]; }
-      else { calT.marks[dsT] = 'yes'; }
-      await saveState(); render();
-      break;
-    }
-    case 'custom-cal-prev-month': { var cidPrev = el.dataset.cal; ui.calMonthOffsets[cidPrev] = (ui.calMonthOffsets[cidPrev]||0) - 1; render(); break; }
-    case 'custom-cal-next-month': { var cidNext = el.dataset.cal; var curOff = ui.calMonthOffsets[cidNext]||0; if(curOff<0){ ui.calMonthOffsets[cidNext] = curOff+1; render(); } break; }
-    case 'rename-custom-cal': openRenameCalModal(el.dataset.cal); break;
-    case 'save-custom-cal-name': {
-      var calRen = state.customCalendars.find(function(c){ return c.id===el.dataset.id; }); if(!calRen) return;
-      var newCalName = document.getElementById('cal-rename-input').value.trim();
-      if(!newCalName){ showToast('Ponle un nombre al calendario.'); return; }
-      calRen.name = newCalName;
-      closeModal(); await saveState(); render(); showToast('Nombre actualizado.');
-      break;
-    }
-    case 'save-book-progress': {
-      var bk = findBook(el.dataset.id); if(!bk) return;
-      var pageVal = parseInt(document.getElementById('book-current-page').value, 10);
-      if(isNaN(pageVal) || pageVal<0){ showToast('Ingresa una página válida.'); return; }
-      if(pageVal > bk.totalPages) pageVal = bk.totalPages;
-      bk.currentPage = pageVal;
-      if(pageVal >= bk.totalPages){ bk.done = true; bk.finishedAt = todayStr(); } else { bk.done = false; bk.finishedAt = null; }
-      var pctSaved = bookProgressPct(bk);
-      closeModal(); await saveState(); render(); showToast(bk.done ? '¡Libro finalizado!' : ('Vas por el '+pctSaved+'%.'));
-      break;
-    }
     case 'toggle-card-expand': {
       var idExp = el.dataset.id;
       ui.expandedCards[idExp] = !ui.expandedCards[idExp];
@@ -2756,88 +2148,6 @@ async function handleAction(action, el){
       break;
     }
     case 'set-currency-tab': ui.currencyTab = el.dataset.currency; render(); break;
-
-    case 'toggle-exercise-day': {
-      var exDate = el.dataset.date;
-      if(exDate > dateToStr(new Date())) return;
-      var exIdx = state.exerciseLogs.indexOf(exDate);
-      if(exIdx > -1) state.exerciseLogs.splice(exIdx,1); else state.exerciseLogs.push(exDate);
-      await saveState(); render();
-      break;
-    }
-    case 'add-exercise-goal': openExerciseGoalModal(); break;
-    case 'save-exercise-goal': {
-      var goalDate = document.getElementById('exercise-goal-date').value;
-      if(!goalDate){ showToast('Elige una fecha.'); return; }
-      state.exerciseGoal = { targetDate: goalDate, createdAt: Date.now() };
-      closeModal(); await saveState(); render(); showToast('Meta guardada.');
-      break;
-    }
-    case 'delete-exercise-goal': state.exerciseGoal = null; await saveState(); render(); showToast('Meta eliminada.'); break;
-
-    case 'add-meal': openAddMealModal(); break;
-    case 'add-meal-for-date': openAddMealModal({presetDate: el.dataset.date}); break;
-    case 'edit-meal': {
-      var mealToEdit = state.meals.find(function(x){ return x.id===el.dataset.id; });
-      if(mealToEdit) openAddMealModal({editing: mealToEdit});
-      break;
-    }
-    case 'pick-food-suggestion': {
-      var mtSel = document.getElementById('meal-text');
-      var qtyFieldSel = document.getElementById('meal-quantity-field');
-      var qtyInputSel = document.getElementById('meal-quantity');
-      var calInputSel = document.getElementById('meal-calories');
-      var portionLbl = document.getElementById('meal-portion-label');
-      var hintSel = document.getElementById('meal-calorie-hint');
-      var suggBoxSel = document.getElementById('meal-suggestions');
-      if(mtSel){
-        mtSel.value = el.dataset.name;
-        mtSel.dataset.selectedCal = el.dataset.cal;
-        mtSel.dataset.selectedPortion = el.dataset.portion;
-      }
-      if(portionLbl) portionLbl.textContent = el.dataset.portion;
-      if(qtyInputSel) qtyInputSel.value = '1';
-      if(calInputSel) calInputSel.value = el.dataset.cal;
-      if(qtyFieldSel) qtyFieldSel.style.display = '';
-      if(suggBoxSel){ suggBoxSel.innerHTML=''; suggBoxSel.style.display='none'; }
-      if(hintSel) hintSel.textContent = '1 '+el.dataset.portion+' = '+el.dataset.cal+' kcal. Ajusta la cantidad si comiste más o menos.';
-      break;
-    }
-    case 'save-meal': {
-      var mText = document.getElementById('meal-text').value.trim();
-      var mCalories = parseInt(document.getElementById('meal-calories').value, 10);
-      var mDateEl = document.getElementById('meal-date');
-      var mDates = last7Dates();
-      var mMinDate = mDates[mDates.length-1], mMaxDate = mDates[0];
-      var mDate = (mDateEl && mDateEl.value) ? mDateEl.value : mMaxDate;
-      if(!mText){ showToast('Escribe qué comiste.'); return; }
-      if(isNaN(mCalories) || mCalories<0) mCalories = 0;
-      if(mDate < mMinDate || mDate > mMaxDate){ showToast('Solo puedes registrar comidas de los últimos 7 días.'); return; }
-      var mEditId = document.getElementById('meal-edit-id') ? document.getElementById('meal-edit-id').value : '';
-      if(mEditId){
-        var existingMeal = state.meals.find(function(m){ return m.id===mEditId; });
-        if(existingMeal){ existingMeal.text = mText; existingMeal.calories = mCalories; existingMeal.date = mDate; }
-        closeModal(); await saveState(); render(); showToast('Comida actualizada.');
-      } else {
-        state.meals.push({ id:uid(), date:mDate, text:mText, calories:mCalories, createdAt:Date.now() });
-        closeModal(); await saveState(); render(); showToast('Comida agregada.');
-      }
-      break;
-    }
-    case 'delete-meal': {
-      state.meals = state.meals.filter(function(m){ return m.id!==el.dataset.id; });
-      await saveState(); render(); showToast('Comida eliminada.');
-      break;
-    }
-    case 'add-calorie-goal': openCalorieGoalModal(); break;
-    case 'save-calorie-goal': {
-      var cgVal = parseInt(document.getElementById('calorie-goal-value').value, 10);
-      if(!cgVal || cgVal<=0){ showToast('Ingresa un número de calorías válido.'); return; }
-      state.calorieGoal = cgVal;
-      closeModal(); await saveState(); render(); showToast('Meta calórica guardada.');
-      break;
-    }
-    case 'delete-calorie-goal': state.calorieGoal = null; await saveState(); render(); showToast('Meta eliminada.'); break;
   }
 }
 
@@ -2878,51 +2188,12 @@ document.addEventListener('click', function(e){
 });
 document.addEventListener('change', function(e){
   if(e.target.id==='settings-currency'){ document.getElementById('custom-symbol-field').style.display = e.target.value==='OTRO' ? 'block' : 'none'; }
-});
-document.addEventListener('input', function(e){
-  if(e.target.id==='book-current-page'){
-    var totalP = parseInt(e.target.dataset.total,10);
-    var preview = document.getElementById('book-progress-preview');
-    if(!preview || !totalP) return;
-    var val = parseInt(e.target.value,10);
-    if(isNaN(val)) val = 0;
-    val = Math.min(Math.max(val,0), totalP);
-    var pct = Math.round((val/totalP)*100);
-    preview.textContent = 'Vas por el '+pct+'%.';
-  }
-  if(e.target.id==='meal-text'){
-    var hint = document.getElementById('meal-calorie-hint');
-    var suggBox = document.getElementById('meal-suggestions');
-    var qtyField = document.getElementById('meal-quantity-field');
-    if(!hint || !suggBox) return;
-    /* Cualquier edición al texto invalida una selección previa de la lista. */
-    delete e.target.dataset.selectedCal;
-    delete e.target.dataset.selectedPortion;
-    if(qtyField) qtyField.style.display = 'none';
-    var q = e.target.value;
-    var matches = searchFoodDb(q);
-    if(matches.length){
-      suggBox.style.display = 'block';
-      suggBox.innerHTML = matches.map(function(f){
-        return '<div class="meal-suggestion-item" data-action="pick-food-suggestion" data-name="'+esc(f.n)+'" data-cal="'+f.c+'" data-portion="'+esc(f.p)+'">'+
-          '<span>'+esc(f.n)+'</span><span class="meal-suggestion-sub">'+esc(f.p)+' · '+f.c+' kcal</span>'+
-        '</div>';
-      }).join('');
-      hint.textContent = 'Elige una opción de la lista, o sigue escribiendo para ponerlo manual.';
-    } else {
-      suggBox.style.display = 'none';
-      suggBox.innerHTML = '';
-      hint.textContent = q.trim() ? 'No está en la lista — puedes poner las calorías manualmente.' : 'Escribe qué comiste y elige una opción de la lista, o ponlo manual.';
-    }
-  }
-  if(e.target.id==='meal-quantity'){
-    var mtInput = document.getElementById('meal-text');
-    var calInput = document.getElementById('meal-calories');
-    if(mtInput && mtInput.dataset.selectedCal && calInput){
-      var qty = parseFloat(e.target.value);
-      if(isNaN(qty) || qty<0) qty = 0;
-      calInput.value = Math.round(parseFloat(mtInput.dataset.selectedCal) * qty);
-    }
+  if(e.target.id==='backup-file' && e.target.files && e.target.files[0]){
+    e.target.files[0].text().then(function(text){
+      var parsed = parseBackup(text);
+      if(parsed.error){ showToast(parsed.error); return; }
+      openRestoreConfirm(parsed);
+    }, function(){ showToast('No se pudo leer el archivo.'); });
   }
 });
 
@@ -2992,10 +2263,29 @@ async function submitLock(userId){
   document.getElementById('app').style.display='';
   await boot();
 }
+function showLoadError(){
+  document.getElementById('app').style.display='none';
+  var root = document.getElementById('lock-root');
+  root.innerHTML =
+    '<div class="lock-card">'+
+      '<div class="lock-title">Mi Vida Organizada</div>'+
+      '<div class="lock-sub">No se pudieron cargar tus datos. Para no arriesgar nada, la app no abre hasta que carguen bien.</div>'+
+      '<button class="btn-primary" id="load-retry" type="button">Reintentar</button>'+
+      '<button class="btn-text lock-back" id="load-switch" type="button">Cambiar de usuario</button>'+
+    '</div>';
+  root.style.display='flex';
+  document.getElementById('load-retry').addEventListener('click', boot);
+  document.getElementById('load-switch').addEventListener('click', showUserPicker);
+}
 async function boot(){
+  state = null;
   document.getElementById('lock-root').style.display='none';
   document.getElementById('app').style.display='';
-  state = await loadState();
+  document.getElementById('main-content').innerHTML = '<div class="empty-state">Cargando tus datos…</div>';
+  var r = await loadState();
+  if(r.unauthorized) return;
+  if(!r.ok){ showLoadError(); return; }
+  state = r.state; stateVersion = r.version;
   render();
 }
 (async function init(){

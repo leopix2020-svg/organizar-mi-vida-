@@ -8,6 +8,13 @@
 //   APP_SECRET_TIZIBIZI  -> la clave de Tizi
 //   MONGODB_DB           -> (opcional) nombre de la base de datos, por defecto "misfinanzas"
 //
+// Seguridad de los datos:
+//   - Cada documento lleva un número "version". El navegador manda la versión que leyó
+//     (baseVersion) y si no coincide con la actual se responde 409: así un dispositivo
+//     nunca pisa lo que guardó otro.
+//   - Antes de cada guardado, la versión anterior se copia a la colección "state_history"
+//     (se conservan las últimas HISTORY_KEEP por persona) para poder recuperarla.
+//
 // Para agregar una persona más en el futuro: agrégala aquí abajo en USERS
 // (con un docId nuevo y el nombre de una variable de entorno nueva), y crea
 // esa variable de entorno en Vercel con su clave.
@@ -16,6 +23,8 @@ const { MongoClient } = require('mongodb');
 
 const DB_NAME = process.env.MONGODB_DB || 'misfinanzas';
 const COLLECTION = 'state';
+const HISTORY_COLLECTION = 'state_history';
+const HISTORY_KEEP = 30;
 
 const USERS = {
   leo: { docId: 'app-state', secretEnv: 'APP_SECRET' },
@@ -64,7 +73,7 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'GET') {
       const doc = await col.findOne({ _id: docId });
-      res.status(200).json({ value: doc ? doc.value : null });
+      res.status(200).json({ value: doc ? doc.value : null, version: doc ? (doc.version || 0) : 0 });
       return;
     }
 
@@ -78,12 +87,50 @@ module.exports = async function handler(req, res) {
         res.status(400).json({ error: 'Falta el campo "value" (string) en el cuerpo de la petición.' });
         return;
       }
-      await col.updateOne(
-        { _id: docId },
-        { $set: { value: value, updatedAt: new Date() } },
-        { upsert: true }
-      );
-      res.status(200).json({ ok: true });
+      const baseVersion = body && typeof body.baseVersion === 'number' ? body.baseVersion : null;
+      if (baseVersion === null) {
+        res.status(409).json({ error: 'Falta la versión de los datos. Recarga la página.' });
+        return;
+      }
+
+      const current = await col.findOne({ _id: docId });
+      const currentVersion = current ? (current.version || 0) : 0;
+      if (currentVersion !== baseVersion) {
+        res.status(409).json({ error: 'Los datos cambiaron desde otro dispositivo.', version: currentVersion });
+        return;
+      }
+      const newVersion = currentVersion + 1;
+
+      if (current) {
+        const history = db.collection(HISTORY_COLLECTION);
+        await history.insertOne({ docId: docId, version: currentVersion, value: current.value, updatedAt: current.updatedAt || null, savedAt: new Date() });
+        const old = await history.find({ docId: docId }).sort({ savedAt: -1 }).skip(HISTORY_KEEP).project({ _id: 1 }).toArray();
+        if (old.length) await history.deleteMany({ _id: { $in: old.map(function (h) { return h._id; }) } });
+
+        // Solo actualiza si nadie guardó entre la lectura y esta escritura.
+        const versionFilter = currentVersion === 0
+          ? { $or: [{ version: { $exists: false } }, { version: 0 }] }
+          : { version: currentVersion };
+        const result = await col.updateOne(
+          Object.assign({ _id: docId }, versionFilter),
+          { $set: { value: value, updatedAt: new Date(), version: newVersion } }
+        );
+        if (result.matchedCount === 0) {
+          res.status(409).json({ error: 'Los datos cambiaron desde otro dispositivo.' });
+          return;
+        }
+      } else {
+        try {
+          await col.insertOne({ _id: docId, value: value, updatedAt: new Date(), version: newVersion });
+        } catch (e) {
+          if (e && e.code === 11000) {
+            res.status(409).json({ error: 'Los datos cambiaron desde otro dispositivo.' });
+            return;
+          }
+          throw e;
+        }
+      }
+      res.status(200).json({ ok: true, version: newVersion });
       return;
     }
 
