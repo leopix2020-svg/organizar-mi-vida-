@@ -1,0 +1,230 @@
+{
+  "currency": "USD",
+  "customSymbol": "$",
+  "theme": "dark",
+  "accounts": [
+    {
+      "id": "a1",
+      "name": "Efectivo",
+      "startingBalance": 500
+    },
+    {
+      "id": "a2",
+      "name": "Banco",
+      "balance": 1200
+    },
+    {
+      "id": "a3",
+      "name": "Bs",
+      "startingBalance": 10000,
+      "currency": "VES"
+    },
+    {
+      "id": "a4",
+      "name": "Vacía",
+      "startingBalance": 0
+    }
+  ],
+  "transactions": [
+    {
+      "id": "t1",
+      "type": "income",
+      "amount": 800,
+      "category": "salario",
+      "date": "2026-09-01",
+      "note": "",
+      "createdAt": 1,
+      "accountId": "a2"
+    },
+    {
+      "id": "t2",
+      "type": "expense",
+      "amount": 45.5,
+      "category": "comida",
+      "date": "2026-09-03",
+      "note": "súper",
+      "createdAt": 2,
+      "accountId": "a1"
+    },
+    {
+      "id": "t3",
+      "type": "expense",
+      "amount": 2000,
+      "category": "comida",
+      "date": "2026-10-02",
+      "note": "",
+      "createdAt": 3,
+      "accountId": "a3"
+    },
+    {
+      "id": "t4",
+      "type": "expense",
+      "amount": 300,
+      "category": "inversion_bolsa",
+      "date": "2026-10-05",
+      "note": "",
+      "createdAt": 4,
+      "accountId": "a2"
+    },
+    {
+      "id": "t5",
+      "type": "expense",
+      "amount": 3,
+      "category": "comisiones",
+      "date": "2026-10-05",
+      "note": "",
+      "createdAt": 5,
+      "accountId": "a2",
+      "bolsaFeeForMovement": "t4"
+    },
+    {
+      "id": "t6",
+      "type": "income",
+      "amount": 5000,
+      "category": "salario",
+      "date": "2026-10-01",
+      "note": "",
+      "createdAt": 6,
+      "accountId": "a3"
+    }
+  ],
+  "transfers": [
+    {
+      "id": "tr1",
+      "fromId": "a2",
+      "toId": "a1",
+      "amount": 100,
+      "date": "2026-09-10",
+      "note": "",
+      "createdAt": 6
+    }
+  ],
+  "fundMovements": [
+    {
+      "id": "f1",
+      "targetType": "goal",
+      "targetId": "g1",
+      "direction": "in",
+      "amount": 150,
+      "accountId": "a1",
+      "date": "2026-09-15",
+      "createdAt": 7
+    },
+    {
+      "id": "f2",
+      "targetType": "goal",
+      "targetId": "g1",
+      "direction": "in",
+      "amount": 60,
+      "accountId": "a2",
+      "date": "2026-09-16",
+      "createdAt": 8
+    },
+    {
+      "id": "f3",
+      "targetType": "invest",
+      "direction": "out",
+      "amount": 20,
+      "accountId": "a2",
+      "date": "2026-10-06",
+      "createdAt": 9
+    }
+  ],
+  "goals": [
+    {
+      "id": "g1",
+      "name": "PC",
+      "target": 1000,
+      "color": "#4C7A5D",
+      "current": 50,
+      "createdAt": 8
+    }
+  ],
+  "debts": [
+    {
+      "id": "d1",
+      "kind": "debo",
+      "person": "Ana",
+      "amount": 200,
+      "settled": false,
+      "createdAt": 9,
+      "payments": [
+        {
+          "amount": 50,
+          "date": "2026-09-20",
+          "accountId": "a1",
+          "createdAt": 10
+        }
+      ]
+    },
+    {
+      "id": "d2",
+      "kind": "me_deben",
+      "person": "Luis",
+      "amount": 80,
+      "settled": false,
+      "createdAt": 11,
+      "payments": []
+    }
+  ],
+  "incomeEstimates": {
+    "2026-09": 1000
+  },
+  "bolsa": {
+    "amountInvested": 300,
+    "currentValue": 320,
+    "feePercent": 1
+  },
+  "bolsaPositions": [
+    {
+      "id": "p1",
+      "ticker": "AAPL",
+      "amountInvested": 100,
+      "purchasePrice": 200,
+      "shares": 0.5,
+      "purchaseDate": "2026-10-01"
+    }
+  ],
+  "books": [
+    {
+      "id": "b1",
+      "name": "Libro",
+      "totalPages": 300,
+      "currentPage": 120,
+      "done": false,
+      "createdAt": 12
+    }
+  ],
+  "exerciseLogs": [
+    "2026-10-01",
+    "2026-10-03"
+  ],
+  "exerciseGoal": {
+    "targetDate": "2026-12-31",
+    "createdAt": 13
+  },
+  "meals": [
+    {
+      "id": "m1",
+      "date": "2026-10-20",
+      "text": "Arepa",
+      "calories": 220,
+      "createdAt": 14
+    }
+  ],
+  "calorieGoal": 1800,
+  "customCalendars": [
+    {
+      "id": "cal1",
+      "name": "Café",
+      "marks": {
+        "2026-10-01": "yes"
+      }
+    },
+    {
+      "id": "cal2",
+      "name": "Otro",
+      "marks": {}
+    }
+  ]
+}

@@ -4,29 +4,39 @@
 > Léelo completo antes de tocar código.
 
 ## 1. Qué es
-App personal para organizar la vida, hoy centrada en **finanzas** (Salud y Avances se quitaron el 2026-10-26). Es un **único archivo `index.html`** (~2.300 líneas, HTML + CSS + JS vanilla, sin frameworks ni build). Se usa desde celular y computador. Idioma de la interfaz y de los comentarios: **español**.
+App personal para organizar la vida, hoy centrada en **finanzas** (Salud y Avances se quitaron el 2026-10-26). Desde 2026-10-26 es una app **React 18 + TypeScript + Vite** (antes era un único `index.html` con JS vanilla). Se usa desde celular y computador. Idioma de la interfaz y de los comentarios: **español**.
 
-## 2. Archivos de esta carpeta
-| Archivo | Para qué sirve |
+## 2. Archivos
+| Ruta | Para qué sirve |
 |---|---|
-| `index.html` | Toda la app (estilos en `<style>` desde la línea ~10, lógica en `<script>` desde la ~326). |
+| `index.html` | Entrada de Vite (solo carga fuentes y `src/main.tsx`). |
+| `src/styles.css` | Todos los estilos (los mismos de la versión HTML; temas cálido y oscuro). |
+| `src/lib/` | Lógica pura, sin pantalla: `types.ts`, `constants.ts` (categorías, monedas, `USERS`), `state.ts` (`defaultState`, `normalizeState` con las migraciones), `finance.ts` (saldos, metas, deudas, patrimonio, períodos), `format.ts` (moneda y fechas locales), `stocks.ts` (Bolsa del riel), `backup.ts`. |
+| `src/store.ts` | Store global (`state` = datos, `ui` = lo que se ve, sesión, avisos). `commit(fn)` aplica un cambio sobre una copia y guarda. |
+| `src/api/client.ts` | Login/sesión, carga, guardado en fila con versión, conflicto, precios. |
+| `src/actions.ts` | Acciones compartidas (borrar con "¿Seguro?", FAB, abrir modales que exigen "Por mes"). |
+| `src/App.tsx` | Pantallas de entrada, riel, encabezado y estructura general. |
+| `src/components/` | `Finanzas.tsx` (todas las pestañas + tablero de escritorio), `BolsaSection.tsx`, `charts.tsx` (donas, barras, líneas), `Overlays.tsx` (aviso y tooltip), `modals/` (un componente por modal; `ModalRoot.tsx` los elige según `ui.modal`). |
+| `tests/` | Pruebas con Vitest + jsdom (`npm test`). `fixtures/expected-numbers.json` son los números calculados con la versión HTML anterior: la lógica debe seguir dándolos igual. |
 | `api/state.js` | Función serverless de Vercel: guarda/lee el estado de cada usuario en MongoDB (GET/PUT/POST), con control de versión e historial (ver sección 3). |
 | `api/quote.js` | Función serverless de Vercel: precios de acciones vía Finnhub (`?symbols=AAPL,MSFT`). |
-| `package.json` | Solo depende de `mongodb`. |
+| `vercel.json` | Le dice a Vercel que compile con Vite y publique `dist/`. |
 
 ## 3. Despliegue e infraestructura
-- Repo en GitHub, desplegado en **Vercel**. Los archivos de `api/` se publican como funciones automáticamente.
+- Repo en GitHub, desplegado en **Vercel** (https://organizar-mi-vida.vercel.app). Vercel corre `npm run build` y publica `dist/`; los archivos de `api/` se publican como funciones automáticamente. Cada rama distinta de `main` genera un link de prueba (preview) que **usa la misma base de datos real**: úsalo solo para mirar.
+- El repo también se publica en GitHub Pages, pero ahí la app no funciona (no corren las funciones de `api/`). Usar siempre el link de Vercel.
+- Comandos: `npm install`, `npm test` (pruebas), `npm run build` (revisa tipos y compila). `npm run dev` levanta solo el front; para que funcione `/api` en local hace falta `vercel dev`.
 - Repo original en el Mac: `/Users/leopoldo/Documents/GitHub/organizar-mi-vida-` (se maneja con GitHub Desktop).
-- **Esta carpeta es una copia** de trabajo. Para publicar, hay que llevar los cambios de vuelta al repo original y hacer commit/push.
+- `/Users/leopoldo/Desktop/mis-finanzas-contexto` fue la copia de trabajo de la versión HTML; desde la migración a React se trabaja directo en el repo original.
 - Variables de entorno en Vercel (NO están en el código, no pedirlas ni inventarlas): `MONGODB_URI`, `APP_SECRET` (clave de "leo"), `APP_SECRET_TIZIBIZI` (clave de "tizi"), `MONGODB_DB` (opcional, por defecto `misfinanzas`), `FINNHUB_API_KEY`.
-- Usuarios: `leo` (aparece como "Leo Jr" en la lista `USERS` de index.html) y `tizi`. Cada uno tiene su propio documento en MongoDB; los datos no se mezclan. Cada request lleva headers `x-app-user` y `x-app-secret`. Para agregar una persona: añadirla en `USERS` de **ambos** archivos de `api/` y en la lista `USERS` del front, y crear su variable de entorno.
+- Usuarios: `leo` (aparece como "Leo Jr" en la lista `USERS` de index.html) y `tizi`. Cada uno tiene su propio documento en MongoDB; los datos no se mezclan. Cada request lleva headers `x-app-user` y `x-app-secret`. Para agregar una persona: añadirla en `USERS` de **ambos** archivos de `api/` y en `USERS` de `src/lib/constants.ts`, y crear su variable de entorno.
 - En el navegador se guardan en `localStorage`: `mvo-secret-<usuario>` y `mvo-last-user`.
 
 ### Seguridad de los datos (desde 2026-10-26)
 - Cada documento en la colección `state` tiene un campo `version`. GET devuelve `{value, version}`; PUT exige `{value, baseVersion}`. Si `baseVersion` no coincide con la versión actual (u omite la versión), responde **409** y no guarda. El front entonces recarga lo más nuevo y avisa "Hubo cambios desde otro dispositivo".
 - Antes de cada guardado, la versión anterior se copia a la colección **`state_history`** (`{docId, version, value, updatedAt, savedAt}`); se conservan las últimas 30 por usuario. Ahí se recupera cualquier versión previa.
 - Si la carga inicial falla, la app NO arranca con un estado vacío: muestra "No se pudo cargar · Reintentar" y no guarda nada (`state` queda en `null`).
-- Los guardados del front van en fila (`saveState()` encadena promesas) para que cada uno lleve la versión más reciente.
+- Los guardados del front van en fila (`saveState()` en `src/api/client.ts` encadena promesas) para que cada uno lleve la versión más reciente.
 - Ajustes → **Respaldo**: "Descargar respaldo" baja `respaldo-<usuario>-<fecha>.json` (`{app:'mi-vida-organizada', user, exportedAt, state}`); "Cargar respaldo" acepta ese formato o el estado crudo, rechaza respaldos de otro usuario, pide confirmación y baja antes una copia `...-antes-de-cargar.json`.
 - Después de publicar cambios, recargar todas las pestañas abiertas: una pestaña con código viejo no manda versión y sus guardados se rechazan.
 
@@ -43,7 +53,7 @@ Riel de navegación con dos áreas: **Finanzas** y **Bolsa** (acciones reales co
 - Dos temas: cálido/beige y oscuro estilo "Razer" (negro con verde neón).
 
 **Salud y Avances (quitadas el 2026-10-26)**
-- Ya no hay código ni UI. Sus datos (`books`, `exerciseLogs`, `exerciseGoal`, `meals`, `calorieGoal`, `customCalendars`) se siguen normalizando en `normalizeState` y guardando, para no borrarlos de MongoDB. No eliminarlos de `normalizeState`/`defaultState`.
+- Ya no hay código ni UI. Sus datos (`books`, `exerciseLogs`, `exerciseGoal`, `meals`, `calorieGoal`, `customCalendars`) se siguen normalizando en `normalizeState` (`src/lib/state.ts`) y guardando, para no borrarlos de MongoDB. No eliminarlos de `normalizeState`/`defaultState`.
 
 ## 5. Reglas de dominio que hay que respetar
 - Las mini-donas del patrimonio muestran el desglose **interno de cada wallet** (libre / bolsa / metas), NO la composición por moneda. No confundirlas.
@@ -61,16 +71,18 @@ Riel de navegación con dos áreas: **Finanzas** y **Bolsa** (acciones reales co
 3. Implementar todo lo acordado **de una sola vez**, no por partes.
 4. **No agregar nada que no se haya acordado.** Ya se llamó la atención por esto.
 5. El diseño es deliberado y con criterio propio (compacto, posición de las donas, estructura de tarjetas): **no cambiarlo sin que lo pidan**.
-6. Antes de entregar, **validar la lógica JS con pruebas tipo jsdom** (los scripts de prueba van en una carpeta aparte, no en el repo).
+6. Antes de entregar, **correr `npm test` y `npm run build`**. Las pruebas viven en `tests/` dentro del repo (decidido el 2026-10-26).
 7. Comunicación informal en español.
 8. Cada ronda de cambios se revisa y aprueba antes de pasar a nuevas funciones.
 
 ## 7. Problemas conocidos (re-verificar, pueden estar resueltos)
 - La dona principal del patrimonio se veía vacía por funciones heredadas de artifacts; esas funciones ya no existen (todo va por `/api/state`). Solo sale vacía si el total es ≤ 0.
 - En modo multi-moneda las gráficas de ingresos/gastos tuvieron fallas; se corrigieron en el chat, pero conviene probarlas.
-- GitHub Desktop a veces no muestra de inmediato los cambios escritos por herramientas externas (problema de refresco, no del archivo).
+- GitHub Desktop a veces no muestra de inmediato los cambios escritos por herramientas externas (problema de refresco, no del archivo): cerrarlo con Cmd+Q y abrirlo de nuevo.
 
 ## 8. Notas técnicas
-- JS en modo estricto (`'use strict'`), estilo ES5 (`var`, `function`), un único estado global `state` + `ui`; renderizado por funciones `build*Html()` / `render*()` y modales `open*Modal()`; acciones por `data-action` en un manejador central.
-- Hay migraciones al cargar datos viejos (dentro de `normalizeState`, alrededor de las líneas 394–530); no romperlas, hay datos reales guardados.
+- TypeScript estricto. La lógica de dominio vive en `src/lib/` como funciones puras que reciben el estado (`fn(s, ...)`); las pantallas no calculan saldos por su cuenta.
+- Para modificar datos: `commit(draft => { ... })` de `src/store.ts` (trabaja sobre una copia y guarda). Validar antes de llamar a `commit`. Nunca guardar un saldo.
+- Modales: `openModal({ type, ...props })`; cada tipo se resuelve en `src/components/modals/ModalRoot.tsx`.
+- Las migraciones de datos viejos están en `normalizeState` (`src/lib/state.ts`); no romperlas, hay datos reales guardados. `tests/logic.test.ts` comprueba que los números sigan iguales a los de la versión HTML.
 - Al hacer cambios grandes, conservar compatibilidad con el estado ya guardado en MongoDB.
