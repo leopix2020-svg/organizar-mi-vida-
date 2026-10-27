@@ -1,7 +1,7 @@
 /* Sección Comidas: el día (comido, restante, quemado, macros y comidas), gráfica e historial. */
 import { dateToStr, todayStr } from '../lib/format';
 import { MACROS, MEALS, dayTarget, findDay, recentDays, remaining, sortedDays } from '../lib/nutrition';
-import type { AppState } from '../lib/types';
+import type { AppState, Macros } from '../lib/types';
 import { shortDayMonth } from '../lib/workout';
 import { askConfirm, clearConfirm, commit, openModal, setUi, showToast, type Ui } from '../store';
 import { MiniLinesChart } from './charts';
@@ -53,17 +53,29 @@ function DayView({ s, ui }: { s: AppState; ui: Ui }) {
   </>;
 }
 
-function CaloriesChart({ s }: { s: AppState }) {
+/* Gráfica de comido vs. meta; se elige calorías o un macro. En calorías la meta incluye lo quemado. */
+const CHART_OPTIONS: { key: keyof Macros; label: string }[] = [{ key: 'kcal', label: 'Calorías' }].concat(MACROS) as { key: keyof Macros; label: string }[];
+
+function NutritionChart({ s, ui }: { s: AppState; ui: Ui }) {
   const days = recentDays(s, 28);
+  const key = ui.nutChart;
+  const isKcal = key === 'kcal';
+  const format = isKcal ? kcal : (n: number) => Math.round(n) + ' g';
   return <>
-    <div className="section-title">Calorías por día</div>
+    <div className="section-title">Por día</div>
     <div className="card">
       {days.length < 2 ? <div className="empty-state" style={{ padding: '10px 0' }}>Con dos días anotados verás aquí tu gráfica.</div> : <>
-        <MiniLinesChart s={s} format={kcal} labelStep={Math.ceil(days.length / 7)} data={days.map(d => ({
+        <select className="chart-select" value={key} onChange={e => setUi({ nutChart: e.target.value as keyof Macros })}>
+          {CHART_OPTIONS.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
+        </select>
+        <MiniLinesChart s={s} format={format} labelStep={Math.ceil(days.length / 7)} data={days.map(d => ({
           label: shortDayMonth(d.date),
-          values: [{ v: d.eaten.kcal, color: 'var(--growth)', name: 'Comido' }, { v: dayTarget(d), color: 'var(--gold)', name: 'Meta + quemadas' }]
+          values: [
+            { v: d.eaten[key], color: 'var(--growth)', name: 'Comido' },
+            { v: isKcal ? dayTarget(d) : d.goal[key], color: 'var(--gold)', name: isKcal ? 'Meta + quemadas' : 'Meta', dashed: true }
+          ]
         }))} />
-        <div className="chart-desc" style={{ marginTop: 10 }}>Comido vs. meta (con lo quemado) en tus últimos {days.length} días.</div>
+        <div className="chart-desc" style={{ marginTop: 10 }}>Comido (línea) vs. meta{isKcal ? ' con lo quemado' : ''} (punteada) en tus últimos {days.length} días.</div>
       </>}
     </div>
   </>;
@@ -105,7 +117,7 @@ export function ComidasSection({ s, ui }: { s: AppState; ui: Ui }) {
     <div className="dash-grid">
       <div className="dash-col">
         <DayView s={s} ui={ui} />
-        <CaloriesChart s={s} />
+        <NutritionChart s={s} ui={ui} />
       </div>
       <div className="dash-col">
         <History s={s} ui={ui} />

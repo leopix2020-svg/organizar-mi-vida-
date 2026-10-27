@@ -60,6 +60,18 @@ describe('app', () => {
     fireEvent.click(screen.getByText('Anotar día'));
     expect(inputs()[9].value).toBe('2344');
     expect(inputs()[11].value).toBe('128');
+    fireEvent.change(inputs()[4], { target: { value: '2000' } });
+    fireEvent.change(inputs()[7], { target: { value: '110' } });
+    await act(async () => { fireEvent.click(screen.getByText('Guardar día')); });
+    await flush();
+    /* Gráfica: comido (línea) y meta (punteada); se puede cambiar a proteína. */
+    const lines = () => [...container.querySelectorAll('#main-content polyline')];
+    expect(lines().map(l => l.getAttribute('stroke-dasharray'))).toEqual([null, '4 3']);
+    expect(lines().every(l => l.getAttribute('stroke-width') === '1.25')).toBe(true);
+    fireEvent.change(container.querySelector('#main-content .chart-select')!, { target: { value: 'protein' } });
+    const tips = [...container.querySelectorAll('#main-content circle[data-tooltip]')].map(c => c.getAttribute('data-tooltip'));
+    expect(tips.filter(t => t!.startsWith('Comido')).map(t => t!.split(': ')[1])).toEqual(['110 g', '155 g']);
+    expect(tips.filter(t => t!.startsWith('Meta')).map(t => t!.split(': ')[1])).toEqual(['128 g', '128 g']);
   });
 
   it('peso corporal: anotar y ver', async () => {

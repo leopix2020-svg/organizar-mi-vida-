@@ -39,13 +39,14 @@ export function Donut(props: { s: AppState; segments: DonutSegment[]; r?: number
   return <svg {...svgProps}>{arcs}{labels}</svg>;
 }
 
-export interface MonthGroup { label: string; values: { v: number; color: string; name?: string }[]; }
+export interface MonthGroup { label: string; values: { v: number; color: string; name?: string; dashed?: boolean }[]; }
 
-/* Varias líneas (una por serie) con picos rectos y sin relleno; un punto por grupo con su tooltip.
+/* Varias líneas finas (una por serie) con picos rectos y sin relleno; dashed = línea punteada (p. ej. una meta).
+   Los puntos no se ven, pero cada uno tiene un área invisible que muestra su tooltip al tocarla.
    format: cómo se muestra cada valor (por defecto, dinero). fitRange: el eje se ajusta a los datos en vez de arrancar en 0.
    labelStep: con muchos puntos, solo rotula uno de cada N (contando desde el último). */
 export function MiniLinesChart(props: { s: AppState; data: MonthGroup[]; format?: (v: number) => string; fitRange?: boolean; labelStep?: number }) {
-  const W = 300, H = 104, padBottom = 20, padTop = 8, dotR = 3.5;
+  const W = 300, H = 104, padBottom = 20, padTop = 8, hitR = 7;
   const format = props.format || ((v: number) => fmt(props.s, v));
   const all: number[] = [];
   props.data.forEach(d => { d.values.forEach(v => all.push(v.v)); });
@@ -62,12 +63,12 @@ export function MiniLinesChart(props: { s: AppState; data: MonthGroup[]; format?
   const seriesCount = props.data.length ? props.data[0].values.length : 0;
   const lines: JSX.Element[] = [], dots: JSX.Element[] = [];
   for (let j = 0; j < seriesCount; j++) {
-    const color = props.data[0].values[j].color;
-    lines.push(<polyline key={'l' + j} points={props.data.map((d, i) => xAt(i).toFixed(1) + ',' + yAt(d.values[j].v).toFixed(1)).join(' ')} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"></polyline>);
+    const { color, dashed } = props.data[0].values[j];
+    lines.push(<polyline key={'l' + j} points={props.data.map((d, i) => xAt(i).toFixed(1) + ',' + yAt(d.values[j].v).toFixed(1)).join(' ')} fill="none" stroke={color} strokeWidth="1.25" strokeDasharray={dashed ? '4 3' : undefined} strokeLinejoin="round" strokeLinecap="round"></polyline>);
     props.data.forEach((d, i) => {
       const v = d.values[j];
       const tip = (v.name ? v.name + ' · ' : '') + d.label + ': ' + format(v.v);
-      dots.push(<circle key={'d' + j + '-' + i} cx={xAt(i).toFixed(1)} cy={yAt(v.v).toFixed(1)} r={dotR} fill={v.color} stroke="var(--surface)" strokeWidth="1.2" data-tooltip={tip}></circle>);
+      dots.push(<circle key={'d' + j + '-' + i} cx={xAt(i).toFixed(1)} cy={yAt(v.v).toFixed(1)} r={hitR} fill="transparent" data-tooltip={tip}></circle>);
     });
   }
   return (

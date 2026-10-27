@@ -1,7 +1,7 @@
 /* Estado global de la app: los datos (state), lo que se está viendo (ui) y la sesión.
    Es un store pequeño fuera de React para que el guardado siempre lea los datos más recientes. */
 import { useSyncExternalStore } from 'react';
-import type { AppState } from './lib/types';
+import type { AppState, Macros } from './lib/types';
 import type { QuotesCache } from './lib/stocks';
 
 export type Screen =
@@ -28,8 +28,9 @@ export interface Ui {
   /* Ejercicio: qué muestra la gráfica de avance ('ex:<id>' o 'rt:<id>') y qué mes el calendario. */
   exChart: string | null;
   exCalOffset: number;
-  /* Comidas: día que se está viendo (null = hoy). */
+  /* Comidas: día que se está viendo (null = hoy) y qué muestra la gráfica. */
   nutDate: string | null;
+  nutChart: keyof Macros;
 }
 
 export interface Store {
@@ -44,7 +45,7 @@ function initialUi(): Ui {
   return {
     section: 'finanzas', tab: 'resumen', monthOffset: 0, viewMode: 'total', currencyTab: null,
     expandedCards: {}, confirm: {}, modal: null, quotesCache: {}, quotesLoading: false,
-    exChart: null, exCalOffset: 0, nutDate: null
+    exChart: null, exCalOffset: 0, nutDate: null, nutChart: 'kcal'
   };
 }
 
