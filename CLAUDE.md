@@ -88,6 +88,7 @@ Riel de navegación con cuatro áreas: **Finanzas**, **Bolsa** (acciones reales 
 6. Antes de entregar, **correr `npm test` y `npm run build`**. Las pruebas viven en `tests/` dentro del repo (decidido el 2026-10-26).
 7. Comunicación informal en español.
 8. Cada ronda de cambios se revisa y aprueba antes de pasar a nuevas funciones.
+9. **Desde el 2026-10-27 los cambios van directo a `main`** (producción), con tests y build en verde, sin rama ni link de prueba, **salvo que el usuario pida preview** para esa ronda.
 
 ## 7. Problemas conocidos (re-verificar, pueden estar resueltos)
 - La dona principal del patrimonio se veía vacía por funciones heredadas de artifacts; esas funciones ya no existen (todo va por `/api/state`). Solo sale vacía si el total es ≤ 0.
