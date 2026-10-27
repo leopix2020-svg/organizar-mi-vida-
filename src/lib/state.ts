@@ -12,6 +12,7 @@ export function defaultState(): AppState {
     bolsa: { amountInvested: 0, currentValue: 0, feeAmount: 0, lastUpdated: null },
     bolsaPositions: [],
     exercises: [], routines: [], workouts: [], bodyWeights: [],
+    nutritionDays: [],
     books: [],
     exerciseLogs: [],
     exerciseGoal: null,
@@ -22,6 +23,9 @@ export function defaultState(): AppState {
     incomeCats: DEFAULT_INCOME_CATS.map(c => Object.assign({}, c))
   };
 }
+
+function num(o: any, k: string) { return o && typeof o === 'object' ? (Number(o[k]) || 0) : 0; }
+function normalizeMacros(m: any) { return { kcal: num(m, 'kcal'), carbs: num(m, 'carbs'), protein: num(m, 'protein'), fat: num(m, 'fat') }; }
 
 /* Convierte cualquier estado guardado (incluidos formatos viejos) al formato actual.
    Contiene migraciones de datos reales: no romperlas. */
@@ -165,6 +169,11 @@ export function normalizeState(s: any): AppState {
       entries: Array.isArray(w.entries) ? w.entries.map((en: any) => ({ exerciseId: en.exerciseId, sets: Array.isArray(en.sets) ? en.sets.map((st: any) => ({ reps: Number(st.reps) || 0, kg: typeof st.kg === 'number' ? st.kg : null })) : [] })) : []
     })) : [],
     bodyWeights: Array.isArray(s.bodyWeights) ? s.bodyWeights.filter((b: any) => b && b.id && typeof b.kg === 'number').map((b: any) => ({ id: b.id, date: b.date, kg: b.kg, createdAt: b.createdAt || Date.now() })) : [],
+    nutritionDays: Array.isArray(s.nutritionDays) ? s.nutritionDays.filter((n: any) => n && n.id && n.date).map((n: any) => ({
+      id: n.id, date: n.date, eaten: normalizeMacros(n.eaten), goal: normalizeMacros(n.goal), burned: Number(n.burned) || 0,
+      meals: { breakfast: num(n.meals, 'breakfast'), lunch: num(n.meals, 'lunch'), dinner: num(n.meals, 'dinner'), snacks: num(n.meals, 'snacks') },
+      createdAt: n.createdAt || Date.now()
+    })) : [],
     books: books,
     exerciseLogs: Array.isArray(s.exerciseLogs) ? s.exerciseLogs.filter(function (d: unknown) { return typeof d === 'string'; }) : [],
     exerciseGoal: (s.exerciseGoal && typeof s.exerciseGoal === 'object' && s.exerciseGoal.targetDate) ? { targetDate: s.exerciseGoal.targetDate, createdAt: s.exerciseGoal.createdAt || Date.now() } : null,

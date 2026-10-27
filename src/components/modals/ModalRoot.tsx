@@ -6,6 +6,7 @@ import {
 } from './FinanceModals';
 import { ResetModal, RestoreModal, SettingsModal } from './SettingsModals';
 import { TxnModal } from './TxnModal';
+import { NutritionDayModal } from './NutritionModals';
 import { BodyWeightModal, ExerciseModal, RoutineModal, WorkoutModal } from './WorkoutModals';
 
 export function ModalRoot({ s, ui }: { s: AppState; ui: Ui }) {
@@ -35,6 +36,7 @@ export function ModalRoot({ s, ui }: { s: AppState; ui: Ui }) {
     case 'workout': return <WorkoutModal key={key} s={s} workoutId={m.workoutId} />;
     case 'exercise': return <ExerciseModal key={key} s={s} exerciseId={m.exerciseId} />;
     case 'bodyWeight': return <BodyWeightModal key={key} s={s} id={m.id} />;
+    case 'nutritionDay': return <NutritionDayModal key={key} s={s} date={m.date} />;
     default: return null;
   }
 }

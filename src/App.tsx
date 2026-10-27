@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import * as A from './actions';
 import { boot, selectUser, showUserPicker, submitLock } from './api/client';
 import { BolsaSection } from './components/BolsaSection';
+import { ComidasSection } from './components/ComidasSection';
 import { EjercicioSection } from './components/EjercicioSection';
 import { FinanzasView } from './components/Finanzas';
 import { Toast, useTooltips } from './components/Overlays';
@@ -67,16 +68,18 @@ function LoadError() {
 const RAIL_ICONS: Record<string, JSX.Element> = {
   finanzas: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="6" width="20" height="13" rx="2" /><path d="M2 10h20" /><circle cx="17" cy="14.5" r="1.4" fill="currentColor" stroke="none" /></svg>,
   bolsa: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3v18M16.5 7.5c0-1.66-2-3-4.5-3S7.5 5.84 7.5 7.5c0 1.66 2 2.5 4.5 3s4.5 1.34 4.5 3-2 3-4.5 3-4.5-1.34-4.5-3" /></svg>,
-  ejercicio: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6.5 6.5l11 11M4 9l3-3 2 2-3 3-2-2zM15 18l3-3 2 2-3 3-2-2zM2 2l3 3M19 19l3 3" /></svg>
+  ejercicio: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6.5 6.5l11 11M4 9l3-3 2 2-3 3-2-2zM15 18l3-3 2 2-3 3-2-2zM2 2l3 3M19 19l3 3" /></svg>,
+  comidas: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M7 2v9M4.5 2v5.5a2.5 2.5 0 005 0V2M7 11v11M17 22V2c-2.2 1.3-3.5 4-3.5 7.5V14H17" /></svg>
 };
 
 function Rail({ ui }: { ui: Ui }) {
-  const go = (section: 'finanzas' | 'bolsa' | 'ejercicio') => setUi(section === 'finanzas' ? { section: section, tab: 'resumen' } : { section: section });
+  const go = (section: Ui['section']) => setUi(section === 'finanzas' ? { section: section, tab: 'resumen' } : { section: section });
   return (
     <div className="rail" id="rail">
       <button className={ui.section === 'finanzas' ? 'active' : ''} onClick={() => go('finanzas')}><span className="rail-icon-wrap">{RAIL_ICONS.finanzas}</span>Finanzas</button>
       <button className={ui.section === 'bolsa' ? 'active' : ''} onClick={() => go('bolsa')}><span className="rail-icon-wrap">{RAIL_ICONS.bolsa}</span>Bolsa</button>
       <button className={ui.section === 'ejercicio' ? 'active' : ''} onClick={() => go('ejercicio')}><span className="rail-icon-wrap">{RAIL_ICONS.ejercicio}</span>Ejercicio</button>
+      <button className={ui.section === 'comidas' ? 'active' : ''} onClick={() => go('comidas')}><span className="rail-icon-wrap">{RAIL_ICONS.comidas}</span>Comidas</button>
     </div>
   );
 }
@@ -91,7 +94,7 @@ function Header({ s, ui, desktop }: { s: AppState; ui: Ui; desktop: boolean }) {
   return <>
     <header>
       <div className="header-top">
-        <div className="greeting">{inFinanzas ? <>{greetingText()}<span>¿Cómo van tus wallets hoy?</span></> : ui.section === 'ejercicio' ? <>Ejercicio<span>Tu rutina, serie por serie</span></> : <>Bolsa<span>Tus acciones reales, con precios de verdad</span></>}</div>
+        <div className="greeting">{inFinanzas ? <>{greetingText()}<span>¿Cómo van tus wallets hoy?</span></> : ui.section === 'ejercicio' ? <>Ejercicio<span>Tu rutina, serie por serie</span></> : ui.section === 'comidas' ? <>Comidas<span>Lo que comes, día a día</span></> : <>Bolsa<span>Tus acciones reales, con precios de verdad</span></>}</div>
         <button className="icon-btn" aria-label="Ajustes" onClick={() => openModal({ type: 'settings' })}>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.36.62 1 .99 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
         </button>
@@ -136,7 +139,7 @@ export function App() {
         <div className="app-main">
           <Header s={s} ui={ui} desktop={desktop} />
           <main id="main-content">
-            {ui.section === 'bolsa' ? <BolsaSection s={s} ui={ui} /> : ui.section === 'ejercicio' ? <EjercicioSection s={s} ui={ui} /> : <FinanzasView s={s} ui={ui} desktop={desktop} />}
+            {ui.section === 'bolsa' ? <BolsaSection s={s} ui={ui} /> : ui.section === 'ejercicio' ? <EjercicioSection s={s} ui={ui} /> : ui.section === 'comidas' ? <ComidasSection s={s} ui={ui} /> : <FinanzasView s={s} ui={ui} desktop={desktop} />}
           </main>
           {(ui.section === 'finanzas' && !desktop) && <button className="fab" aria-label="Agregar" style={{ display: 'flex' }} onClick={A.fab}>+</button>}
         </div>

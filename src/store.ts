@@ -14,7 +14,7 @@ export type Screen =
 export type Modal = { type: string; [key: string]: any };
 
 export interface Ui {
-  section: 'finanzas' | 'bolsa' | 'ejercicio';
+  section: 'finanzas' | 'bolsa' | 'ejercicio' | 'comidas';
   tab: string;
   monthOffset: number;
   viewMode: 'total' | 'mensual';
@@ -28,6 +28,8 @@ export interface Ui {
   /* Ejercicio: qué muestra la gráfica de avance ('ex:<id>' o 'rt:<id>') y qué mes el calendario. */
   exChart: string | null;
   exCalOffset: number;
+  /* Comidas: día que se está viendo (null = hoy). */
+  nutDate: string | null;
 }
 
 export interface Store {
@@ -42,7 +44,7 @@ function initialUi(): Ui {
   return {
     section: 'finanzas', tab: 'resumen', monthOffset: 0, viewMode: 'total', currencyTab: null,
     expandedCards: {}, confirm: {}, modal: null, quotesCache: {}, quotesLoading: false,
-    exChart: null, exCalOffset: 0
+    exChart: null, exCalOffset: 0, nutDate: null
   };
 }
 

@@ -32,11 +32,34 @@ beforeAll(() => {
 beforeEach(() => { seed('leo', oldState); (window as any).__desktop = false; });
 
 describe('app', () => {
-  it('carga sin guardar y muestra Finanzas, Bolsa y Ejercicio', async () => {
+  it('carga sin guardar y muestra Finanzas, Bolsa, Ejercicio y Comidas', async () => {
     const { container } = await startApp();
     expect(getStore().screen.kind).toBe('app');
     expect(server.puts).toBe(0);
-    expect([...container.querySelectorAll('.rail button')].map(b => b.textContent)).toEqual(['Finanzas', 'Bolsa', 'Ejercicio']);
+    expect([...container.querySelectorAll('.rail button')].map(b => b.textContent)).toEqual(['Finanzas', 'Bolsa', 'Ejercicio', 'Comidas']);
+  });
+
+  it('comidas: anotar el día (las comidas suman las calorías), ver restante y copiar metas', async () => {
+    const { container } = await startApp();
+    fireEvent.click(screen.getByText('Comidas'));
+    fireEvent.click(screen.getByText('Anotar día'));
+    const inputs = () => [...container.ownerDocument.querySelectorAll('.macro-grid input')] as HTMLInputElement[];
+    /* comidas (4), comido: kcal, quemadas, carbos, proteína, grasa (5), metas (4) */
+    [['0', '120'], ['1', '716'], ['2', '1538']].forEach(([i, v]) => fireEvent.change(inputs()[+i], { target: { value: v } }));
+    expect(inputs()[4].value).toBe('2374');
+    [['5', '285'], ['6', '158'], ['7', '155'], ['8', '160'], ['9', '2344'], ['10', '321'], ['11', '128'], ['12', '85']].forEach(([i, v]) => fireEvent.change(inputs()[+i], { target: { value: v } }));
+    await act(async () => { fireEvent.click(screen.getByText('Guardar día')); });
+    await flush();
+    const d = dbState().nutritionDays[0];
+    expect([d.eaten, d.goal, d.burned, d.meals]).toEqual([{ kcal: 2374, carbs: 158, protein: 155, fat: 160 }, { kcal: 2344, carbs: 321, protein: 128, fat: 85 }, 285, { breakfast: 120, lunch: 716, dinner: 1538, snacks: 0 }]);
+    expect(container.textContent).toContain('Restante');
+    expect(container.textContent).toContain('255 kcal');
+    expect(container.textContent).toContain('155 / 128 g');
+    /* El día anterior: las metas vienen copiadas. */
+    fireEvent.click(container.querySelector('.month-nav .arrow')!);
+    fireEvent.click(screen.getByText('Anotar día'));
+    expect(inputs()[9].value).toBe('2344');
+    expect(inputs()[11].value).toBe('128');
   });
 
   it('peso corporal: anotar y ver', async () => {

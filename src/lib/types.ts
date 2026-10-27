@@ -54,6 +54,8 @@ export interface AppState {
   routines: Routine[];
   workouts: Workout[];
   bodyWeights: BodyWeight[];
+  /* Comidas */
+  nutritionDays: NutritionDay[];
   /* Datos de Salud y Avances (secciones quitadas): no se muestran, pero se conservan. */
   books: unknown[];
   exerciseLogs: string[];
@@ -71,6 +73,17 @@ export interface WorkoutSet { reps: number; kg: number | null; }
 export interface WorkoutEntry { exerciseId: string; sets: WorkoutSet[]; }
 export interface Workout { id: string; date: string; routineId: string | null; routineName: string; entries: WorkoutEntry[]; createdAt: number; }
 export interface BodyWeight { id: string; date: string; kg: number; createdAt: number; }
+
+/* ---- Comidas ---- */
+/* Un registro por día, como el resumen de Yazio. goal.kcal es la meta base: las quemadas se suman aparte. */
+export interface Macros { kcal: number; carbs: number; protein: number; fat: number; }
+export type MealKey = 'breakfast' | 'lunch' | 'dinner' | 'snacks';
+export interface NutritionDay {
+  id: string; date: string;
+  eaten: Macros; goal: Macros; burned: number;
+  meals: Record<MealKey, number>;
+  createdAt: number;
+}
 
 /* Período que se está viendo en Finanzas (afecta resumen, movimientos y gráficas). */
 export interface Period { viewMode: 'total' | 'mensual'; monthOffset: number; }

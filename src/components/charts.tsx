@@ -42,8 +42,9 @@ export function Donut(props: { s: AppState; segments: DonutSegment[]; r?: number
 export interface MonthGroup { label: string; values: { v: number; color: string; name?: string }[]; }
 
 /* Varias líneas (una por serie) con picos rectos y sin relleno; un punto por grupo con su tooltip.
-   format: cómo se muestra cada valor (por defecto, dinero). fitRange: el eje se ajusta a los datos en vez de arrancar en 0. */
-export function MiniLinesChart(props: { s: AppState; data: MonthGroup[]; format?: (v: number) => string; fitRange?: boolean }) {
+   format: cómo se muestra cada valor (por defecto, dinero). fitRange: el eje se ajusta a los datos en vez de arrancar en 0.
+   labelStep: con muchos puntos, solo rotula uno de cada N (contando desde el último). */
+export function MiniLinesChart(props: { s: AppState; data: MonthGroup[]; format?: (v: number) => string; fitRange?: boolean; labelStep?: number }) {
   const W = 300, H = 104, padBottom = 20, padTop = 8, dotR = 3.5;
   const format = props.format || ((v: number) => fmt(props.s, v));
   const all: number[] = [];
@@ -72,7 +73,7 @@ export function MiniLinesChart(props: { s: AppState; data: MonthGroup[]; format?
   return (
     <svg viewBox={'0 0 ' + W + ' ' + H} style={{ width: '100%', height: 'auto', display: 'block' }}>
       {lines}{dots}
-      {props.data.map((d, i) => <text key={'t' + i} x={xAt(i).toFixed(1)} y={H - 6} fontSize="9.5" fill="var(--text-faint)" textAnchor="middle" fontFamily="Inter, sans-serif">{d.label}</text>)}
+      {props.data.map((d, i) => (props.data.length - 1 - i) % (props.labelStep || 1) !== 0 ? null : <text key={'t' + i} x={xAt(i).toFixed(1)} y={H - 6} fontSize="9.5" fill="var(--text-faint)" textAnchor="middle" fontFamily="Inter, sans-serif">{d.label}</text>)}
     </svg>
   );
 }
