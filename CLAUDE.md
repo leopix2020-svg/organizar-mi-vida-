@@ -46,6 +46,7 @@ Riel de navegación con cuatro áreas: **Finanzas**, **Bolsa** (acciones reales 
 **Comidas** (desde 2026-10-27)
 - Datos: `nutritionDays`, un registro por fecha con `eaten` y `goal` (`{kcal, carbs, protein, fat}`), `burned` (quemadas con ejercicio) y `meals` (calorías de breakfast/lunch/dinner/snacks). Lógica en `src/lib/nutrition.ts`.
 - Copia el resumen diario de Yazio, que el usuario usa en el teléfono. `goal.kcal` es la meta base; restante = meta + quemadas − comido (negativo = se pasó).
+- Tarjeta **Balance** (2026-10-28): suma el restante de los días anotados de esta semana (lun–dom), este mes o el total; positivo = "Te ahorraste", negativo = "Te pasaste". Los días sin anotar no cuentan.
 - Se anota a mano (sin IA ni lectura de fotos, se decidió así). Las comidas suman solas las calorías del día; las metas de un día nuevo se copian del último día.
 - Los 28 días anteriores (29/9–26/10/2026) se cargaron desde screenshots de Yazio vía respaldo (ids `yazio-<fecha>`).
 - Los datos viejos de Salud (`meals`, `calorieGoal`) siguen ocultos y no se mezclan con esta sección.
@@ -54,7 +55,7 @@ Riel de navegación con cuatro áreas: **Finanzas**, **Bolsa** (acciones reales 
 - Datos: `exercises` (nombre + `weighted` = usa pesa), `routines` (nombre + lista de `exerciseIds`, sin repeticiones objetivo), `workouts` (fecha, rutina, y por ejercicio sus series `{reps, kg}`), `bodyWeights`. Todo en kilos.
 - En ejercicios sin pesa, `kg` es el lastre opcional (mochila).
 - Un ejercicio es uno solo aunque esté en varias rutinas; así se compara su avance. El catálogo precargado está en `workout.ts` y solo pasa al estado cuando se usa. No se puede borrar un ejercicio ya registrado.
-- Pantalla: resumen de la semana, "Hoy hice…" (sugiere la rutina que hace más tiempo no haces y muestra lo de la vez anterior), avance con gráfica de líneas por ejercicio o rutina y comparación contra la semana pasada, récords 🏆 (supera la mejor serie anterior en reps o kg; la primera vez no cuenta), calendario de días entrenados, historial, rutinas, mis ejercicios y peso corporal.
+- Pantalla: resumen de la semana, "Hoy hice…" (sugiere la rutina que hace más tiempo no haces y muestra lo de la vez anterior), avance con gráfica de líneas "General" (reps totales por día de todas las sesiones, opción por defecto), por ejercicio o por rutina, y comparación contra la semana pasada, récords 🏆 (supera la mejor serie anterior en reps o kg; la primera vez no cuenta), calendario de días entrenados, historial, rutinas, mis ejercicios y peso corporal.
 - Acordado no incluir: temporizador de descanso ni notas por sesión. Los días de ejercicio viejos de Salud (`exerciseLogs`) no se muestran.
 
 **Finanzas** (pestañas: Resumen, Movimientos, Metas, Wallets, Bolsa, Deudas)

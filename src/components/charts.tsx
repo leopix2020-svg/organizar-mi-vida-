@@ -68,6 +68,8 @@ export function MiniLinesChart(props: { s: AppState; data: MonthGroup[]; format?
     props.data.forEach((d, i) => {
       const v = d.values[j];
       const tip = (v.name ? v.name + ' · ' : '') + d.label + ': ' + format(v.v);
+      /* Con un solo dato no hay línea que dibujar: se muestra el punto. */
+      if (props.data.length === 1) dots.push(<circle key={'p' + j} cx={xAt(i).toFixed(1)} cy={yAt(v.v).toFixed(1)} r="3" fill={v.color}></circle>);
       dots.push(<circle key={'d' + j + '-' + i} cx={xAt(i).toFixed(1)} cy={yAt(v.v).toFixed(1)} r={hitR} fill="transparent" data-tooltip={tip}></circle>);
     });
   }

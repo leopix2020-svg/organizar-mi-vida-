@@ -1,7 +1,7 @@
 /* Sección Ejercicio: semana, "Hoy hice…", avance, calendario, historial, rutinas, ejercicios y peso corporal. */
 import { monthDate, monthLabel, padNum, todayStr } from '../lib/format';
 import {
-  bodyWeightSeries, entryTotalReps, exerciseIsUsed, exerciseSeries, exerciseWeekTotals, findExercise, routineSeries,
+  bodyWeightSeries, entryTotalReps, exerciseIsUsed, exerciseSeries, exerciseWeekTotals, findExercise, generalSeries, generalWeekTotals, routineSeries,
   routineWeekTotals, shortDayMonth, sortedWorkouts, workoutRecordNames, workoutsInWeek
 } from '../lib/workout';
 import type { AppState } from '../lib/types';
@@ -37,10 +37,11 @@ function WeekSummary({ s }: { s: AppState }) {
 function Progress({ s, ui }: { s: AppState; ui: Ui }) {
   const usedExercises = s.exercises.filter(e => exerciseIsUsed(s, e.id));
   const options = [
+    { key: 'gn:all', label: 'General · todas las sesiones' },
     ...s.routines.map(r => ({ key: 'rt:' + r.id, label: 'Rutina · ' + r.name })),
     ...usedExercises.map(e => ({ key: 'ex:' + e.id, label: e.name }))
   ];
-  if (options.length === 0) {
+  if (options.length === 1) {
     return <><div className="section-title">Avance</div><div className="card"><div className="empty-state" style={{ padding: '10px 0' }}>Cuando registres tu primera sesión, aquí verás tu avance.</div></div></>;
   }
   const selected = options.some(o => o.key === ui.exChart) ? ui.exChart as string : options[0].key;
@@ -64,6 +65,16 @@ function Progress({ s, ui }: { s: AppState; ui: Ui }) {
         {now.done ? ('Esta semana: ' + reps(now.reps) + (prev.done ? (' (' + diffTxt(now.reps, prev.reps, reps) + ' vs. semana pasada)') : '')) : 'Esta semana aún no lo haces.'}
         {now.done && hasKg && now.kg > 0 ? (' · máx. ' + kgTxt(now.kg) + (prev.done ? (' (' + diffTxt(now.kg, prev.kg, kgTxt) + ')') : '')) : ''}
       </div>
+    </>;
+  } else if (kind === 'gn') {
+    const series = generalSeries(s);
+    const now = generalWeekTotals(s, 0), prev = generalWeekTotals(s, 1);
+    body = <>
+      {series.length === 0 ? <div className="empty-state" style={{ padding: '10px 0' }}>Aún no hay sesiones.</div> : <>
+        <div className="item-sub" style={{ marginBottom: 6 }}>Repeticiones totales por día</div>
+        <MiniLinesChart s={s} format={reps} data={series.map(p => ({ label: shortDayMonth(p.date), values: [{ v: p.reps, color: 'var(--growth)', name: 'Reps' }] }))} />
+      </>}
+      <div className="chart-desc" style={{ marginTop: 10 }}>{now.done ? ('Esta semana: ' + reps(now.reps) + (prev.done ? (' (' + diffTxt(now.reps, prev.reps, reps) + ' vs. semana pasada)') : '')) : 'Esta semana aún no entrenas.'}</div>
     </>;
   } else {
     const series = routineSeries(s, id);

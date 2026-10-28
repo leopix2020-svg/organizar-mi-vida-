@@ -2,6 +2,7 @@
    Es un store pequeño fuera de React para que el guardado siempre lea los datos más recientes. */
 import { useSyncExternalStore } from 'react';
 import type { AppState, Macros } from './lib/types';
+import type { BalancePeriod } from './lib/nutrition';
 import type { QuotesCache } from './lib/stocks';
 
 export type Screen =
@@ -25,12 +26,13 @@ export interface Ui {
   modal: Modal | null;
   quotesCache: QuotesCache;
   quotesLoading: boolean;
-  /* Ejercicio: qué muestra la gráfica de avance ('ex:<id>' o 'rt:<id>') y qué mes el calendario. */
+  /* Ejercicio: qué muestra la gráfica de avance ('gn:all', 'ex:<id>' o 'rt:<id>') y qué mes el calendario. */
   exChart: string | null;
   exCalOffset: number;
-  /* Comidas: día que se está viendo (null = hoy) y qué muestra la gráfica. */
+  /* Comidas: día que se está viendo (null = hoy), qué muestra la gráfica y el período del balance. */
   nutDate: string | null;
   nutChart: keyof Macros;
+  nutBalance: BalancePeriod;
 }
 
 export interface Store {
@@ -45,7 +47,7 @@ function initialUi(): Ui {
   return {
     section: 'finanzas', tab: 'resumen', monthOffset: 0, viewMode: 'total', currencyTab: null,
     expandedCards: {}, confirm: {}, modal: null, quotesCache: {}, quotesLoading: false,
-    exChart: null, exCalOffset: 0, nutDate: null, nutChart: 'kcal'
+    exChart: null, exCalOffset: 0, nutDate: null, nutChart: 'kcal', nutBalance: 'week'
   };
 }
 

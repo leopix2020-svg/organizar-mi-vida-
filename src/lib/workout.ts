@@ -191,6 +191,10 @@ export function exerciseWeekTotals(s: AppState, exerciseId: string, weeksAgo: nu
   }));
   return { reps, kg, done };
 }
+export function generalWeekTotals(s: AppState, weeksAgo: number) {
+  const ws = workoutsInWeek(s, weeksAgo);
+  return { reps: ws.reduce((a, w) => a + w.entries.reduce((b, e) => b + entryTotalReps(e), 0), 0), done: ws.length > 0 };
+}
 export function routineWeekTotals(s: AppState, routineId: string, weeksAgo: number) {
   let reps = 0, done = false;
   workoutsInWeek(s, weeksAgo).forEach(w => { if (w.routineId === routineId) { done = true; reps += w.entries.reduce((a, e) => a + entryTotalReps(e), 0); } });
@@ -209,6 +213,16 @@ export function exerciseSeries(s: AppState, exerciseId: string, last = 10) {
 }
 export function routineSeries(s: AppState, routineId: string, last = 10) {
   return sortedWorkouts(s).filter(w => w.routineId === routineId).map(w => ({ date: w.date, reps: w.entries.reduce((a, e) => a + entryTotalReps(e), 0) })).slice(-last);
+}
+/* Todas las sesiones juntas: repeticiones totales por día (dos sesiones el mismo día se suman). */
+export function generalSeries(s: AppState, last = 10) {
+  const out: { date: string; reps: number }[] = [];
+  sortedWorkouts(s).forEach(w => {
+    const r = w.entries.reduce((a, e) => a + entryTotalReps(e), 0);
+    const prev = out[out.length - 1];
+    if (prev && prev.date === w.date) prev.reps += r; else out.push({ date: w.date, reps: r });
+  });
+  return out.slice(-last);
 }
 export function bodyWeightSeries(s: AppState, last = 10) {
   return s.bodyWeights.slice().sort((a, b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt).slice(-last);

@@ -1,6 +1,7 @@
 /* Sección Comidas: el día (comido, restante, quemado, macros y comidas), gráfica e historial. */
 import { dateToStr, todayStr } from '../lib/format';
-import { MACROS, MEALS, dayTarget, findDay, recentDays, remaining, sortedDays } from '../lib/nutrition';
+import { MACROS, MEALS, balance, dayTarget, findDay, recentDays, remaining, sortedDays } from '../lib/nutrition';
+import type { BalancePeriod } from '../lib/nutrition';
 import type { AppState, Macros } from '../lib/types';
 import { shortDayMonth } from '../lib/workout';
 import { askConfirm, clearConfirm, commit, openModal, setUi, showToast, type Ui } from '../store';
@@ -81,6 +82,27 @@ function NutritionChart({ s, ui }: { s: AppState; ui: Ui }) {
   </>;
 }
 
+/* Balance: cuántas calorías te ahorraste (o te pasaste) sumando los días anotados del período. */
+const BALANCE_OPTIONS: { key: BalancePeriod; label: string }[] = [
+  { key: 'week', label: 'Esta semana' }, { key: 'month', label: 'Este mes' }, { key: 'all', label: 'Total' }
+];
+
+function Balance({ s, ui }: { s: AppState; ui: Ui }) {
+  const b = balance(s, ui.nutBalance);
+  return <>
+    <div className="section-title">Balance</div>
+    <div className="card">
+      <select className="chart-select" value={ui.nutBalance} onChange={e => setUi({ nutBalance: e.target.value as BalancePeriod })}>
+        {BALANCE_OPTIONS.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
+      </select>
+      {b.days === 0 ? <div className="empty-state" style={{ padding: '10px 0' }}>No hay días anotados en este período.</div> : <>
+        <div className="item-name" style={{ textAlign: 'center', color: b.saved < 0 ? 'var(--spend)' : undefined }}>{b.saved >= 0 ? 'Te ahorraste ' + kcal(b.saved) : 'Te pasaste ' + kcal(-b.saved)}</div>
+        <div className="chart-desc" style={{ marginTop: 8, textAlign: 'center' }}>{b.days} {b.days === 1 ? 'día anotado' : 'días anotados'} · comido {kcal(b.eaten)} · meta + quemadas {kcal(b.target)}</div>
+      </>}
+    </div>
+  </>;
+}
+
 function History({ s, ui }: { s: AppState; ui: Ui }) {
   const list = sortedDays(s).reverse();
   async function remove(id: string) {
@@ -118,6 +140,7 @@ export function ComidasSection({ s, ui }: { s: AppState; ui: Ui }) {
       <div className="dash-col">
         <DayView s={s} ui={ui} />
         <NutritionChart s={s} ui={ui} />
+        <Balance s={s} ui={ui} />
       </div>
       <div className="dash-col">
         <History s={s} ui={ui} />

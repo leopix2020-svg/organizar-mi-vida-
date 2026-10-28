@@ -1,4 +1,6 @@
 /* Comidas: un registro por día con lo comido, las metas, las quemadas y las calorías de cada comida. */
+import { todayStr } from './format';
+import { weekBounds } from './workout';
 import type { AppState, Macros, MealKey, NutritionDay } from './types';
 
 export const MEALS: { key: MealKey; label: string }[] = [
@@ -34,3 +36,16 @@ export function upsertDay(s: AppState, day: NutritionDay, replacingId: string | 
 
 /* Últimos n días anotados, para la gráfica. */
 export function recentDays(s: AppState, n: number) { return sortedDays(s).slice(-n); }
+
+/* Balance de un período (esta semana, este mes o todo): suma del restante de los días anotados. Positivo = ahorradas. */
+export type BalancePeriod = 'week' | 'month' | 'all';
+export function balance(s: AppState, period: BalancePeriod) {
+  const w = weekBounds(0), month = todayStr().slice(0, 7);
+  const days = s.nutritionDays.filter(d => period === 'all' || (period === 'week' ? d.date >= w.start && d.date <= w.end : d.date.slice(0, 7) === month));
+  return {
+    days: days.length,
+    eaten: days.reduce((a, d) => a + d.eaten.kcal, 0),
+    target: days.reduce((a, d) => a + dayTarget(d), 0),
+    saved: days.reduce((a, d) => a + remaining(d), 0)
+  };
+}
