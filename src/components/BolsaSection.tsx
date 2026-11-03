@@ -1,7 +1,7 @@
 /* Sección Bolsa del riel: acciones reales con precios de verdad. */
 import { useEffect } from 'react';
 import { refreshQuotesIfNeeded } from '../api/client';
-import { bolsaGrowthSeries, bolsaPositionCurrentValue } from '../lib/stocks';
+import { bolsaHistorySeries, bolsaPositionCurrentValue } from '../lib/stocks';
 import type { AppState } from '../lib/types';
 import { commit, openModal, showToast, type Ui } from '../store';
 import { MiniMoneyLineChart } from './charts';
@@ -63,17 +63,21 @@ export function BolsaSection({ s, ui }: { s: AppState; ui: Ui }) {
       );
     });
 
-  const growth = bolsaGrowthSeries(s, quotes);
+  /* Gráficas con las fotos diarias reales: valor total y ganancia (valor − invertido) de cada día guardado. */
   let charts = null;
-  if (growth) {
-    const lastGain = growth.gainSeries[growth.gainSeries.length - 1].v;
+  if (positions.length > 0) {
+    const growth = bolsaHistorySeries(s);
+    const n = growth.valueSeries.length;
+    const lastGain = n ? growth.gainSeries[n - 1].v : 0;
     charts = <>
       <div className="section-title" style={{ marginTop: 18 }}>Crecimiento</div>
-      <div className="bolsa-charts-grid">
-        <div className="card"><div className="item-sub" style={{ marginBottom: 6 }}>Valor total</div><MiniMoneyLineChart points={growth.valueSeries} color="var(--growth)" /></div>
-        <div className="card"><div className="item-sub" style={{ marginBottom: 6 }}>Ganancia o pérdida (sin contar lo invertido)</div><MiniMoneyLineChart points={growth.gainSeries} color={lastGain >= 0 ? 'var(--growth)' : 'var(--spend)'} /></div>
-      </div>
-      <div className="chart-desc" style={{ marginTop: 8 }}>Como no guardamos el precio de cada día, la línea entre la fecha en que compraste y hoy es un estimado — se va afinando con el tiempo.</div>
+      {n < 2 ? <div className="card"><div className="empty-state" style={{ padding: '10px 0' }}>Tu historial empieza {n === 1 ? 'hoy' : 'cuando carguen los precios'}: vuelve mañana para ver tu progreso.</div></div> : <>
+        <div className="bolsa-charts-grid">
+          <div className="card"><div className="item-sub" style={{ marginBottom: 6 }}>Valor total</div><MiniMoneyLineChart points={growth.valueSeries} color="var(--growth)" /></div>
+          <div className="card"><div className="item-sub" style={{ marginBottom: 6 }}>Ganancia o pérdida (sin contar lo invertido)</div><MiniMoneyLineChart points={growth.gainSeries} color={lastGain >= 0 ? 'var(--growth)' : 'var(--spend)'} /></div>
+        </div>
+        <div className="chart-desc" style={{ marginTop: 8 }}>Cada punto es un día que abriste la app: se guarda el valor real de ese día.</div>
+      </>}
     </>;
   }
 

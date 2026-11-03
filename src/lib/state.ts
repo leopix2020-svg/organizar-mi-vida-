@@ -11,6 +11,7 @@ export function defaultState(): AppState {
     accounts: [{ id: uid(), name: 'Efectivo', startingBalance: 0, currency: null }],
     bolsa: { amountInvested: 0, currentValue: 0, feeAmount: 0, lastUpdated: null },
     bolsaPositions: [],
+    bolsaHistory: [],
     exercises: [], routines: [], workouts: [], bodyWeights: [],
     nutritionDays: [],
     books: [],
@@ -160,6 +161,7 @@ export function normalizeState(s: any): AppState {
     bolsaPositions: Array.isArray(s.bolsaPositions) ? s.bolsaPositions.map(function (p: any) {
       return { id: p.id || uid(), ticker: p.ticker, amountInvested: p.amountInvested || 0, purchasePrice: p.purchasePrice || 0, shares: p.shares || 0, purchaseDate: p.purchaseDate || null };
     }) : [],
+    bolsaHistory: Array.isArray(s.bolsaHistory) ? s.bolsaHistory.filter((h: any) => h && typeof h.date === 'string').map((h: any) => ({ date: h.date, value: Number(h.value) || 0, invested: Number(h.invested) || 0 })) : [],
     expenseCats: expenseCats,
     incomeCats: incomeCats,
     exercises: Array.isArray(s.exercises) ? s.exercises.filter((e: any) => e && e.id && e.name).map((e: any) => ({ id: e.id, name: e.name, weighted: !!e.weighted })) : [],

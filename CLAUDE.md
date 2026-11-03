@@ -43,6 +43,9 @@ App personal para organizar la vida, hoy centrada en **finanzas** (Salud y Avanc
 ## 4. Estructura de la app
 Riel de navegación con cuatro áreas: **Finanzas**, **Bolsa** (acciones reales con precios de Finnhub; distinta de la pestaña Bolsa dentro de Finanzas, que es un valor manual), **Ejercicio** y **Comidas**.
 
+**Bolsa del riel** (historial desde 2026-11-03)
+- `bolsaHistory`: una foto por día `{date, value, invested}` que se guarda sola cuando cargan los precios de todas las acciones (solo si cambió). Las gráficas Valor total y Ganancia o pérdida usan esas fotos reales; antes eran una línea recta inventada entre la compra y hoy. No hay historial anterior al 2026-11-03.
+
 **Comidas** (desde 2026-10-27)
 - Datos: `nutritionDays`, un registro por fecha con `eaten` y `goal` (`{kcal, carbs, protein, fat}`), `burned` (quemadas con ejercicio) y `meals` (calorías de breakfast/lunch/dinner/snacks). Lógica en `src/lib/nutrition.ts`.
 - Copia el resumen diario de Yazio, que el usuario usa en el teléfono. `goal.kcal` es la meta base; restante = meta + quemadas − comido (negativo = se pasó).

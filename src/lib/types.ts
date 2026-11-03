@@ -31,6 +31,8 @@ export interface Debt {
 }
 
 export interface Bolsa { amountInvested: number; currentValue: number; feeAmount: number; lastUpdated: string | null; }
+/* Foto diaria de la Bolsa del riel: valor de mercado e invertido de ese día (la ganancia es la resta). */
+export interface BolsaSnapshot { date: string; value: number; invested: number; }
 export interface BolsaPosition { id: string; ticker: string; amountInvested: number; purchasePrice: number; shares: number; purchaseDate: string | null; }
 export interface Category { id: string; label: string; color: string; }
 
@@ -47,6 +49,7 @@ export interface AppState {
   accounts: Account[];
   bolsa: Bolsa;
   bolsaPositions: BolsaPosition[];
+  bolsaHistory: BolsaSnapshot[];
   expenseCats: Category[];
   incomeCats: Category[];
   /* Ejercicio */

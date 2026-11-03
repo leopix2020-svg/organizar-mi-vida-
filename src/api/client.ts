@@ -2,8 +2,9 @@
 import { QUOTE_TTL_MS, USERS } from '../lib/constants';
 import { defaultState, normalizeState } from '../lib/state';
 import type { AppState } from '../lib/types';
-import type { QuotesCache } from '../lib/stocks';
-import { closeModal, getStore, setSaveHook, setStore, setUi, showToastHold } from '../store';
+import { bolsaSnapshot, upsertBolsaSnapshot, type QuotesCache } from '../lib/stocks';
+import { todayStr } from '../lib/format';
+import { closeModal, commit, getStore, setSaveHook, setStore, setUi, showToastHold } from '../store';
 
 /* ---- Sesión (en localStorage: mvo-secret-<usuario> y mvo-last-user) ---- */
 export function getSecret(userId: string) { return localStorage.getItem('mvo-secret-' + userId) || ''; }
@@ -138,7 +139,7 @@ export async function refreshQuotesIfNeeded() {
   const uniq = tickers.filter((t, i) => tickers.indexOf(t) === i);
   const now = Date.now();
   const stale = uniq.filter(t => { const c = ui.quotesCache[t]; return !c || (now - c.fetchedAt) > QUOTE_TTL_MS; });
-  if (stale.length === 0 || ui.quotesLoading) return;
+  if (stale.length === 0 || ui.quotesLoading) { recordBolsaSnapshot(); return; }
   setUi({ quotesLoading: true });
   try {
     const res = await apiRequestQuotes(uniq);
@@ -150,10 +151,23 @@ export async function refreshQuotesIfNeeded() {
         else cache[t] = { error: true, fetchedAt: Date.now() };
       });
       setUi({ quotesCache: cache, quotesLoading: false });
+      recordBolsaSnapshot();
       return;
     }
   } catch (e) { console.error('Quotes error', e); }
   setUi({ quotesLoading: false });
+}
+
+/* Guarda la foto de hoy de la Bolsa cuando ya hay precio de todas las acciones; solo si cambió, para no guardar de más. */
+function recordBolsaSnapshot() {
+  const { state, ui } = getStore();
+  if (!state) return;
+  const snap = bolsaSnapshot(state, ui.quotesCache);
+  if (!snap) return;
+  const today = todayStr();
+  const cur = state.bolsaHistory.find(h => h.date === today);
+  if (cur && cur.value === snap.value && cur.invested === snap.invested) return;
+  void commit(st => upsertBolsaSnapshot(st, today, snap));
 }
 
 /* Arranque: si ya hay usuario y clave guardados, entra directo. */
