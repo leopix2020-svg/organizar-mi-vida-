@@ -28,7 +28,7 @@ describe('balance de comidas', () => {
     day('c', '2020-01-15', 2000, 2400)       /* +400 */
   ];
   it('semana: solo los días de esta semana', () => {
-    expect(N.balance(s, 'week')).toEqual({ days: 1, eaten: 2035, target: 3027, saved: 992 });
+    expect(N.balance(s, 'week')).toMatchObject({ days: 1, eaten: 2035, target: 3027, saved: 992 });
   });
   it('mes: los días de este mes (positivos y negativos se compensan)', () => {
     const b = N.balance(s, 'month');
@@ -37,7 +37,7 @@ describe('balance de comidas', () => {
     expect(b.days).toBe(sameMonth ? 2 : 1);
   });
   it('total: todos los días anotados', () => {
-    expect(N.balance(s, 'all')).toEqual({ days: 3, eaten: 7035, target: 7927, saved: 892 });
+    expect(N.balance(s, 'all')).toMatchObject({ days: 3, eaten: 7035, target: 7927, saved: 892 });
   });
   it('la tarjeta muestra ahorro, exceso en rojo y vacío', () => {
     resetUi();

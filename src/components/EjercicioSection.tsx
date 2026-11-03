@@ -1,7 +1,7 @@
 /* Sección Ejercicio: semana, "Hoy hice…", avance, calendario, historial, rutinas, ejercicios y peso corporal. */
 import { monthDate, monthLabel, padNum, todayStr } from '../lib/format';
 import {
-  bodyWeightSeries, entryTotalReps, exerciseIsUsed, exerciseSeries, exerciseWeekTotals, findExercise, generalSeries, generalWeekTotals, routineSeries,
+  bodyWeightSeries, entryTotalReps, exerciseRecords, exerciseIsUsed, exerciseSeries, exerciseWeekTotals, findExercise, generalSeries, generalWeekTotals, routineSeries,
   routineWeekTotals, shortDayMonth, sortedWorkouts, workoutRecordNames, workoutsInWeek
 } from '../lib/workout';
 import type { AppState } from '../lib/types';
@@ -186,6 +186,27 @@ function Routines({ s, ui }: { s: AppState; ui: Ui }) {
   </>;
 }
 
+/* Mis récords: mejor serie en reps y en kg de cada ejercicio, con su fecha. */
+function Records({ s }: { s: AppState }) {
+  const list = exerciseRecords(s);
+  if (list.length === 0) return null;
+  return <>
+    <div className="section-title">Mis récords</div>
+    <div className="card" style={{ maxHeight: 320, overflowY: 'auto', padding: 8 }}>
+      {list.map(r => (
+        <div className="debt-row" style={{ padding: '9px 10px' }} key={r.exercise.id}>
+          <div><div className="debt-person">🏆 {r.exercise.name}</div>
+            <div className="debt-note">
+              {r.reps ? reps(r.reps.v) + ' en una serie (' + shortDayMonth(r.reps.date) + ')' : ''}
+              {r.reps && r.kg ? ' · ' : ''}
+              {r.kg ? kgTxt(r.kg.v) + ' (' + shortDayMonth(r.kg.date) + ')' : ''}
+            </div></div>
+        </div>
+      ))}
+    </div>
+  </>;
+}
+
 function MyExercises({ s }: { s: AppState }) {
   if (s.exercises.length === 0) return null;
   const list = s.exercises.slice().sort((a, b) => a.name.localeCompare(b.name));
@@ -242,6 +263,7 @@ export function EjercicioSection({ s, ui }: { s: AppState; ui: Ui }) {
       </div>
       <div className="dash-col">
         <Routines s={s} ui={ui} />
+        <Records s={s} />
         <MyExercises s={s} />
         <BodyWeightCard s={s} ui={ui} />
       </div>

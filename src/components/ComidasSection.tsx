@@ -1,12 +1,13 @@
 /* Sección Comidas: el día (comido, restante, quemado, macros y comidas), gráfica e historial. */
 import { dateToStr, todayStr } from '../lib/format';
-import { MACROS, MEALS, balance, dayTarget, weekdayAverages, findDay, recentDays, remaining, sortedDays } from '../lib/nutrition';
+import { MACROS, MEALS, balance, dayTarget, streaks, weekdayAverages, weightChange, findDay, recentDays, remaining, sortedDays } from '../lib/nutrition';
 import type { BalancePeriod } from '../lib/nutrition';
 import type { AppState, Macros } from '../lib/types';
 import { shortDayMonth } from '../lib/workout';
 import { askConfirm, clearConfirm, commit, openModal, setUi, showToast, type Ui } from '../store';
 import { DivergingBarsChart, MiniLinesChart } from './charts';
 
+const kgTxt = (n: number) => (Math.round(n * 100) / 100) + ' kg';
 const kcal = (n: number) => Math.round(n).toLocaleString('es-MX') + ' kcal';
 function niceDate(dateStr: string) { return new Date(dateStr + 'T00:00:00').toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' }); }
 function shiftDate(dateStr: string, days: number) { const d = new Date(dateStr + 'T00:00:00'); d.setDate(d.getDate() + days); return dateToStr(d); }
@@ -82,6 +83,20 @@ function NutritionChart({ s, ui }: { s: AppState; ui: Ui }) {
   </>;
 }
 
+/* Rachas: días seguidos anotando y días seguidos sin pasarte de la meta. */
+function Streaks({ s }: { s: AppState }) {
+  if (s.nutritionDays.length === 0) return null;
+  const st = streaks(s);
+  const days = (n: number) => n + (n === 1 ? ' día' : ' días');
+  return <>
+    <div className="section-title">Rachas</div>
+    <div className="summary-mini" style={{ marginBottom: 14 }}>
+      <div className="card"><div className="label">Anotando</div><div className="val">🔥 {days(st.logging)}</div></div>
+      <div className="card"><div className="label">Bajo la meta</div><div className="val">✅ {days(st.underGoal)}</div></div>
+    </div>
+  </>;
+}
+
 /* Balance: cuántas calorías te ahorraste (o te pasaste) sumando los días anotados del período. */
 const BALANCE_OPTIONS: { key: BalancePeriod; label: string }[] = [
   { key: 'week', label: 'Esta semana' }, { key: 'month', label: 'Este mes' }, { key: 'all', label: 'Total' }
@@ -89,6 +104,7 @@ const BALANCE_OPTIONS: { key: BalancePeriod; label: string }[] = [
 
 function Balance({ s, ui }: { s: AppState; ui: Ui }) {
   const b = balance(s, ui.nutBalance);
+  const w = weightChange(s, ui.nutBalance);
   return <>
     <div className="section-title">Balance</div>
     <div className="card">
@@ -98,6 +114,10 @@ function Balance({ s, ui }: { s: AppState; ui: Ui }) {
       {b.days === 0 ? <div className="empty-state" style={{ padding: '10px 0' }}>No hay días anotados en este período.</div> : <>
         <div className="item-name" style={{ textAlign: 'center', color: b.saved < 0 ? 'var(--spend)' : undefined }}>{b.saved >= 0 ? 'Te ahorraste ' + kcal(b.saved) : 'Te pasaste ' + kcal(-b.saved)}</div>
         <div className="chart-desc" style={{ marginTop: 8, textAlign: 'center' }}>{b.days} {b.days === 1 ? 'día anotado' : 'días anotados'} · comido {kcal(b.eaten)} · meta + quemadas {kcal(b.target)}</div>
+        <div className="chart-desc" style={{ marginTop: 6, textAlign: 'center' }}>
+          ≈ {kgTxt(Math.abs(b.kg))} {b.kg >= 0 ? 'menos' : 'más'} (7.700 kcal ≈ 1 kg)
+          {w ? ' · Tu peso real: ' + (w.diff > 0 ? '+' : w.diff < 0 ? '−' : '') + kgTxt(Math.abs(w.diff)) + ' (' + w.from + ' → ' + w.to + ')' : ''}
+        </div>
       </>}
     </div>
   </>;
@@ -165,6 +185,7 @@ export function ComidasSection({ s, ui }: { s: AppState; ui: Ui }) {
       <div className="dash-col">
         <DayView s={s} ui={ui} />
         <NutritionChart s={s} ui={ui} />
+        <Streaks s={s} />
         <Balance s={s} ui={ui} />
         <WeekdayAverages s={s} />
       </div>

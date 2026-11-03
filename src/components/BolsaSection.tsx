@@ -1,10 +1,12 @@
 /* Sección Bolsa del riel: acciones reales con precios de verdad. */
 import { useEffect } from 'react';
 import { refreshQuotesIfNeeded } from '../api/client';
-import { bolsaHistorySeries, bolsaPositionCurrentValue } from '../lib/stocks';
+import { bolsaDistribution, bolsaHistorySeries, bolsaPositionCurrentValue } from '../lib/stocks';
 import type { AppState } from '../lib/types';
 import { commit, openModal, showToast, type Ui } from '../store';
-import { MiniMoneyLineChart } from './charts';
+import { Donut, MiniMoneyLineChart } from './charts';
+
+const DIST_COLORS = ['#4C7A5D', '#5B7B92', '#C08A28', '#A8452C', '#7C5295', '#8A6D3B', '#B0424F', '#6B7280'];
 
 async function deletePosition(id: string) {
   await commit(s => { s.bolsaPositions = s.bolsaPositions.filter(p => p.id !== id); });
@@ -63,6 +65,24 @@ export function BolsaSection({ s, ui }: { s: AppState; ui: Ui }) {
       );
     });
 
+  /* Distribución: cuánto de tu dinero está en cada acción, según su valor actual. */
+  let distribution = null;
+  if (positions.length > 0) {
+    const dist = bolsaDistribution(s, quotes);
+    distribution = <>
+      <div className="section-title" style={{ marginTop: 18 }}>Distribución</div>
+      <div className="card">{!dist ? <div className="empty-state" style={{ padding: '10px 0' }}>Esperando precios…</div> :
+        <div className="donut-wrap">
+          <Donut s={s} currency="USD" segments={dist.map((d, i) => ({ value: d.value, color: DIST_COLORS[i % DIST_COLORS.length], label: d.ticker }))} />
+          <div className="donut-legend">{dist.map((d, i) => (
+            <div className="donut-legend-row" key={d.ticker}>
+              <span className="dot" style={{ background: DIST_COLORS[i % DIST_COLORS.length] }}></span><span className="lbl">{d.ticker}</span>
+              <span className="amt">${d.value.toFixed(2)}</span><span className="pct">{Math.round(d.pct * 100)}%</span>
+            </div>))}</div>
+        </div>}</div>
+    </>;
+  }
+
   /* Gráficas con las fotos diarias reales: valor total y ganancia (valor − invertido) de cada día guardado. */
   let charts = null;
   if (positions.length > 0) {
@@ -85,6 +105,6 @@ export function BolsaSection({ s, ui }: { s: AppState; ui: Ui }) {
     <div className="section-title">Bolsa</div>
     <div className="chart-desc" style={{ marginBottom: 14 }}>Aquí registras en qué acciones invertiste de verdad — la app busca el precio actual y calcula cuánto llevas ganado o perdido. Esto no tiene nada que ver con la Bolsa de Finanzas.</div>
     <div className="section-title">Tus acciones <button className="btn-small" onClick={() => openModal({ type: 'bolsaPosition' })}>+ Agregar</button></div>
-    {totalLine}{rows}{charts}
+    {totalLine}{rows}{distribution}{charts}
   </>;
 }

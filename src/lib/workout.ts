@@ -164,6 +164,21 @@ export function workoutRecordNames(s: AppState, w: Workout) {
   return w.entries.filter(e => { const r = entryRecords(s, w, e); return r.reps || r.kg; }).map(e => { const ex = findExercise(s, e.exerciseId); return ex ? ex.name : '?'; });
 }
 
+/* Mis récords: por cada ejercicio hecho, el máximo de reps en una serie y de kg, con la fecha en que se lograron por primera vez. */
+export function exerciseRecords(s: AppState) {
+  const best: Record<string, { reps: { v: number; date: string } | null; kg: { v: number; date: string } | null }> = {};
+  sortedWorkouts(s).forEach(w => w.entries.forEach(e => {
+    if (!e.sets.length) return;
+    const b = best[e.exerciseId] = best[e.exerciseId] || { reps: null, kg: null };
+    const r = entryMaxReps(e), k = entryMaxKg(e);
+    if (r > 0 && (!b.reps || r > b.reps.v)) b.reps = { v: r, date: w.date };
+    if (k > 0 && (!b.kg || k > b.kg.v)) b.kg = { v: k, date: w.date };
+  }));
+  return s.exercises.filter(ex => best[ex.id] && (best[ex.id].reps || best[ex.id].kg))
+    .map(ex => ({ exercise: ex, reps: best[ex.id].reps, kg: best[ex.id].kg }))
+    .sort((a, b) => a.exercise.name.localeCompare(b.exercise.name));
+}
+
 /* Rutina sugerida: la que hace más tiempo no haces (o nunca). */
 export function suggestedRoutineId(s: AppState) {
   if (s.routines.length === 0) return null;

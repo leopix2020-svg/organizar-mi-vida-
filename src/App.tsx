@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as A from './actions';
-import { boot, selectUser, showUserPicker, submitLock } from './api/client';
+import { boot, refreshQuotesIfNeeded, selectUser, showUserPicker, submitLock } from './api/client';
 import { BolsaSection } from './components/BolsaSection';
 import { ComidasSection } from './components/ComidasSection';
 import { EjercicioSection } from './components/EjercicioSection';
@@ -124,6 +124,9 @@ export function App() {
   const s = store.state;
   const theme = s ? s.theme : null;
   useEffect(() => { if (theme) document.documentElement.setAttribute('data-theme', theme); }, [theme]);
+  /* Precios al abrir la app (en cualquier pantalla), para que la foto diaria de la Bolsa se guarde sola. */
+  const loaded = !!s;
+  useEffect(() => { if (loaded) void refreshQuotesIfNeeded(); }, [loaded]);
 
   let content;
   const screen = store.screen;

@@ -163,9 +163,13 @@ describe('app', () => {
   it('si fallan los precios de la bolsa, no los pide en bucle', async () => {
     server.failQuotes = true; server.quoteCalls = 0;
     await startApp();
+    /* Una consulta al abrir la app y otra al entrar a Bolsa; si fallan, no se repiten solas. */
+    expect(server.quoteCalls).toBe(1);
     act(() => setUi({ section: 'bolsa' }));
     await flush(); await flush();
-    expect(server.quoteCalls).toBe(1);
+    expect(server.quoteCalls).toBe(2);
+    await flush(); await flush();
+    expect(server.quoteCalls).toBe(2);
     expect(screen.getByText('Cargando…')).toBeTruthy();
     server.failQuotes = false;
   });

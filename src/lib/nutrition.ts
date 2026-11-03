@@ -1,5 +1,5 @@
 /* Comidas: un registro por día con lo comido, las metas, las quemadas y las calorías de cada comida. */
-import { todayStr } from './format';
+import { dateToStr, todayStr } from './format';
 import { weekBounds } from './workout';
 import type { AppState, Macros, MealKey, NutritionDay } from './types';
 
@@ -39,15 +39,49 @@ export function recentDays(s: AppState, n: number) { return sortedDays(s).slice(
 
 /* Balance de un período (esta semana, este mes o todo): suma del restante de los días anotados. Positivo = ahorradas. */
 export type BalancePeriod = 'week' | 'month' | 'all';
+function inPeriod(date: string, period: BalancePeriod) {
+  if (period === 'all') return true;
+  if (period === 'month') return date.slice(0, 7) === todayStr().slice(0, 7);
+  const w = weekBounds(0);
+  return date >= w.start && date <= w.end;
+}
+export const KCAL_PER_KG = 7700;
 export function balance(s: AppState, period: BalancePeriod) {
-  const w = weekBounds(0), month = todayStr().slice(0, 7);
-  const days = s.nutritionDays.filter(d => period === 'all' || (period === 'week' ? d.date >= w.start && d.date <= w.end : d.date.slice(0, 7) === month));
+  const days = s.nutritionDays.filter(d => inPeriod(d.date, period));
+  const saved = days.reduce((a, d) => a + remaining(d), 0);
   return {
     days: days.length,
     eaten: days.reduce((a, d) => a + d.eaten.kcal, 0),
     target: days.reduce((a, d) => a + dayTarget(d), 0),
-    saved: days.reduce((a, d) => a + remaining(d), 0)
+    saved: saved,
+    /* Kilos aproximados: positivo = perdidos (ahorraste calorías). */
+    kg: saved / KCAL_PER_KG
   };
+}
+/* Cambio real de peso (anotado en Ejercicio) dentro del período; null si hay menos de dos pesos. */
+export function weightChange(s: AppState, period: BalancePeriod) {
+  const ws = s.bodyWeights.filter(b => inPeriod(b.date, period)).sort((a, b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt);
+  if (ws.length < 2) return null;
+  const from = ws[0].kg, to = ws[ws.length - 1].kg;
+  return { from, to, diff: to - from };
+}
+
+/* Rachas: días seguidos anotando (hasta hoy, o hasta ayer si hoy aún no anotas) y días seguidos sin pasarte
+   (hacia atrás desde el último día anotado; un día sin anotar corta la racha). */
+export function streaks(s: AppState, today = todayStr()) {
+  const byDate: Record<string, NutritionDay> = {};
+  s.nutritionDays.forEach(d => { byDate[d.date] = d; });
+  const prev = (date: string) => { const d = new Date(date + 'T00:00:00'); d.setDate(d.getDate() - 1); return dateToStr(d); };
+  let logging = 0;
+  let cur = byDate[today] ? today : prev(today);
+  while (byDate[cur]) { logging++; cur = prev(cur); }
+  const days = sortedDays(s);
+  let underGoal = 0;
+  if (days.length) {
+    cur = days[days.length - 1].date;
+    while (byDate[cur] && remaining(byDate[cur]) >= 0) { underGoal++; cur = prev(cur); }
+  }
+  return { logging, underGoal };
 }
 
 /* Promedio del restante por día de la semana (lunes a domingo) en todo el historial. avg null = ese día nunca se anotó. */

@@ -27,6 +27,18 @@ export function upsertBolsaSnapshot(s: AppState, date: string, snap: { value: nu
   s.bolsaHistory = s.bolsaHistory.filter(h => h.date !== date).concat([{ date: date, value: snap.value, invested: snap.invested }]);
 }
 
+/* Peso de cada acción en el valor actual (la misma acción comprada varias veces se suma). null si falta algún precio. */
+export function bolsaDistribution(s: AppState, quotes: QuotesCache) {
+  const byTicker: Record<string, number> = {};
+  let total = 0;
+  for (const p of s.bolsaPositions || []) {
+    const v = bolsaPositionCurrentValue(p, quotes);
+    if (v === null) return null;
+    byTicker[p.ticker] = (byTicker[p.ticker] || 0) + v; total += v;
+  }
+  return Object.keys(byTicker).map(t => ({ ticker: t, value: byTicker[t], pct: total > 0 ? byTicker[t] / total : 0 })).sort((a, b) => b.value - a.value);
+}
+
 export interface SeriesPoint { v: number; label: string; tooltip: string; }
 /* Gráficas de Bolsa con las fotos diarias reales (no se inventan los días sin foto). */
 export function bolsaHistorySeries(s: AppState) {
