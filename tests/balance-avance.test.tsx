@@ -106,3 +106,39 @@ describe('gráfica de líneas', () => {
 });
 
 function today() { return todayStr(); }
+
+describe('promedio por día de la semana', () => {
+  /* 2026-10-26 es lunes; 2026-10-31 sábado. */
+  const s = defaultState();
+  s.nutritionDays = [
+    day('l1', '2026-10-26', 2000, 2400),        /* lunes +400 */
+    day('l2', '2026-10-19', 2100, 2400, 100),   /* lunes +400 */
+    day('s1', '2026-10-31', 3000, 2500),        /* sábado −500 */
+    day('s2', '2026-10-24', 2800, 2500),        /* sábado −300 */
+    day('m1', '2026-10-28', 2400, 2400)         /* miércoles 0 */
+  ];
+  it('promedia el restante por día y deja vacíos los días sin registros', () => {
+    const w = N.weekdayAverages(s);
+    expect(w.map(d => d.label)).toEqual(['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']);
+    expect(w.map(d => d.avg)).toEqual([400, null, 0, null, null, -400, null]);
+    expect(w.map(d => d.count)).toEqual([2, 0, 1, 0, 0, 2, 0]);
+  });
+  it('la tarjeta dibuja barras arriba (verde) y abajo (rojo), con mejor y peor día', () => {
+    resetUi();
+    const r = render(<ComidasSection s={s} ui={getStore().ui} />);
+    expect(r.container.textContent).toContain('Por día de la semana');
+    expect(r.container.textContent).toContain('Tu mejor día: lunes (+400 kcal) · Tu peor día: sábado (−400 kcal)');
+    const tips = [...r.container.querySelectorAll('g[data-tooltip]')].map(g => g.getAttribute('data-tooltip'));
+    expect(tips).toContain('Lunes: ahorras 400 kcal en promedio (2 días anotados)');
+    expect(tips).toContain('Sábados: te pasas 400 kcal en promedio (2 días anotados)');
+    const fills = [...r.container.querySelectorAll('g[data-tooltip] rect[rx]')].map(b => b.getAttribute('fill'));
+    expect(fills).toEqual(['var(--growth)', 'var(--growth)', 'var(--spend)']);
+    r.unmount();
+  });
+  it('sin días anotados muestra el mensaje inicial', () => {
+    resetUi();
+    const r = render(<ComidasSection s={defaultState()} ui={getStore().ui} />);
+    expect(r.container.textContent).toContain('Anota días para ver tu promedio por día de la semana.');
+    r.unmount();
+  });
+});

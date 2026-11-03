@@ -47,6 +47,7 @@ Riel de navegación con cuatro áreas: **Finanzas**, **Bolsa** (acciones reales 
 - Datos: `nutritionDays`, un registro por fecha con `eaten` y `goal` (`{kcal, carbs, protein, fat}`), `burned` (quemadas con ejercicio) y `meals` (calorías de breakfast/lunch/dinner/snacks). Lógica en `src/lib/nutrition.ts`.
 - Copia el resumen diario de Yazio, que el usuario usa en el teléfono. `goal.kcal` es la meta base; restante = meta + quemadas − comido (negativo = se pasó).
 - Tarjeta **Balance** (2026-10-28): suma el restante de los días anotados de esta semana (lun–dom), este mes o el total; positivo = "Te ahorraste", negativo = "Te pasaste". Los días sin anotar no cuentan.
+- Tarjeta **Por día de la semana** (2026-11-03): barras de lunes a domingo con el restante promedio de todo el historial (arriba verde = ahorras, abajo rojo = te pasas), más el mejor y el peor día. Gráfica `DivergingBarsChart` en `charts.tsx`.
 - Se anota a mano (sin IA ni lectura de fotos, se decidió así). Las comidas suman solas las calorías del día; las metas de un día nuevo se copian del último día.
 - Los 28 días anteriores (29/9–26/10/2026) se cargaron desde screenshots de Yazio vía respaldo (ids `yazio-<fecha>`).
 - Los datos viejos de Salud (`meals`, `calorieGoal`) siguen ocultos y no se mezclan con esta sección.

@@ -49,3 +49,16 @@ export function balance(s: AppState, period: BalancePeriod) {
     saved: days.reduce((a, d) => a + remaining(d), 0)
   };
 }
+
+/* Promedio del restante por día de la semana (lunes a domingo) en todo el historial. avg null = ese día nunca se anotó. */
+export const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+export const WEEKDAY_NAMES = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+const WEEKDAY_PLURALS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábados', 'Domingos'];
+export function weekdayAverages(s: AppState) {
+  const sum = [0, 0, 0, 0, 0, 0, 0], count = [0, 0, 0, 0, 0, 0, 0];
+  s.nutritionDays.forEach(d => {
+    const i = (new Date(d.date + 'T00:00:00').getDay() + 6) % 7;
+    sum[i] += remaining(d); count[i]++;
+  });
+  return WEEKDAYS.map((label, i) => ({ label, name: WEEKDAY_NAMES[i], plural: WEEKDAY_PLURALS[i], count: count[i], avg: count[i] ? sum[i] / count[i] : null }));
+}

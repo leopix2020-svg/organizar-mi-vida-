@@ -113,3 +113,35 @@ export function MiniMoneyLineChart(props: { points: { v: number; label: string; 
     </svg>
   );
 }
+
+/* Barras desde una línea de cero: hacia arriba los positivos (color pos), hacia abajo los negativos (color neg).
+   v null = sin dato (solo se rotula el eje). Cada barra lleva su valor escrito y su tooltip. */
+export function DivergingBarsChart(props: { data: { label: string; v: number | null; tooltip: string }[]; format: (v: number) => string; pos?: string; neg?: string }) {
+  const W = 300, H = 150, padBottom = 20, valueH = 13;
+  const pos = props.pos || 'var(--growth)', neg = props.neg || 'var(--spend)';
+  let maxPos = 0, maxNeg = 0;
+  props.data.forEach(d => { if (d.v === null) return; if (d.v > maxPos) maxPos = d.v; if (-d.v > maxNeg) maxNeg = -d.v; });
+  const span = (maxPos + maxNeg) || 1;
+  const plotTop = valueH, plotH = H - padBottom - valueH * 2;
+  const zeroY = plotTop + (maxPos / span) * plotH;
+  const groupW = W / props.data.length, barW = groupW * 0.5;
+  const xAt = (i: number) => i * groupW + groupW / 2;
+  return (
+    <svg viewBox={'0 0 ' + W + ' ' + H} style={{ width: '100%', height: 'auto', display: 'block' }}>
+      <line x1="0" x2={W} y1={zeroY.toFixed(1)} y2={zeroY.toFixed(1)} stroke="var(--line)" strokeWidth="1"></line>
+      {props.data.map((d, i) => {
+        const label = <text key={'t' + i} x={xAt(i).toFixed(1)} y={H - 6} fontSize="9.5" fill="var(--text-faint)" textAnchor="middle" fontFamily="Inter, sans-serif">{d.label}</text>;
+        if (d.v === null) return label;
+        const h = Math.max(1, (Math.abs(d.v) / span) * plotH);
+        const up = d.v >= 0, color = up ? pos : neg;
+        const y = up ? zeroY - h : zeroY;
+        return <g key={'b' + i} data-tooltip={d.tooltip}>
+          <rect x={(xAt(i) - barW / 2).toFixed(1)} y={y.toFixed(1)} width={barW.toFixed(1)} height={h.toFixed(1)} rx="2" fill={color}></rect>
+          <rect x={(i * groupW).toFixed(1)} y="0" width={groupW.toFixed(1)} height={H - padBottom} fill="transparent"></rect>
+          <text x={xAt(i).toFixed(1)} y={(up ? y - 4 : y + h + 10).toFixed(1)} fontSize="9" fontWeight="600" fill={color} textAnchor="middle" fontFamily="Inter, sans-serif">{props.format(d.v)}</text>
+          {label}
+        </g>;
+      })}
+    </svg>
+  );
+}

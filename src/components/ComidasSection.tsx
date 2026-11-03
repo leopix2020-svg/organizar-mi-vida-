@@ -1,11 +1,11 @@
 /* Sección Comidas: el día (comido, restante, quemado, macros y comidas), gráfica e historial. */
 import { dateToStr, todayStr } from '../lib/format';
-import { MACROS, MEALS, balance, dayTarget, findDay, recentDays, remaining, sortedDays } from '../lib/nutrition';
+import { MACROS, MEALS, balance, dayTarget, weekdayAverages, findDay, recentDays, remaining, sortedDays } from '../lib/nutrition';
 import type { BalancePeriod } from '../lib/nutrition';
 import type { AppState, Macros } from '../lib/types';
 import { shortDayMonth } from '../lib/workout';
 import { askConfirm, clearConfirm, commit, openModal, setUi, showToast, type Ui } from '../store';
-import { MiniLinesChart } from './charts';
+import { DivergingBarsChart, MiniLinesChart } from './charts';
 
 const kcal = (n: number) => Math.round(n).toLocaleString('es-MX') + ' kcal';
 function niceDate(dateStr: string) { return new Date(dateStr + 'T00:00:00').toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' }); }
@@ -103,6 +103,31 @@ function Balance({ s, ui }: { s: AppState; ui: Ui }) {
   </>;
 }
 
+/* Promedio por día de la semana: qué días sueles ahorrar (verde, arriba) y cuáles te pasas (rojo, abajo). */
+const signedKcal = (n: number) => (n >= 0 ? '+' : '−') + Math.round(Math.abs(n)).toLocaleString('es-MX');
+
+function WeekdayAverages({ s }: { s: AppState }) {
+  const days = weekdayAverages(s);
+  const withData = days.filter(d => d.avg !== null);
+  const sorted = withData.slice().sort((a, b) => (b.avg as number) - (a.avg as number));
+  const best = sorted[0], worst = sorted[sorted.length - 1];
+  return <>
+    <div className="section-title">Por día de la semana</div>
+    <div className="card">
+      {withData.length === 0 ? <div className="empty-state" style={{ padding: '10px 0' }}>Anota días para ver tu promedio por día de la semana.</div> : <>
+        <DivergingBarsChart format={signedKcal} data={days.map(d => ({
+          label: d.label, v: d.avg === null ? null : Math.round(d.avg),
+          tooltip: d.avg === null ? '' : d.plural + ': ' + (d.avg >= 0 ? 'ahorras ' : 'te pasas ') + kcal(Math.abs(d.avg)) + ' en promedio (' + d.count + ' ' + (d.count === 1 ? 'día anotado' : 'días anotados') + ')'
+        }))} />
+        <div className="chart-desc" style={{ marginTop: 10 }}>
+          {withData.length < 2 ? 'Con más días anotados verás tu mejor y tu peor día.' :
+            'Tu mejor día: ' + best.name + ' (' + signedKcal(best.avg as number) + ' kcal) · Tu peor día: ' + worst.name + ' (' + signedKcal(worst.avg as number) + ' kcal)'}
+        </div>
+      </>}
+    </div>
+  </>;
+}
+
 function History({ s, ui }: { s: AppState; ui: Ui }) {
   const list = sortedDays(s).reverse();
   async function remove(id: string) {
@@ -141,6 +166,7 @@ export function ComidasSection({ s, ui }: { s: AppState; ui: Ui }) {
         <DayView s={s} ui={ui} />
         <NutritionChart s={s} ui={ui} />
         <Balance s={s} ui={ui} />
+        <WeekdayAverages s={s} />
       </div>
       <div className="dash-col">
         <History s={s} ui={ui} />
