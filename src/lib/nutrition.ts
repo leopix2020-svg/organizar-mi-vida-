@@ -66,6 +66,36 @@ export function weightChange(s: AppState, period: BalancePeriod) {
   return { from, to, diff: to - from };
 }
 
+/* Peso estimado por calorías: cada pesaje real es el punto de partida y se le resta lo ahorrado (restante / 7.700)
+   en los días anotados desde ese pesaje (incluido ese día) hasta el día dado, sin incluirlo. */
+function sortedWeights(s: AppState) { return s.bodyWeights.slice().sort((a, b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt); }
+function savedBetween(s: AppState, from: string, toExclusive: string) {
+  const days = s.nutritionDays.filter(d => d.date >= from && d.date < toExclusive);
+  return { days: days.length, saved: days.reduce((a, d) => a + remaining(d), 0) };
+}
+/* Estimado de hoy desde el último pesaje (cuenta también lo anotado hoy). null si no hay pesos o días anotados desde entonces. */
+export function estimatedWeightToday(s: AppState, today = todayStr()) {
+  const ws = sortedWeights(s);
+  if (!ws.length) return null;
+  const last = ws[ws.length - 1];
+  const tomorrow = new Date(today + 'T00:00:00'); tomorrow.setDate(tomorrow.getDate() + 1);
+  const b = savedBetween(s, last.date, dateToStr(tomorrow));
+  if (b.days === 0) return null;
+  return { kg: last.kg - b.saved / KCAL_PER_KG, from: last, days: b.days };
+}
+/* Para cada pesaje (menos el primero): lo que se esperaba según las calorías desde el pesaje anterior y la diferencia con el real. */
+export function weighInEstimates(s: AppState) {
+  const ws = sortedWeights(s);
+  const out: Record<string, { estimate: number; diff: number }> = {};
+  for (let i = 1; i < ws.length; i++) {
+    const b = savedBetween(s, ws[i - 1].date, ws[i].date);
+    if (b.days === 0) continue;
+    const estimate = ws[i - 1].kg - b.saved / KCAL_PER_KG;
+    out[ws[i].id] = { estimate: estimate, diff: ws[i].kg - estimate };
+  }
+  return out;
+}
+
 /* Rachas: días seguidos anotando (hasta hoy, o hasta ayer si hoy aún no anotas) y días seguidos sin pasarte
    (hacia atrás desde el último día anotado; un día sin anotar corta la racha). */
 export function streaks(s: AppState, today = todayStr()) {

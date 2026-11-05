@@ -5,6 +5,7 @@ import {
   routineWeekTotals, shortDayMonth, sortedWorkouts, workoutRecordNames, workoutsInWeek
 } from '../lib/workout';
 import type { RecordStep } from '../lib/workout';
+import { estimatedWeightToday, weighInEstimates } from '../lib/nutrition';
 import type { AppState } from '../lib/types';
 import { askConfirm, clearConfirm, commit, openModal, setUi, showToast, type Ui } from '../store';
 import { MiniLinesChart } from './charts';
@@ -237,6 +238,18 @@ function MyExercises({ s }: { s: AppState }) {
 
 function BodyWeightCard({ s, ui }: { s: AppState; ui: Ui }) {
   const series = bodyWeightSeries(s);
+  const est = estimatedWeightToday(s);
+  const checks = weighInEstimates(s);
+  const today = todayStr();
+  /* Pesos reales en línea continua; con estimado, un tramo punteado del último pesaje a hoy. */
+  const chartData = series.map((b, i) => ({ label: shortDayMonth(b.date), values: [
+    { v: b.kg as number | null, color: 'var(--growth)', name: 'Peso' },
+    { v: est && i === series.length - 1 ? b.kg : null, color: 'var(--growth)', name: 'Peso', dashed: true }
+  ] }));
+  if (est && series.length && est.from.date !== today) chartData.push({ label: shortDayMonth(today), values: [
+    { v: null, color: 'var(--growth)', name: 'Peso' },
+    { v: est.kg, color: 'var(--growth)', name: 'Estimado', dashed: true }
+  ] });
   const recent = s.bodyWeights.slice().sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt).slice(0, 5);
   async function remove(id: string) {
     clearConfirm('bodyWeight');
@@ -247,11 +260,12 @@ function BodyWeightCard({ s, ui }: { s: AppState; ui: Ui }) {
     <div className="section-title">Peso corporal <button className="btn-small" onClick={() => openModal({ type: 'bodyWeight', id: null })}>+ Anotar</button></div>
     <div className="card">
       {series.length === 0 ? <div className="empty-state" style={{ padding: '10px 0' }}>Anota tu peso para ver cómo va.</div> :
-        series.length > 1 ? <MiniLinesChart s={s} format={kgTxt} fitRange data={series.map(b => ({ label: shortDayMonth(b.date), values: [{ v: b.kg, color: 'var(--growth)', name: 'Peso' }] }))} /> :
+        chartData.length > 1 ? <MiniLinesChart s={s} format={kgTxt} fitRange data={chartData} /> :
           <div className="item-name" style={{ textAlign: 'center' }}>{kgTxt(series[0].kg)}</div>}
+      {est && <div className="chart-desc" style={{ marginTop: 8 }}>Estimado hoy: <strong>{kgTxt(est.kg)}</strong> · según tus calorías desde que te pesaste el {shortDayMonth(est.from.date)} (7.700 kcal ≈ 1 kg)</div>}
       {recent.map(b => (
         <div className="debt-row" style={{ padding: '8px 10px', marginTop: 8, marginBottom: 0 }} key={b.id}>
-          <div><div className="debt-person">{kgTxt(b.kg)}</div><div className="debt-note">{niceDate(b.date)}</div></div>
+          <div><div className="debt-person">{kgTxt(b.kg)}</div><div className="debt-note">{niceDate(b.date)}{checks[b.id] ? ' · estimado ' + kgTxt(checks[b.id].estimate) + ' (' + (checks[b.id].diff >= 0 ? '+' : '−') + (Math.round(Math.abs(checks[b.id].diff) * 10) / 10) + ')' : ''}</div></div>
           <div className="debt-actions">
             <button className="btn-small" onClick={() => openModal({ type: 'bodyWeight', id: b.id })}>Editar</button>
             {ui.confirm.bodyWeight === b.id ?

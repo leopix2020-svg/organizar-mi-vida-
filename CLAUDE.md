@@ -62,6 +62,7 @@ Riel de navegación con cuatro áreas: **Finanzas**, **Bolsa** (acciones reales 
 - En ejercicios sin pesa, `kg` es el lastre opcional (mochila).
 - Un ejercicio es uno solo aunque esté en varias rutinas; así se compara su avance. El catálogo precargado está en `workout.ts` y solo pasa al estado cuando se usa. No se puede borrar un ejercicio ya registrado.
 - Pantalla: resumen de la semana, "Hoy hice…" (sugiere la rutina que hace más tiempo no haces y muestra lo de la vez anterior), avance con gráfica de líneas "General" (reps totales por día de todas las sesiones, opción por defecto), por ejercicio o por rutina, y comparación contra la semana pasada, récords 🏆 (supera la mejor serie anterior en reps o kg; la primera vez no cuenta), tarjeta **Mis récords** (mejor serie en reps y en kg de cada ejercicio; al tocarlo se abre la historia de cada vez que subió la marca, derivada de las sesiones, no guardada aparte), calendario de días entrenados, historial, rutinas, mis ejercicios y peso corporal.
+- Peso corporal: **peso estimado** por calorías (último pesaje − restante de los días anotados desde ese día / 7.700), tramo punteado en la gráfica hasta hoy, y en cada pesaje lo que se esperaba y la diferencia con el real (`estimatedWeightToday`, `weighInEstimates` en `nutrition.ts`).
 - Acordado no incluir: temporizador de descanso ni notas por sesión. Los días de ejercicio viejos de Salud (`exerciseLogs`) no se muestran.
 
 **Finanzas** (pestañas: Resumen, Movimientos, Metas, Wallets, Bolsa, Deudas)

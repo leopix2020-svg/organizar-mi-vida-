@@ -158,3 +158,47 @@ describe('historia de récords', () => {
     r.unmount();
   });
 });
+
+describe('peso estimado por calorías', () => {
+  const T = '2026-11-05';
+  function st() {
+    const s = defaultState();
+    s.bodyWeights = [{ id: 'p1', date: '2026-11-01', kg: 72.5, createdAt: 1 }];
+    s.nutritionDays = [day('2026-11-01', 1630, 2400), day('2026-11-02', 1630, 2400), day('2026-11-04', 3170, 2400)]; /* +770 +770 −770 */
+    return s;
+  }
+  it('estimado de hoy: último peso menos lo ahorrado desde ese día', () => {
+    const e = N.estimatedWeightToday(st(), T)!;
+    expect(e.kg).toBeCloseTo(72.4);
+    expect([e.from.id, e.days]).toEqual(['p1', 3]);
+    expect(N.estimatedWeightToday(defaultState(), T)).toBeNull();
+    const s = st(); s.nutritionDays = [day('2026-10-30', 1630, 2400)];
+    expect(N.estimatedWeightToday(s, T)).toBeNull();
+  });
+  it('al pesarse: lo esperado según las calorías desde el pesaje anterior y la diferencia', () => {
+    const s = st();
+    s.bodyWeights.push({ id: 'p2', date: '2026-11-04', kg: 72.2, createdAt: 2 });
+    const c = N.weighInEstimates(s);
+    expect(Object.keys(c)).toEqual(['p2']);
+    expect(c.p2.estimate).toBeCloseTo(72.3);   /* 72.5 − 1.540/7.700; el 04/11 cuenta para después */
+    expect(c.p2.diff).toBeCloseTo(-0.1);
+    expect(N.estimatedWeightToday(s, T)!.kg).toBeCloseTo(72.3); /* 72.2 + 770/7.700 */
+  });
+  it('la tarjeta muestra el estimado, el tramo punteado y la comparación', () => {
+    vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(T + 'T12:00:00'));
+    resetUi();
+    const s = st();
+    s.bodyWeights.push({ id: 'p2', date: '2026-11-04', kg: 72.2, createdAt: 2 });
+    const r = render(<EjercicioSection s={s} ui={getStore().ui} />);
+    const txt = r.container.textContent!;
+    expect(txt).toContain('Estimado hoy: 72.3 kg · según tus calorías desde que te pesaste el 04/11');
+    expect(txt).toContain('estimado 72.3 kg (−0.1)');
+    const lines = [...r.container.querySelectorAll('polyline')];
+    const dashed = lines.filter(l => l.getAttribute('stroke-dasharray'));
+    expect(dashed.length).toBe(1);
+    expect(dashed[0].getAttribute('points')!.split(' ').length).toBe(2);
+    expect(lines.find(l => !l.getAttribute('stroke-dasharray'))!.getAttribute('points')!.split(' ').length).toBe(2);
+    r.unmount();
+    vi.useRealTimers();
+  });
+});
