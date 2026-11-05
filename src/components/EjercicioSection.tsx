@@ -4,6 +4,7 @@ import {
   bodyWeightSeries, entryTotalReps, exerciseRecords, exerciseIsUsed, exerciseSeries, exerciseWeekTotals, findExercise, generalSeries, generalWeekTotals, routineSeries,
   routineWeekTotals, shortDayMonth, sortedWorkouts, workoutRecordNames, workoutsInWeek
 } from '../lib/workout';
+import type { RecordStep } from '../lib/workout';
 import type { AppState } from '../lib/types';
 import { askConfirm, clearConfirm, commit, openModal, setUi, showToast, type Ui } from '../store';
 import { MiniLinesChart } from './charts';
@@ -186,23 +187,34 @@ function Routines({ s, ui }: { s: AppState; ui: Ui }) {
   </>;
 }
 
-/* Mis récords: mejor serie en reps y en kg de cada ejercicio, con su fecha. */
-function Records({ s }: { s: AppState }) {
+/* Mis récords: mejor serie en reps y en kg de cada ejercicio; al tocarlo se abre la historia de cada vez que subiste. */
+function stepsText(steps: RecordStep[], unit: (n: number) => string) {
+  return steps.map(st => unit(st.v) + ' (' + shortDayMonth(st.date) + (st.diff !== null ? ', +' + (Math.round(st.diff * 10) / 10) : '') + ')').join(' → ');
+}
+function Records({ s, ui }: { s: AppState; ui: Ui }) {
   const list = exerciseRecords(s);
   if (list.length === 0) return null;
   return <>
     <div className="section-title">Mis récords</div>
-    <div className="card" style={{ maxHeight: 320, overflowY: 'auto', padding: 8 }}>
-      {list.map(r => (
-        <div className="debt-row" style={{ padding: '9px 10px' }} key={r.exercise.id}>
-          <div><div className="debt-person">🏆 {r.exercise.name}</div>
+    <div className="card" style={{ maxHeight: 420, overflowY: 'auto', padding: 8 }}>
+      {list.map(r => {
+        const open = ui.exRecordOpen === r.exercise.id;
+        return (
+          <div className="debt-row" style={{ padding: '9px 10px', cursor: 'pointer', display: 'block' }} key={r.exercise.id}
+            onClick={() => setUi({ exRecordOpen: open ? null : r.exercise.id })}>
+            <div className="debt-person">🏆 {r.exercise.name}{r.count > 0 ? ' · ' + r.count + (r.count === 1 ? ' récord' : ' récords') : ''} <span className="debt-note">{open ? '▴' : '▾'}</span></div>
             <div className="debt-note">
               {r.reps ? reps(r.reps.v) + ' en una serie (' + shortDayMonth(r.reps.date) + ')' : ''}
               {r.reps && r.kg ? ' · ' : ''}
               {r.kg ? kgTxt(r.kg.v) + ' (' + shortDayMonth(r.kg.date) + ')' : ''}
-            </div></div>
-        </div>
-      ))}
+            </div>
+            {open && <div className="debt-note" style={{ marginTop: 8, lineHeight: 1.6 }}>
+              {r.repsSteps.length > 0 && <div><strong>Reps:</strong> {stepsText(r.repsSteps, reps)}</div>}
+              {r.kgSteps.length > 0 && <div><strong>Kg:</strong> {stepsText(r.kgSteps, kgTxt)}</div>}
+            </div>}
+          </div>
+        );
+      })}
     </div>
   </>;
 }
@@ -263,7 +275,7 @@ export function EjercicioSection({ s, ui }: { s: AppState; ui: Ui }) {
       </div>
       <div className="dash-col">
         <Routines s={s} ui={ui} />
-        <Records s={s} />
+        <Records s={s} ui={ui} />
         <MyExercises s={s} />
         <BodyWeightCard s={s} ui={ui} />
       </div>

@@ -29,6 +29,8 @@ export interface Ui {
   /* Ejercicio: qué muestra la gráfica de avance ('gn:all', 'ex:<id>' o 'rt:<id>') y qué mes el calendario. */
   exChart: string | null;
   exCalOffset: number;
+  /* Ejercicio cuya historia de récords está abierta (solo uno a la vez). */
+  exRecordOpen: string | null;
   /* Comidas: día que se está viendo (null = hoy), qué muestra la gráfica y el período del balance. */
   nutDate: string | null;
   nutChart: keyof Macros;
@@ -47,7 +49,7 @@ function initialUi(): Ui {
   return {
     section: 'finanzas', tab: 'resumen', monthOffset: 0, viewMode: 'total', currencyTab: null,
     expandedCards: {}, confirm: {}, modal: null, quotesCache: {}, quotesLoading: false,
-    exChart: null, exCalOffset: 0, nutDate: null, nutChart: 'kcal', nutBalance: 'week'
+    exChart: null, exCalOffset: 0, exRecordOpen: null, nutDate: null, nutChart: 'kcal', nutBalance: 'week'
   };
 }
 

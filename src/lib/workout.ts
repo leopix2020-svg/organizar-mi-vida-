@@ -164,18 +164,31 @@ export function workoutRecordNames(s: AppState, w: Workout) {
   return w.entries.filter(e => { const r = entryRecords(s, w, e); return r.reps || r.kg; }).map(e => { const ex = findExercise(s, e.exerciseId); return ex ? ex.name : '?'; });
 }
 
-/* Mis récords: por cada ejercicio hecho, el máximo de reps en una serie y de kg, con la fecha en que se lograron por primera vez. */
+/* Mis récords: por cada ejercicio hecho, la historia de su mejor serie en reps y en kg (se saca de las sesiones,
+   así incluye el pasado y se corrige sola si se edita una sesión). El primer paso es el punto de partida (diff null). */
+export interface RecordStep { v: number; date: string; diff: number | null; }
 export function exerciseRecords(s: AppState) {
-  const best: Record<string, { reps: { v: number; date: string } | null; kg: { v: number; date: string } | null }> = {};
+  const hist: Record<string, { reps: RecordStep[]; kg: RecordStep[] }> = {};
+  const push = (steps: RecordStep[], v: number, date: string) => {
+    const last = steps[steps.length - 1];
+    if (v > 0 && (!last || v > last.v)) steps.push({ v: v, date: date, diff: last ? v - last.v : null });
+  };
   sortedWorkouts(s).forEach(w => w.entries.forEach(e => {
     if (!e.sets.length) return;
-    const b = best[e.exerciseId] = best[e.exerciseId] || { reps: null, kg: null };
-    const r = entryMaxReps(e), k = entryMaxKg(e);
-    if (r > 0 && (!b.reps || r > b.reps.v)) b.reps = { v: r, date: w.date };
-    if (k > 0 && (!b.kg || k > b.kg.v)) b.kg = { v: k, date: w.date };
+    const h = hist[e.exerciseId] = hist[e.exerciseId] || { reps: [], kg: [] };
+    push(h.reps, entryMaxReps(e), w.date);
+    push(h.kg, entryMaxKg(e), w.date);
   }));
-  return s.exercises.filter(ex => best[ex.id] && (best[ex.id].reps || best[ex.id].kg))
-    .map(ex => ({ exercise: ex, reps: best[ex.id].reps, kg: best[ex.id].kg }))
+  return s.exercises.filter(ex => hist[ex.id] && (hist[ex.id].reps.length || hist[ex.id].kg.length))
+    .map(ex => {
+      const h = hist[ex.id];
+      return {
+        exercise: ex, repsSteps: h.reps, kgSteps: h.kg,
+        reps: h.reps.length ? h.reps[h.reps.length - 1] : null, kg: h.kg.length ? h.kg[h.kg.length - 1] : null,
+        /* Veces que superaste tu marca (sin contar el punto de partida). */
+        count: Math.max(0, h.reps.length - 1) + Math.max(0, h.kg.length - 1)
+      };
+    })
     .sort((a, b) => a.exercise.name.localeCompare(b.exercise.name));
 }
 

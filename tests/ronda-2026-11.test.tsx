@@ -98,13 +98,63 @@ describe('mis récords', () => {
       session('w4', '2026-10-12', [{ reps: 10, kg: 12 }], 'curl')
     ];
     expect(W.exerciseRecords(s).map(r => [r.exercise.name, r.reps, r.kg])).toEqual([
-      ['Curl martillo', { v: 10, date: '2026-10-12' }, { v: 12, date: '2026-10-12' }],
-      ['Flexiones', { v: 15, date: '2026-10-01' }, null]
+      ['Curl martillo', { v: 10, date: '2026-10-12', diff: 2 }, { v: 12, date: '2026-10-12', diff: 2 }],
+      ['Flexiones', { v: 15, date: '2026-10-01', diff: null }, null]
     ]);
     resetUi();
     const r = render(<EjercicioSection s={s} ui={getStore().ui} />);
-    expect(r.container.textContent).toContain('🏆 Flexiones15 reps en una serie (01/10)');
-    expect(r.container.textContent).toContain('🏆 Curl martillo10 reps en una serie (12/10) · 12 kg (12/10)');
+    expect(r.container.textContent).toContain('🏆 Flexiones ▾15 reps en una serie (01/10)');
+    expect(r.container.textContent).toContain('🏆 Curl martillo · 2 récords ▾10 reps en una serie (12/10) · 12 kg (12/10)');
+    r.unmount();
+  });
+});
+
+describe('historia de récords', () => {
+  function session(id: string, date: string, sets: { reps: number; kg: number | null }[], createdAt = 1): Workout {
+    return { id, date, routineId: null, routineName: '', entries: [{ exerciseId: 'flex', sets }], createdAt };
+  }
+  function base() {
+    const s = defaultState();
+    s.exercises = [{ id: 'flex', name: 'Flexiones', weighted: false }];
+    s.workouts = [
+      session('w1', '2026-10-01', [{ reps: 12, kg: null }]),
+      session('w2', '2026-10-03', [{ reps: 10, kg: 2.5 }]),
+      session('w3', '2026-10-05', [{ reps: 15, kg: null }]),
+      session('w4', '2026-10-08', [{ reps: 15, kg: 5 }]),
+      session('w5', '2026-10-12', [{ reps: 17, kg: null }])
+    ];
+    return s;
+  }
+  it('cada vez que subiste la marca, con la diferencia; empatar no cuenta', () => {
+    const r = W.exerciseRecords(base())[0];
+    expect(r.repsSteps).toEqual([{ v: 12, date: '2026-10-01', diff: null }, { v: 15, date: '2026-10-05', diff: 3 }, { v: 17, date: '2026-10-12', diff: 2 }]);
+    expect(r.kgSteps).toEqual([{ v: 2.5, date: '2026-10-03', diff: null }, { v: 5, date: '2026-10-08', diff: 2.5 }]);
+    expect(r.count).toBe(3);
+  });
+  it('si se borra una sesión, la historia se corrige sola', () => {
+    const s = base();
+    s.workouts = s.workouts.filter(w => w.id !== 'w3');
+    /* Sin la sesión del 05/10, el 15 se logra recién el 08/10. */
+    expect(W.exerciseRecords(s)[0].repsSteps.map(st => [st.v, st.date])).toEqual([[12, '2026-10-01'], [15, '2026-10-08'], [17, '2026-10-12']]);
+  });
+  it('al tocar se abre la historia; solo una a la vez y se cierra al volver a tocar', () => {
+    resetUi();
+    const s = base();
+    s.exercises.push({ id: 'curl', name: 'Curl', weighted: true });
+    s.workouts.push({ id: 'c1', date: '2026-10-02', routineId: null, routineName: '', entries: [{ exerciseId: 'curl', sets: [{ reps: 8, kg: 10 }] }], createdAt: 1 });
+    let r = render(<EjercicioSection s={s} ui={getStore().ui} />);
+    const row = (name: string) => [...r.container.querySelectorAll('.debt-row')].find(x => x.textContent!.indexOf('🏆 ' + name) === 0) as HTMLElement;
+    expect(r.container.textContent).toContain('🏆 Flexiones · 3 récords');
+    row('Flexiones').click();
+    r.unmount(); r = render(<EjercicioSection s={s} ui={getStore().ui} />);
+    expect(r.container.textContent).toContain('Reps: 12 reps (01/10) → 15 reps (05/10, +3) → 17 reps (12/10, +2)');
+    expect(r.container.textContent).toContain('Kg: 2.5 kg (03/10) → 5 kg (08/10, +2.5)');
+    row('Curl').click();
+    expect(getStore().ui.exRecordOpen).toBe('curl');
+    r.unmount(); r = render(<EjercicioSection s={s} ui={getStore().ui} />);
+    expect(r.container.textContent).not.toContain('Reps: 12 reps');
+    row('Curl').click();
+    expect(getStore().ui.exRecordOpen).toBeNull();
     r.unmount();
   });
 });
