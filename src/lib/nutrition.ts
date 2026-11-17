@@ -126,3 +126,26 @@ export function weekdayAverages(s: AppState) {
   });
   return WEEKDAYS.map((label, i) => ({ label, name: WEEKDAY_NAMES[i], plural: WEEKDAY_PLURALS[i], count: count[i], avg: count[i] ? sum[i] / count[i] : null }));
 }
+
+/* Comparación entre personas (tarjeta "Leo Jr vs Tizi"): solo calorías comidas y meta de cada día anotado,
+   SIN quemadas (cada uno lleva las quemadas distinto). Ahorró = meta − comido; negativo = se pasó. */
+export interface CompareDay { date: string; eaten: number; goal: number; }
+export function compareDays(s: AppState): CompareDay[] {
+  return s.nutritionDays.map(d => ({ date: d.date, eaten: d.eaten.kcal, goal: d.goal.kcal }));
+}
+export function compareTotals(days: CompareDay[], period: BalancePeriod) {
+  const list = days.filter(d => inPeriod(d.date, period));
+  const eaten = list.reduce((a, d) => a + d.eaten, 0);
+  const goal = list.reduce((a, d) => a + d.goal, 0);
+  return { days: list.length, eaten, goal, saved: goal - eaten };
+}
+/* Para la gráfica: cada fecha del período que alguien anotó, con lo comido de cada persona (null = ese día no anotó). */
+export function compareSeries(people: CompareDay[][], period: BalancePeriod) {
+  const dates: string[] = [];
+  people.forEach(days => days.forEach(d => { if (inPeriod(d.date, period) && dates.indexOf(d.date) < 0) dates.push(d.date); }));
+  dates.sort();
+  return dates.map(date => ({
+    date,
+    eaten: people.map(days => { const d = days.find(x => x.date === date); return d ? d.eaten : null; })
+  }));
+}

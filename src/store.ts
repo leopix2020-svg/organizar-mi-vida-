@@ -35,6 +35,8 @@ export interface Ui {
   nutDate: string | null;
   nutChart: keyof Macros;
   nutBalance: BalancePeriod;
+  /* Comidas: período de la comparación entre personas. */
+  nutCompare: BalancePeriod;
 }
 
 export interface Store {
@@ -49,7 +51,7 @@ function initialUi(): Ui {
   return {
     section: 'finanzas', tab: 'resumen', monthOffset: 0, viewMode: 'total', currencyTab: null,
     expandedCards: {}, confirm: {}, modal: null, quotesCache: {}, quotesLoading: false,
-    exChart: null, exCalOffset: 0, exRecordOpen: null, nutDate: null, nutChart: 'kcal', nutBalance: 'week'
+    exChart: null, exCalOffset: 0, exRecordOpen: null, nutDate: null, nutChart: 'kcal', nutBalance: 'week', nutCompare: 'week'
   };
 }
 

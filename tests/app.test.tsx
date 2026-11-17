@@ -65,7 +65,7 @@ describe('app', () => {
     await act(async () => { fireEvent.click(screen.getByText('Guardar día')); });
     await flush();
     /* Gráfica: comido (línea) y meta (punteada); se puede cambiar a proteína. */
-    const lines = () => [...container.querySelectorAll('#main-content polyline')];
+    const lines = () => [...container.querySelector('#main-content svg')!.querySelectorAll('polyline')];
     expect(lines().map(l => l.getAttribute('stroke-dasharray'))).toEqual([null, '4 3']);
     expect(lines().every(l => l.getAttribute('stroke-width') === '1.25')).toBe(true);
     fireEvent.change(container.querySelector('#main-content .chart-select')!, { target: { value: 'protein' } });

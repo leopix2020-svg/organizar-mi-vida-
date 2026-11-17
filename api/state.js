@@ -47,25 +47,30 @@ async function getDb() {
   return client.db(DB_NAME);
 }
 
+// Revisa el usuario y la clave del request. Si algo falla responde el error y devuelve null.
+// La usa también api/compare.js.
+function authUser(req, res) {
+  const user = USERS[req.headers['x-app-user'] || ''];
+  if (!user) {
+    res.status(400).json({ error: 'Usuario desconocido.' });
+    return null;
+  }
+  const expectedSecret = process.env[user.secretEnv];
+  if (!expectedSecret) {
+    res.status(500).json({ error: 'Falta configurar ' + user.secretEnv + ' en Vercel.' });
+    return null;
+  }
+  if ((req.headers['x-app-secret'] || '') !== expectedSecret) {
+    res.status(401).json({ error: 'Clave incorrecta.' });
+    return null;
+  }
+  return user;
+}
+
 module.exports = async function handler(req, res) {
   try {
-    const userId = req.headers['x-app-user'] || '';
-    const user = USERS[userId];
-    if (!user) {
-      res.status(400).json({ error: 'Usuario desconocido.' });
-      return;
-    }
-
-    const expectedSecret = process.env[user.secretEnv];
-    if (!expectedSecret) {
-      res.status(500).json({ error: 'Falta configurar ' + user.secretEnv + ' en Vercel.' });
-      return;
-    }
-    const secret = req.headers['x-app-secret'] || '';
-    if (secret !== expectedSecret) {
-      res.status(401).json({ error: 'Clave incorrecta.' });
-      return;
-    }
+    const user = authUser(req, res);
+    if (!user) return;
 
     const db = await getDb();
     const col = db.collection(COLLECTION);
@@ -141,3 +146,9 @@ module.exports = async function handler(req, res) {
     res.status(500).json({ error: 'Error del servidor.' });
   }
 };
+
+// Compartido con api/compare.js.
+module.exports.USERS = USERS;
+module.exports.COLLECTION = COLLECTION;
+module.exports.getDb = getDb;
+module.exports.authUser = authUser;

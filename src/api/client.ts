@@ -2,6 +2,7 @@
 import { QUOTE_TTL_MS, USERS } from '../lib/constants';
 import { defaultState, normalizeState } from '../lib/state';
 import type { AppState } from '../lib/types';
+import type { CompareDay } from '../lib/nutrition';
 import { bolsaSnapshot, upsertBolsaSnapshot, type QuotesCache } from '../lib/stocks';
 import { todayStr } from '../lib/format';
 import { closeModal, commit, getStore, setSaveHook, setStore, setUi, showToastHold } from '../store';
@@ -122,6 +123,16 @@ export function logout() {
   clearLastUser();
   closeModal();
   showUserPicker();
+}
+
+/* ---- Comparación de Comidas entre personas (solo fecha, comido y meta de cada día) ---- */
+export interface ComparePerson { id: string; days: CompareDay[]; }
+export async function fetchComparison(): Promise<ComparePerson[]> {
+  const res = await fetch('/api/compare', { headers: authHeaders() });
+  if (res.status === 401) handleUnauthorized();
+  if (!res.ok) throw new Error('compare fetch failed');
+  const data = await res.json();
+  return data && Array.isArray(data.users) ? data.users : [];
 }
 
 /* ---- Precios reales de acciones ---- */

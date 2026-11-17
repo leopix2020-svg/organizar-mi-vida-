@@ -1,10 +1,13 @@
-/* Sección Comidas: el día (comido, restante, quemado, macros y comidas), gráfica e historial. */
+/* Sección Comidas: el día (comido, restante, quemado, macros y comidas), gráfica, comparación entre personas e historial. */
+import { useEffect, useState } from 'react';
+import { fetchComparison, type ComparePerson } from '../api/client';
+import { USERS } from '../lib/constants';
 import { dateToStr, todayStr } from '../lib/format';
-import { MACROS, MEALS, balance, dayTarget, streaks, weekdayAverages, weightChange, findDay, recentDays, remaining, sortedDays } from '../lib/nutrition';
+import { MACROS, MEALS, balance, compareDays, compareSeries, compareTotals, dayTarget, streaks, weekdayAverages, weightChange, findDay, recentDays, remaining, sortedDays } from '../lib/nutrition';
 import type { BalancePeriod } from '../lib/nutrition';
 import type { AppState, Macros } from '../lib/types';
 import { shortDayMonth } from '../lib/workout';
-import { askConfirm, clearConfirm, commit, openModal, setUi, showToast, type Ui } from '../store';
+import { askConfirm, clearConfirm, commit, getStore, openModal, setUi, showToast, type Ui } from '../store';
 import { DivergingBarsChart, MiniLinesChart } from './charts';
 
 const kgTxt = (n: number) => (Math.round(n * 100) / 100) + ' kg';
@@ -123,6 +126,56 @@ function Balance({ s, ui }: { s: AppState; ui: Ui }) {
   </>;
 }
 
+/* Comparación entre personas: comido y meta de calorías del período (sin quemadas) y gráfica de lo comido por día.
+   Lo propio sale del estado local (siempre al día); lo de los demás, de /api/compare. */
+const COMPARE_COLORS = ['var(--growth)', 'var(--gold)'];
+
+function Comparison({ s, ui }: { s: AppState; ui: Ui }) {
+  const [people, setPeople] = useState<ComparePerson[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    fetchComparison().then(p => { if (alive) setPeople(p); }, () => { if (alive) setFailed(true); });
+    return () => { alive = false; };
+  }, []);
+  const me = getStore().currentUser;
+  const list = USERS.map((u, i) => {
+    const other = people ? people.find(p => p.id === u.id) : undefined;
+    return { user: u, color: COMPARE_COLORS[i % COMPARE_COLORS.length], days: u.id === me ? compareDays(s) : (other ? other.days : []) };
+  });
+  const series = compareSeries(list.map(l => l.days), ui.nutCompare);
+  return <>
+    <div className="section-title">{USERS.map(u => u.name).join(' vs ')}</div>
+    <div className="card">
+      {failed ? <div className="empty-state" style={{ padding: '10px 0' }}>No se pudo cargar la comparación.</div> :
+        !people ? <div className="empty-state" style={{ padding: '10px 0' }}>Cargando…</div> : <>
+          <select className="chart-select" value={ui.nutCompare} onChange={e => setUi({ nutCompare: e.target.value as BalancePeriod })}>
+            {BALANCE_OPTIONS.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
+          </select>
+          {list.map(l => {
+            const t = compareTotals(l.days, ui.nutCompare);
+            return (
+              <div className="item-top" style={{ padding: '6px 0' }} key={l.user.id}>
+                <div>
+                  <div className="item-name" style={{ fontSize: 14, color: l.color }}>{l.user.name}</div>
+                  <div className="item-sub">{t.days === 0 ? 'Sin días anotados' : 'Comido ' + kcal(t.eaten) + ' · meta ' + kcal(t.goal)}</div>
+                </div>
+                {t.days > 0 && <div className="item-sub" style={t.saved < 0 ? { color: 'var(--spend)' } : undefined}>{t.saved >= 0 ? 'Ahorró ' + kcal(t.saved) : 'Se pasó ' + kcal(-t.saved)}</div>}
+              </div>
+            );
+          })}
+          {series.length >= 2 && <>
+            <MiniLinesChart s={s} format={kcal} labelStep={Math.ceil(series.length / 7)} data={series.map(d => ({
+              label: shortDayMonth(d.date),
+              values: d.eaten.map((v, i) => ({ v, color: list[i].color, name: list[i].user.name }))
+            }))} />
+            <div className="chart-desc" style={{ marginTop: 10 }}>Calorías comidas por día. Ahorró = meta − comido, sin contar quemadas.</div>
+          </>}
+        </>}
+    </div>
+  </>;
+}
+
 /* Promedio por día de la semana: qué días sueles ahorrar (verde, arriba) y cuáles te pasas (rojo, abajo). */
 const signedKcal = (n: number) => (n >= 0 ? '+' : '−') + Math.round(Math.abs(n)).toLocaleString('es-MX');
 
@@ -187,6 +240,7 @@ export function ComidasSection({ s, ui }: { s: AppState; ui: Ui }) {
         <NutritionChart s={s} ui={ui} />
         <Streaks s={s} />
         <Balance s={s} ui={ui} />
+        <Comparison s={s} ui={ui} />
         <WeekdayAverages s={s} />
       </div>
       <div className="dash-col">

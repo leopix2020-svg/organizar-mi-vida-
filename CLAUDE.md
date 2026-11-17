@@ -19,6 +19,7 @@ App personal para organizar la vida, hoy centrada en **finanzas** (Salud y Avanc
 | `src/components/` | `Finanzas.tsx` (todas las pestañas + tablero de escritorio), `BolsaSection.tsx`, `EjercicioSection.tsx`, `ComidasSection.tsx`, `charts.tsx` (donas, barras, líneas), `Overlays.tsx` (aviso y tooltip), `modals/` (un componente por modal; `ModalRoot.tsx` los elige según `ui.modal`). |
 | `tests/` | Pruebas con Vitest + jsdom (`npm test`). `fixtures/expected-numbers.json` son los números calculados con la versión HTML anterior: la lógica debe seguir dándolos igual. |
 | `api/state.js` | Función serverless de Vercel: guarda/lee el estado de cada usuario en MongoDB (GET/PUT/POST), con control de versión e historial (ver sección 3). |
+| `api/compare.js` | Función serverless de Vercel: comparación de Comidas. Con la clave de cualquiera devuelve de **todas** las personas solo `{date, eaten, goal}` (kcal) de cada día de `nutritionDays`. Usa `USERS`, `getDb` y `authUser` exportados por `api/state.js`. |
 | `api/quote.js` | Función serverless de Vercel: precios de acciones vía Finnhub (`?symbols=AAPL,MSFT`). |
 | `vercel.json` | Le dice a Vercel que compile con Vite y publique `dist/`. |
 
@@ -56,6 +57,7 @@ Riel de navegación con cuatro áreas: **Finanzas**, **Bolsa** (acciones reales 
 - Se anota a mano (sin IA ni lectura de fotos, se decidió así). Las comidas suman solas las calorías del día; las metas de un día nuevo se copian del último día.
 - Los 28 días anteriores (29/9–26/10/2026) se cargaron desde screenshots de Yazio vía respaldo (ids `yazio-<fecha>`).
 - Los datos viejos de Salud (`meals`, `calorieGoal`) siguen ocultos y no se mezclan con esta sección.
+- Tarjeta **Leo Jr vs Tizi** (2026-11-17): selector semana/mes/total; por persona comido y meta del período y "Ahorró" / "Se pasó" = meta − comido **sin quemadas** (cada uno las lleva distinto), más gráfica de dos líneas con lo comido por día. Lo propio sale del estado local; lo del otro, de `/api/compare`. Solo usa `nutritionDays`, nunca los datos viejos de Salud (se decidió no borrarlos).
 
 **Ejercicio** (desde 2026-10-26)
 - Datos: `exercises` (nombre + `weighted` = usa pesa), `routines` (nombre + lista de `exerciseIds`, sin repeticiones objetivo), `workouts` (fecha, rutina, y por ejercicio sus series `{reps, kg}`), `bodyWeights`. Todo en kilos.

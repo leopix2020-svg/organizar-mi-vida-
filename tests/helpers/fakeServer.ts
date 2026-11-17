@@ -61,16 +61,19 @@ process.env.MONGODB_URI = 'mongodb://fake';
 process.env.APP_SECRET = 'clave-leo';
 process.env.APP_SECRET_TIZIBIZI = 'clave-tizi';
 const handler = require(path.resolve(__dirname, '../../api/state.js'));
+const compareHandler = require(path.resolve(__dirname, '../../api/compare.js'));
 
 export const stateCol = fakeDb.collection('state');
 export const historyCol = fakeDb.collection('state_history');
 
-export async function callApi(method: string, headers: Record<string, string>, body?: unknown) {
+async function run(h: any, method: string, headers: Record<string, string>, body?: unknown) {
   let status = 200; let payload: any = null;
   const res: any = { status(c: number) { status = c; return res; }, json(b: unknown) { payload = b; return res; }, setHeader() { /* nada */ } };
-  await handler({ method, headers, body, query: {} }, res);
+  await h({ method, headers, body, query: {} }, res);
   return { status, body: payload };
 }
+export async function callApi(method: string, headers: Record<string, string>, body?: unknown) { return run(handler, method, headers, body); }
+export async function callCompare(method: string, headers: Record<string, string>) { return run(compareHandler, method, headers); }
 
 export function seed(user: 'leo' | 'tizi', value: unknown, version?: number) {
   stateCol.docs.length = 0; historyCol.docs.length = 0;
@@ -89,6 +92,10 @@ export async function fakeFetch(url: string, opts: RequestInit = {}) {
     server.quoteCalls++;
     if (server.failQuotes) return { ok: false, status: 500, json: async () => ({ error: 'x' }) };
     return { ok: true, status: 200, json: async () => ({ quotes: {} }) };
+  }
+  if (url.indexOf('/api/compare') === 0) {
+    const c = await callCompare(method, (opts.headers || {}) as Record<string, string>);
+    return { ok: c.status >= 200 && c.status < 300, status: c.status, json: async () => c.body };
   }
   if (server.failGet && method === 'GET') return { ok: false, status: 500, json: async () => ({}) };
   if (method === 'PUT') server.puts++;
